@@ -1,0 +1,108 @@
+:-moz-placeholder {
+    color: #848689; opacity:1;
+}
+
+::-moz-placeholder {
+    color: #848689;opacity:1;
+}
+
+input:-ms-input-placeholder{
+    color: #848689;opacity:1;
+}
+
+input::-webkit-input-placeholder{
+    color: #848689;opacity:1;
+}
+
+
+.k-primary-button{
+  background-color: #20A0FF;
+  font-size: 16px;
+  line-height: 16px;
+  color: white;
+  border-radius: 4px;
+}
+
+.k-danger-button{
+  font-size: 16px;
+  line-height: 16px;
+  color: white;
+  background-color: #FB4747;
+  border-radius: 4px;
+}
+
+.k-default-button{
+  font-size: 16px;
+  line-height: 16px;
+  color: #848689;
+  background-color: white;
+  border-radius: 4px;
+}
+
+.k-input{
+  height: 36px;
+  background: #FFFFFF;
+  border-radius: 4px;
+  color: #333;
+  font-size: 14px;
+  line-height: 14px;
+}
+
+.k-search-input{
+  height: 36px;
+  background: #FFFFFF;
+  border-radius: 4px;
+  color: #333;
+  font-size: 14px;
+  line-height: 14px;
+  width: 250px !important;
+}
+
+.k-search-contaienr{
+  position: relative;
+  display: inline-block;
+  i{
+    position: absolute;
+    width: 35px;
+    height: 100%;
+    right: 0;
+    top: 0;
+    text-align: center;
+    color: #bfcbd9;
+    transition: all .3s;
+    cursor: pointer;
+  }
+  input{
+    height: 36px;
+    width: 100%;
+    background: #FFFFFF;
+    border-radius: 4px;
+    color: #333;
+    font-size: 14px;
+    line-height: 14px;
+    width: 250px !important;
+    border: 1px solid #D3DCE6;
+    padding: 0;
+    padding-left: 10px;
+  }
+
+  input:hover,input:focus{
+    border: 1px solid #129AEE;
+    box-shadow: none;
+  }
+}
+
+
+
+.modal-info-container{
+  width: 100%;
+  font-size: 14px;
+  color: #333333;
+  background-color: white;
+  box-shadow: 0 2px 14px 0 rgba(0,0,0,0.06);
+  border-radius: 2px;
+  line-height: 30px;
+  ul{
+    list-style: none;
+  }
+}
