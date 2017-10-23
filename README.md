@@ -1,1 +1,1 @@
-#front-tourism-manager
+#nearby-travel-biz-manage
