@@ -15,20 +15,20 @@
       </div>
     </div>
     <div class="main-container">
-      <el-table :data="tableData" :highlight-current-row="true" v-loading.body="loading" stripe max-height="500" @row-click="detail">
+      <el-table :data="tableData" :highlight-current-row="true" v-loading.body="loading" stripe max-height="500" @row-click="">
         <el-table-column prop="customerName" label="游客姓名"></el-table-column>
         <el-table-column prop="customerPhoneNumber" label="游客电话" min-width="200"></el-table-column>
         <el-table-column prop="bookingDate" label="预定时间" :formatter="timeDesc" min-width="150"></el-table-column>
         <el-table-column prop="completeDate" label="完成时间" :formatter="timeDesc" min-width="150"></el-table-column>
         <el-table-column prop="createDate" label="创建时间" :formatter="timeDesc" min-width="150"></el-table-column>
-        <el-table-column prop="code" label="验证码"></el-table-column>
+        <!--<el-table-column prop="code" label="验证码"></el-table-column>-->
         <el-table-column prop="statusText" label="状态"></el-table-column>
-        <el-table-column label="操作" min-width="110" fixed="right">
-          <template scope="scope">
-            <el-button type="text" @click.stop="detail(scope.row)">详情</el-button>
-            <el-button type="text" @click.stop="del(scope.row)">核销</el-button>
-          </template>
-        </el-table-column>
+        <!--<el-table-column label="操作" min-width="110" fixed="right">-->
+          <!--<template scope="scope">-->
+            <!--<el-button type="text" @click.stop="detail(scope.row)">详情</el-button>-->
+            <!--<el-button type="text" @click.stop="del(scope.row)">核销</el-button>-->
+          <!--</template>-->
+        <!--</el-table-column>-->
       </el-table>
     </div>
     <div class="k-center" v-show="pageCount>1">
