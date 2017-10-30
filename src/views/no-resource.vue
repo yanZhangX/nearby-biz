@@ -12,7 +12,7 @@
       </p>
     </div>
     <div class="no-resource-footer">
-      联联办公自动化客户关系系统
+      联联周边游商家系统
     </div>
   </div>
 </template>

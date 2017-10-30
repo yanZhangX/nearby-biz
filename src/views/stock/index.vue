@@ -9,7 +9,7 @@
       <div class="l">
         <div class="k-search-contaienr">
           <i class="el-icon-search k-center" @click="search"></i>
-          <input type="text" placeholder="搜索关键词" class="k-search-input" v-model="keywords" @keyup.enter="search">
+          <input type="text" placeholder="请输入电子码" class="k-search-input" v-model="keywords" @keyup.enter="search">
         </div>
       </div>
       <div class="r">
@@ -26,7 +26,7 @@
         <el-table-column prop="completeNumber" label="完成数量"></el-table-column>
         <el-table-column label="操作" min-width="110" fixed="right">
           <template scope="scope">
-            <el-button type="text" @click.stop="detail(scope.row)">旅游情况</el-button>
+            <el-button type="text" @click.stop="detail(scope.row)">预约情况</el-button>
             <el-button type="text" @click.stop="setInventory(scope.row)">设置库存</el-button>
           </template>
         </el-table-column>

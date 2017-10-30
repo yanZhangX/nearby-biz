@@ -2,7 +2,7 @@
   <div class="stockInfo">
     <div class="breadcrumb">
       <el-breadcrumb separator="/">
-        <el-breadcrumb-item>查询</el-breadcrumb-item>
+        <el-breadcrumb-item to="/stock">查询</el-breadcrumb-item>
         <el-breadcrumb-item>旅客情况</el-breadcrumb-item>
       </el-breadcrumb>
     </div>
