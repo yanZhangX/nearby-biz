@@ -19,8 +19,8 @@
 
     <div class="login-footer-container">
       地方联科技成都有限公司版权所有 Copyright 2017 - 2018 <br>
-
-    </div> 联联周边游供应商管理系统
+      联联周边游商家系统
+    </div>
   </div>
 </template>
 

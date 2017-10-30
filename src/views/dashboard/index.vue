@@ -13,7 +13,7 @@
           </div>
           <div class="k-center">
             <h1 class="home-title">
-              欢迎您使用联联周边游供应商管理系统
+              欢迎您使用联联周边游商家系统
             </h1>
           </div>
         </div>
