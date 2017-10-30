@@ -2,7 +2,7 @@
   <div class="login-container">
     <div class="login-box-container">
       <div class="login-logo-container">
-        <img src="/static/img/login/login_logo.png" alt="">
+        <img src="/static/img/login/logo.png" alt="">
       </div>
       <div class="login-form-container">
         <div class="ui input">
@@ -18,9 +18,9 @@
     </div>
 
     <div class="login-footer-container">
-      地方联科技成都有限公司版权所有 Copyright 2016 - 2017 <br>
-      联联办公自动化客户关系系统
-    </div>
+      地方联科技成都有限公司版权所有 Copyright 2017 - 2018 <br>
+
+    </div> 联联周边游供应商管理系统
   </div>
 </template>
 
