@@ -1,7 +1,7 @@
 <template>
   <div class="warpper">
     <div class="header">
-      <h1><router-link to="/">旅游系统</router-link></h1>
+      <h1><router-link to="/">联联周边游商家系统</router-link></h1>
 
       <div class="menu-container" @mouseenter="handleShowUserMenu" @mouseleave="handleHideUserMenu">
         <span class="k-center h60 k-dropdown">

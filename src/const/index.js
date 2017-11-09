@@ -1,6 +1,7 @@
 const appHost = function () {
-  return 'http://101.200.129.132'
+  // return 'https://101.200.129.132'
   // return 'http://crm.difanglian.com'
+  return 'https://ntapi.lianlianlvyou.cn'
 }
 
 const getToken = function () {

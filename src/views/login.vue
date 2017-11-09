@@ -1,48 +1,113 @@
 <template>
   <div class="login-container">
-    <div class="login-box-container">
-      <div class="login-logo-container">
-        <img src="/static/img/login/logo.png" alt="">
+
+    <div class="blur">
+    </div>
+
+
+    <!--<canvas id="canvas"></canvas>-->
+    <div id="login-container">
+      <div class="login-box-container">
+        <div class="login-logo-container">
+          <img src="/static/img/login/logo.png" alt="">
+        </div>
+        <div class="login-form-container">
+          <div class="ui input">
+            <input type="text" class="ipt-text" v-model="login.userName" placeholder="请输入用户名">
+          </div>
+          <div class="ui input">
+            <input type="password" class="ipt-text" v-model="login.password" placeholder="请输入密码">
+          </div>
+          <div class="ui button">
+            <button type="button" class="btn-login" name="button" @click="onSubmit">登录</button>
+          </div>
+        </div>
       </div>
-      <div class="login-form-container">
-        <div class="ui input">
-          <input type="text" class="ipt-text" v-model="login.userName" placeholder="请输入用户名">
-        </div>
-        <div class="ui input">
-          <input type="password" class="ipt-text" v-model="login.password" placeholder="请输入密码">
-        </div>
-        <div class="ui button">
-          <button type="button" class="btn-login" name="button" @click="onSubmit">登录</button>
-        </div>
+
+      <div class="login-left-container">
+        <div class="welcome">Welcome!</div>
+        <div class="content">Today will be great!</div>
       </div>
     </div>
 
     <div class="login-footer-container">
       地方联科技成都有限公司版权所有 Copyright 2017 - 2018 <br>
-      联联周边游商家系统
+      欢迎您使用联联周边游商家系统
     </div>
   </div>
 </template>
 
 <style lang="scss" scoped>
 
+  .blur{
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    margin: 0 auto;
+    left: 0;
+    top: 0;
+    filter: blur(5px);
+    -webkit-filter: blur(5px);
+    -moz-filter: blur(5px);
+    -ms-filter: blur(5px);
+    -o-filter: blur(5px);
+    z-index: 0;
+    display: block;
+    background-image: url('/static/img/login/login_bg.jpg');
+  }
+
+  #canvas {
+    position: absolute;
+    margin: 0 auto;
+    left: 0;
+    top: 0;
+  }
+
   .login-container{
     width: 100%;
     height: 100%;
     background: rgba(255,255,255,0.00);
-    background-image: url('/static/img/login/login_bg.jpg');
-    background-repeat: round;
-    position: relative;
+    /*background-image: url('/static/img/login/bg.jpg');*/
+    /*background-repeat: round;*/
+    /*position: relative;*/
+    /*overflow: hidden;*/
+  }
+
+  #login-container {
+    margin: 0 auto;
+    padding: 1em;
+    /*border-radius: .3em;*/
+    width: 776px;
+    box-shadow: 0 0 0 1px hsla(0,0%,100%,.3) inset, 0 .5em 1em rgba(0, 0, 0, 0.6);
+    /*text-shadow: 0 1px 1px hsla(0,0%,100%,.3);*/
+    background: hsla(0,0%,100%,0.00);
+    top: calc(50% - 227px);
+    left: calc(50% - 338px);
+    position: absolute;
   }
 
   .login-box-container{
     background: #FFFFFF;
-    border-radius: 4px;
     width: 338px;
-    position: absolute;
-    top: calc(50% - 227px);
-    left: calc(50% - 169px);
-    z-index: 2;
+    float: right;
+    margin-top: -1em;
+    margin-bottom: -1em;
+    margin-right: -1em;
+    /*position: absolute;*/
+    /*z-index: 2;*/
+  }
+
+  .login-left-container{
+    float: left;
+    width: 338px;
+    color: #29a0cf;
+    .welcome {
+      font-size: 60px;
+    }
+
+    .content {
+      font-size: 32px;
+    }
   }
 
   .login-logo-container{

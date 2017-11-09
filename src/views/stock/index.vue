@@ -11,9 +11,10 @@
           <i class="el-icon-search k-center" @click="search"></i>
           <input type="text" placeholder="请输入电子码" class="k-search-input" v-model="keywords" @keyup.enter="search">
         </div>
+
       </div>
       <div class="r">
-
+        <el-button type="primary" icon="plus" @click="addStockModalAction">新增库存</el-button>
       </div>
     </div>
     <div class="main-container">
@@ -60,9 +61,9 @@
           <ul>
             <li><span>游客姓名：</span><span>{{info.customerName}}</span></li>
             <li><span>游客电话：</span><span>{{info.customerPhoneNumber}}</span></li>
-            <li><span>预定时间：</span><span>{{info.bookingDate | infoTimeFormatter}}</span></li>
-            <li><span>完成时间：</span><span>{{info.completeDate | infoTimeFormatter}}</span></li>
-            <li><span>创建时间：</span><span>{{info.createDate | infoTimeFormatter}}</span></li>
+            <li><span>预定时间：</span><span>{{info.bookingDate | infoTimeFormatter('yyyy-MM-dd hh:mm:ss')}}</span></li>
+            <li><span>完成时间：</span><span>{{info.completeDate | infoTimeFormatter('yyyy-MM-dd hh:mm:ss')}}</span></li>
+            <li><span>创建时间：</span><span>{{info.createDate | infoTimeFormatter('yyyy-MM-dd hh:mm:ss')}}</span></li>
             <li><span>验证码：</span><span>{{info.code}}</span></li>
             <li><span>状态：</span><span>{{info.statusText}}</span></li>
           </ul>
@@ -73,6 +74,49 @@
         <div class="k-center">
           <el-button @click="travelTicket = false">关闭</el-button>
           <el-button type="primary" @click="del(info)" v-if="info.status === 1 || info.status === 2">核销</el-button>
+        </div>
+      </div>
+    </el-dialog>
+    <el-dialog v-model="addStockModal" title="新增库存" :close-on-click-modal="false" :show-close="false" close-on-press-escape>
+      <div class="modal-info-container">
+        <div class="info-content-container">
+          <ul>
+            <li>
+              <span>产品名称：</span>
+              <span>
+                <el-select v-model="product.selectedProductIndex" placeholder="请选择产品名称" @change="productComboSelected" style="width: 100%;">
+                  <el-option v-for="(item, rowIndex) in productCombos" :key="item.id" :label="item.title" :value="rowIndex"></el-option>
+                </el-select>
+              </span>
+            </li>
+            <li>
+              <span>套餐名称：</span>
+              <span>
+                <el-select v-model="product.productItemId" placeholder="请选择套餐名称" no-data-text="请先选择产品名称" style="width: 100%;">
+                  <el-option v-for="item in productCombo.items" :key="item.id" :label="item.subTitle" :value="item.id"></el-option>
+                </el-select>
+              </span>
+            </li>
+            <li>
+              <span>库存数量：</span>
+              <span>
+                <el-input v-model="product.s" placeholder="请库存数量" size="small"></el-input>
+              </span>
+            </li>
+            <li>
+              <span>可预约时间：</span>
+              <span>
+                <el-date-picker  style="width: 100%;" v-model="product.dateAppointmentDate" type="daterange" start-placeholder="请选择开始日期" end-placeholder="请选择结束日期" range-separator="至" :picker-options="dateAppointmentOptions"></el-date-picker>
+              </span>
+            </li>
+          </ul>
+        </div>
+
+      </div>
+      <div slot="footer" class="dialog-footer">
+        <div class="k-center">
+          <el-button @click="addStockModal = false">关闭</el-button>
+          <el-button type="primary" @click="addStock">新增</el-button>
         </div>
       </div>
     </el-dialog>
@@ -99,6 +143,7 @@
         importLoading: false,
         isModalOpen: false,
         travelTicket: false,
+        addStockModal: false,
         info: {
           customerName: '',
           customerPhoneNumber: '',
@@ -108,6 +153,22 @@
           createDate: '',
           code: '',
           statusText: ''
+        },
+        productCombos: [],
+        productCombo: {
+          items: []
+        },
+        product: {
+          selectedProductIndex: '',
+          s: '',
+          productItemId: '',
+          day: '',
+          dateAppointmentDate: []
+        },
+        dateAppointmentOptions: {
+          disabledDate: (startDate, endDate) => {
+            return startDate <= new Date()
+          }
         }
       }
     },
@@ -232,10 +293,102 @@
             })
           })
         }
+      },
+      addStockModalAction () {
+        this.getProductTypeAndItem()
+        this.addStockModal = true
+      },
+      getProductTypeAndItem () {
+        if (this.productCombos.length === 0) {
+          this.$http.get('/v1/a/biz/product').then(function (res) {
+            if (res.body.errMessage) {
+              this.$message({
+                showClose: true,
+                message: res.body.errMessage,
+                type: 'error'
+              })
+            } else {
+              this.productCombos = this.productCombos.concat(res.body.data)
+            }
+          })
+        }
+      },
+      productComboSelected () {
+        this.productCombo = this.productCombos[this.product.selectedProductIndex]
+        this.product.productItemId = ''
+      },
+      addStock () {
+        if (this.product.selectedProductIndex === null || this.product.selectedProductIndex === '') {
+          this.$message({
+            showClose: true,
+            message: '请选择产品',
+            type: 'error'
+          })
+          return
+        }
+        if (this.product.productItemId === null || this.product.productItemId === '') {
+          this.$message({
+            showClose: true,
+            message: '请选择套餐',
+            type: 'error'
+          })
+          return
+        }
+        if (this.product.s === null || this.product.s === '' || parseInt(this.product.s) === 0) {
+          this.$message({
+            showClose: true,
+            message: '请设置库存',
+            type: 'error'
+          })
+          return
+        }
+        console.log(this.product.s)
+        if (this.product.dateAppointmentDate === undefined) {
+          this.$message({
+            showClose: true,
+            message: '请设置预约时间',
+            type: 'error'
+          })
+          return
+        }
+        var start = Date.parse(this.product.dateAppointmentDate[0])
+        var end = Date.parse(this.product.dateAppointmentDate[1])
+        var timestamp = end - start
+        this.$http.post('/v1/a/biz/stock/add', {
+          params: {
+            s: this.product.s,
+            productItemId: this.product.productItemId,
+            day: timestamp,
+            status: 0
+          }
+        }).then((res) => {
+          if (res.body.errMessage) {
+            this.$message({
+              showClose: true,
+              message: res.body.errMessage,
+              type: 'error'
+            })
+          } else {
+            this.$message({
+              showClose: true,
+              message: '新增库存成功',
+              type: 'success'
+            })
+            this.addStockModal = false
+          }
+        })
+      },
+      initAppointmentStartAndEndDate () {
+        var start = new Date()
+        var end = new Date()
+        start.setTime(start.getTime() + 3600 * 1000 * 24)
+        end.setTime(end.getTime() + 3600 * 1000 * 24 * 7)
+        this.product.dateAppointmentDate = [start, end]
       }
     },
     created () {
       this.getTableData()
+      this.initAppointmentStartAndEndDate()
     }
   }
 </script>
