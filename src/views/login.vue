@@ -13,10 +13,10 @@
         </div>
         <div class="login-form-container">
           <div class="ui input">
-            <input type="text" class="ipt-text" v-model="login.userName" placeholder="请输入用户名">
+            <input type="text" class="ipt-text" v-focus v-model="login.userName" placeholder="请输入用户名" @keyup.enter="passwordFocus">
           </div>
           <div class="ui input">
-            <input type="password" class="ipt-text" v-model="login.password" placeholder="请输入密码">
+            <input type="password" id="password" class="ipt-text" v-model="login.password" placeholder="请输入密码" @keyup.enter="onSubmit">
           </div>
           <div class="ui button">
             <button type="button" class="btn-login" name="button" @click="onSubmit">登录</button>
@@ -179,6 +179,10 @@ export default {
     }
   },
   methods: {
+    passwordFocus () {
+      var password = document.getElementById('password')
+      password.focus()
+    },
     switchOld: function () {
       location.href = 'http://crm.2tai.net'
     },

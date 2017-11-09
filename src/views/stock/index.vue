@@ -9,28 +9,23 @@
       <div class="l">
         <div class="k-search-contaienr">
           <i class="el-icon-search k-center" @click="search"></i>
-          <input type="text" placeholder="请输入电子码" class="k-search-input" v-model="keywords" @keyup.enter="search">
+          <input type="text" placeholder="请输入电子码" v-focus class="k-search-input" v-model="keywords" @keyup.enter="search">
         </div>
 
       </div>
       <div class="r">
-        <el-button type="primary" icon="plus" @click="addStockModalAction">新增库存</el-button>
+        <!--<el-button type="primary" icon="plus" @click="addStockModalAction">新增库存</el-button>-->
       </div>
     </div>
     <div class="main-container">
       <el-table :data="tableData" :highlight-current-row="true" v-loading.body="loading" stripe scope="scope" max-height="500">
-        <el-table-column prop="bookingDay" label="预定时间"></el-table-column>
-        <el-table-column prop="productName" label="产品名称" min-width="200"></el-table-column>
-        <el-table-column prop="productItemName" label="套餐" min-width="100"></el-table-column>
-        <el-table-column prop="stockNumber" label="库存数量"></el-table-column>
-        <el-table-column prop="bookingNumber" label="预定数量"></el-table-column>
-        <el-table-column prop="completeNumber" label="完成数量"></el-table-column>
-        <el-table-column label="操作" min-width="110" fixed="right">
-          <template scope="scope">
-            <el-button type="text" @click.stop="detail(scope.row)">预约情况</el-button>
-            <el-button type="text" @click.stop="setInventory(scope.row)">设置库存</el-button>
-          </template>
-        </el-table-column>
+        <el-table-column prop="orderid" label="订单号"></el-table-column>
+        <el-table-column prop="customerName" label="顾客姓名"></el-table-column>
+        <el-table-column prop="customerPhoneNumber" label="顾客手机号"></el-table-column>
+        <el-table-column prop="code" label="电子码"></el-table-column>
+        <el-table-column prop="completeDate" :formatter="dateFormat" label="核销时间" min-width="100"></el-table-column>
+        <el-table-column prop="title" label="产品名称" min-width="200"></el-table-column>
+        <el-table-column prop="subTitle" label="套餐" min-width="100"></el-table-column>
       </el-table>
     </div>
     <div class="k-center" v-show="pageCount>1">
@@ -124,6 +119,7 @@
 </template>
 
 <script>
+  import moment from 'moment'
   import router from 'ROUTE'
   export default {
     name: 'stock',
@@ -133,9 +129,10 @@
           id: '',
           stockNumber: ''
         },
+        focusStatus: true,
         tableData: null,
         keywords: '',
-        loading: true,
+        loading: false,
         currentPage: 1,
         pageSize: 15,
         total: null,
@@ -174,9 +171,15 @@
     },
     computed: {},
     methods: {
+      dateFormat (row) {
+        if (row.completeDate) {
+          return moment(row.completeDate).format('YYYY-MM-DD HH:mm:ss')
+        } else {
+          return ''
+        }
+      },
       getTableData () {
-        this.loading = false
-        this.$http.get('/v1/a/biz/booking', {
+        this.$http.get('/v1/a/biz/code/list', {
           params: {
             pageSize: this.pageSize,
             order: this.sortType,
@@ -184,7 +187,6 @@
             status: this.state
           }
         }).then(res => {
-          this.loading = false
           if (res.body.errMessage) {
             this.$message.error(res.body.errMessage)
           } else {
@@ -193,7 +195,20 @@
             this.pageCount = res.body.data.pageCount
           }
         }).catch(res => {
-          this.loading = false
+          this.$message.error('服务器繁忙！')
+        })
+      },
+      getData () {
+        this.$http.get('/v1/a/biz/code/list', {
+          params: {
+            pageSize: this.pageSize,
+            order: this.sortType,
+            pageIndex: this.currentPage,
+            status: this.state
+          }
+        }).then(res => {
+          console.log('/v1/a/biz/code/list \n' + res)
+        }).catch(res => {
           this.$message.error('服务器繁忙！')
         })
       },
