@@ -20,8 +20,8 @@
     <div class="main-container">
       <el-table :data="tableData" :highlight-current-row="true" v-loading.body="loading" stripe scope="scope" max-height="500">
         <el-table-column prop="orderid" label="订单号"></el-table-column>
-        <el-table-column prop="customerName" label="顾客姓名"></el-table-column>
-        <el-table-column prop="customerPhoneNumber" label="顾客手机号"></el-table-column>
+        <!--<el-table-column prop="customerName" label="顾客姓名"></el-table-column>-->
+        <!--<el-table-column prop="customerPhoneNumber" label="顾客手机号"></el-table-column>-->
         <el-table-column prop="code" label="电子码"></el-table-column>
         <el-table-column prop="completeDate" :formatter="dateFormat" label="核销时间" min-width="100"></el-table-column>
         <el-table-column prop="title" label="产品名称" min-width="200"></el-table-column>
@@ -50,16 +50,16 @@
       </div>
     </el-dialog>
 
-    <el-dialog v-model="travelTicket" title="旅游票信息" :close-on-click-modal="false" :show-close="false" close-on-press-escape>
+    <el-dialog v-model="travelTicket" title="电子码信息" :close-on-click-modal="false" :show-close="false" close-on-press-escape >
       <div class="modal-info-container">
         <div class="info-content-container">
           <ul>
             <li><span>游客姓名：</span><span>{{info.customerName}}</span></li>
             <li><span>游客电话：</span><span>{{info.customerPhoneNumber}}</span></li>
-            <li><span>预定时间：</span><span>{{info.bookingDate | infoTimeFormatter('yyyy-MM-dd hh:mm:ss')}}</span></li>
-            <li><span>完成时间：</span><span>{{info.completeDate | infoTimeFormatter('yyyy-MM-dd hh:mm:ss')}}</span></li>
-            <li><span>创建时间：</span><span>{{info.createDate | infoTimeFormatter('yyyy-MM-dd hh:mm:ss')}}</span></li>
-            <li><span>验证码：</span><span>{{info.code}}</span></li>
+            <!--<li><span>预定时间：</span><span>{{info.bookingDate | infoTimeFormatter('yyyy-MM-dd hh:mm:ss')}}</span></li>-->
+            <!--<li><span>完成时间：</span><span>{{info.completeDate | infoTimeFormatter('yyyy-MM-dd hh:mm:ss')}}</span></li>-->
+            <li><span>下单时间：</span><span>{{info.createDate | infoTimeFormatter('yyyy-MM-dd hh:mm:ss')}}</span></li>
+            <li><span>电子码：</span><span>{{info.code}}</span></li>
             <li><span>状态：</span><span>{{info.statusText}}</span></li>
           </ul>
         </div>
