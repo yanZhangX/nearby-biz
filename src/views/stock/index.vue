@@ -34,6 +34,10 @@
       </el-pagination>
     </div>
 
+    <div  class="filter">
+      <span>已完成订单注销：共{{this.rowCount}}条</span>
+    </div>
+
     <el-dialog v-model="isModalOpen" title="设置库存" :close-on-click-modal="false" :show-close="false" close-on-press-escape>
       <div class="modal-info-container">
         <div class="info-content-container">
@@ -54,8 +58,8 @@
       <div class="modal-info-container">
         <div class="info-content-container">
           <ul>
-            <li><span>游客姓名：</span><span>{{info.customerName}}</span></li>
-            <li><span>游客电话：</span><span>{{info.customerPhoneNumber}}</span></li>
+            <!--<li><span>游客姓名：</span><span>{{info.customerName}}</span></li>-->
+            <!--<li><span>游客电话：</span><span>{{info.customerPhoneNumber}}</span></li>-->
             <!--<li><span>预定时间：</span><span>{{info.bookingDate | infoTimeFormatter('yyyy-MM-dd hh:mm:ss')}}</span></li>-->
             <!--<li><span>完成时间：</span><span>{{info.completeDate | infoTimeFormatter('yyyy-MM-dd hh:mm:ss')}}</span></li>-->
             <li><span>下单时间：</span><span>{{info.createDate | infoTimeFormatter('yyyy-MM-dd hh:mm:ss')}}</span></li>
@@ -137,6 +141,7 @@
         pageSize: 15,
         total: null,
         pageCount: 0,
+        rowCount: 0,
         importLoading: false,
         isModalOpen: false,
         travelTicket: false,
@@ -193,6 +198,7 @@
             this.tableData = res.body.data.data
             this.total = res.body.data.rowCount
             this.pageCount = res.body.data.pageCount
+            this.rowCount = res.body.data.rowCount
           }
         }).catch(res => {
           this.$message.error('服务器繁忙！')
