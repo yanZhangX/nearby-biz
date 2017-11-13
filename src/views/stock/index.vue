@@ -35,7 +35,7 @@
     </div>
 
     <div  class="filter">
-      <span>已完成订单注销：共{{this.rowCount}}条</span>
+      <span>已完成订单核销：共{{this.rowCount}}条</span>
     </div>
 
     <el-dialog v-model="isModalOpen" title="设置库存" :close-on-click-modal="false" :show-close="false" close-on-press-escape>
