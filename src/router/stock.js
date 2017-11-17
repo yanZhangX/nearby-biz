@@ -13,6 +13,13 @@ export default {
       component (resolve) {
         require(['VIEW/stock/show'], resolve)
       }
+    },
+    {
+      path: '/stock',
+      name: 'stockManage',
+      component (resolve) {
+        require(['VIEW/stock/manage'], resolve)
+      }
     }
   ]
 }

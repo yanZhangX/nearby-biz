@@ -2,37 +2,36 @@
   <div class="stock">
     <div class="breadcrumb">
       <el-breadcrumb separator="/">
-        <el-breadcrumb-item>查询</el-breadcrumb-item>
+        <el-breadcrumb-item>库存管理</el-breadcrumb-item>
       </el-breadcrumb>
     </div>
     <div class="filter">
-      <div class="l">
-        <div class="k-search-contaienr">
-          <i class="el-icon-search k-center" @click="search"></i>
-          <input type="text" placeholder="请输入电子码" v-focus class="k-search-input" v-model="keywords" @keyup.enter="search">
-        </div>
-
+      <div class="r">
+        <el-button type="primary" icon="plus" @click="addStockModalAction">新增库存</el-button>
       </div>
     </div>
     <div class="main-container">
       <el-table :data="tableData" :highlight-current-row="true" v-loading.body="loading" stripe scope="scope" max-height="500">
-        <el-table-column prop="orderid" label="订单号"></el-table-column>
+        <el-table-column prop="date" label="日期" min-width="100"></el-table-column>
+        <el-table-column prop="type" label="型号"></el-table-column>
         <!--<el-table-column prop="customerName" label="顾客姓名"></el-table-column>-->
         <!--<el-table-column prop="customerPhoneNumber" label="顾客手机号"></el-table-column>-->
-        <el-table-column prop="code" label="电子码"></el-table-column>
-        <el-table-column prop="completeDate" :formatter="dateFormat" label="核销时间" min-width="100"></el-table-column>
-        <el-table-column prop="title" label="产品名称" min-width="200"></el-table-column>
-        <el-table-column prop="subTitle" label="套餐" min-width="100"></el-table-column>
+        <el-table-column prop="stock" label="库存量"></el-table-column>
+        <el-table-column prop="bookStock" label="已预约"></el-table-column>
+        <el-table-column prop="downStock" label="已核销"></el-table-column>
+        <el-table-column prop="title" label="产品名称"></el-table-column>
+        <el-table-column label="操作" width="180" fixed="right">
+          <template scope="scope">
+            <el-button type="text" @click.stop="openModal(scope)">管理库存</el-button>
+            <el-button type="text" @click.stop="openModal(scope)">查看预约</el-button>
+          </template>
+        </el-table-column>
       </el-table>
     </div>
     <div class="k-center" v-show="pageCount>1">
       <el-pagination @current-change="pageIndexChange" :current-page="currentPage" :page-size="pageSize"
         layout="total, prev, pager, next, jumper" :total="total">
       </el-pagination>
-    </div>
-
-    <div  class="filter">
-      <span>已完成订单核销：共{{this.rowCount}}条</span>
     </div>
 
     <el-dialog v-model="isModalOpen" title="设置库存" :close-on-click-modal="false" :show-close="false" close-on-press-escape>
@@ -123,7 +122,7 @@
   import moment from 'moment'
   import router from 'ROUTE'
   export default {
-    name: 'stock',
+    name: 'stockManage',
     data () {
       return {
         stock: {
@@ -175,7 +174,7 @@
     methods: {
       dateFormat (row) {
         if (row.completeDate) {
-          return moment(row.completeDate).format('YYYY-MM-DD HH:mm:ss')
+          return moment(row.completeDate).format('YYYY-MM-DD')
         } else {
           return ''
         }
@@ -192,10 +191,14 @@
           if (res.body.errMessage) {
             this.$message.error(res.body.errMessage)
           } else {
-            this.tableData = res.body.data.data
-            this.total = res.body.data.rowCount
-            this.pageCount = res.body.data.pageCount
-            this.rowCount = res.body.data.rowCount
+            this.tableData = [
+              {date: '2017-11-18', type: '豪华标间/单间', stock: '80', bookStock: '40', downStock: '20', title: '温泉酒店'},
+              {date: '2017-11-18', type: '豪华套间', stock: '80', bookStock: '40', downStock: '20', title: '温泉酒店'},
+              {date: '2017-11-19', type: '豪华标间/单间', stock: '80', bookStock: '10', downStock: '10', title: '温泉酒店'},
+              {date: '2017-11-19', type: '豪华套间', stock: '80', bookStock: '10', downStock: '10', title: '温泉酒店'}]
+            this.total = 4
+            this.pageCount = 1
+            this.rowCount = 4
           }
         }).catch(res => {
           this.$message.error('服务器繁忙！')
