@@ -13,6 +13,7 @@
     <div class="main-container">
       <el-table :data="tableData" :highlight-current-row="true" v-loading.body="loading" stripe scope="scope" max-height="500">
         <el-table-column prop="bookingDay" label="日期" min-width="100"></el-table-column>
+        <el-table-column prop="bookingDay" :formatter="WeekFormat" label="日期" min-width="100"></el-table-column>
         <el-table-column prop="bookingItemText" label="型号"></el-table-column>
         <el-table-column prop="stockAmount" label="库存量"></el-table-column>
         <el-table-column prop="bookingAmount" label="已预约"></el-table-column>
@@ -124,8 +125,8 @@
           productId: '',
           items: [],
           kinds: [],
-          productItemId: '',
-          productItemKindId: '',
+          productItemId: null,
+          productItemKindId: null,
           selectedProductItemIndex: null,
           productStock: 10,
           day: '',
@@ -149,6 +150,39 @@
           return moment(row.completeDate).format('YYYY-MM-DD')
         } else {
           return ''
+        }
+      },
+      WeekFormat (row) {
+        if (row.bookingDay) {
+          var date = new Date(row.bookingDay)
+          var week = ''
+          var weekDay = date.getDay()
+          switch (weekDay) {
+            case 0:
+              week = '星期日'
+              break
+            case 1:
+              week = '星期一'
+              break
+            case 2:
+              week = '星期二'
+              break
+            case 3:
+              week = '星期三'
+              break
+            case 4:
+              week = '星期四'
+              break
+            case 5:
+              week = '星期五'
+              break
+            case 6:
+              week = '星期六'
+              break
+          }
+          return `${week}`
+        } else {
+          return row.bookingDay
         }
       },
       getTableData () {
@@ -202,7 +236,7 @@
         this.$http.post('/v1/a/biz/stock/add', {
           s: this.product.productStock,
           productItemId: this.product.productItemId,
-          bookingItemId: this.product.productItemKindId,
+          bookingItemId: (this.product.productItemKindId === null) ? 0 : this.products.product.productItemKindId,
           status: 0,
           dayStart: moment(start).format('YYYY-MM-DD'),
           dayEnd: moment(end).format('YYYY-MM-DD')
@@ -230,6 +264,9 @@
         start.setTime(start.getTime() + 3600 * 1000 * 24)
         end.setTime(end.getTime() + 3600 * 1000 * 24 * 7)
         this.product.dateAppointmentDate = [start, end]
+
+//        var row = {bookingDay: '2020-10-01'}
+//        console.log(this.dateWeekFormat(row))
       },
       productSelecteChanged () {
         let product = this.products[this.product.selectedProductIndex]
@@ -242,8 +279,10 @@
         var item = this.product.items[this.product.selectedProductItemIndex]
         this.product.productItemId = item.id
         this.product.kinds = item.items
-        var kind = item.items[0]
-        this.product.productItemKindId = kind.id
+        if (item.items !== null && item.items.length !== 0) {
+          var kind = item.items[0]
+          this.product.productItemKindId = kind.id
+        }
       },
       manageProductStock (row) {
         this.stock.stockId = row.stockId
