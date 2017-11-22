@@ -117,22 +117,7 @@
             this.total = res.body.data.rowCount
             this.pageCount = res.body.data.pageCount
             this.rowCount = res.body.data.rowCount
-            console.log(this)
           }
-        }).catch(res => {
-          this.$message.error('服务器繁忙！')
-        })
-      },
-      getData () {
-        this.$http.get('/v1/a/biz/code/list', {
-          params: {
-            pageSize: this.pageSize,
-            order: this.sortType,
-            pageIndex: this.currentPage,
-            status: this.state
-          }
-        }).then(res => {
-          console.log('/v1/a/biz/code/list \n' + res)
         }).catch(res => {
           this.$message.error('服务器繁忙！')
         })
@@ -203,7 +188,6 @@
     },
     created () {
       this.getTableData()
-      this.initAppointmentStartAndEndDate()
     }
   }
 </script>

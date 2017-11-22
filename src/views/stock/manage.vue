@@ -197,16 +197,15 @@
         this.addStockModal = true
       },
       addStock () {
-        var start = Date.parse(this.product.dateAppointmentDate[0])
+        var start = this.product.dateAppointmentDate[0]
         var end = Date.parse(this.product.dateAppointmentDate[1])
-        var timestamp = end - start
         this.$http.post('/v1/a/biz/stock/add', {
-          params: {
-            s: this.product.stock,
-            productItemId: this.product.productItemId,
-            day: timestamp,
-            status: 0
-          }
+          s: this.product.productStock,
+          productItemId: this.product.productItemId,
+          bookingItemId: this.product.productItemKindId,
+          status: 0,
+          dayStart: moment(start).format('YYYY-MM-DD'),
+          dayEnd: moment(end).format('YYYY-MM-DD')
         }).then((res) => {
           if (res.body.errMessage) {
             this.$message({
@@ -221,6 +220,7 @@
               type: 'success'
             })
             this.addStockModal = false
+            this.getTableData()
           }
         })
       },
