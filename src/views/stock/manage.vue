@@ -13,7 +13,7 @@
     <div class="main-container">
       <el-table :data="tableData" :highlight-current-row="true" v-loading.body="loading" stripe scope="scope" max-height="500">
         <el-table-column prop="bookingDay" label="日期" min-width="100"></el-table-column>
-        <el-table-column prop="bookingDay" :formatter="WeekFormat" label="星期" min-width="50"></el-table-column>
+        <el-table-column prop="bookingDay" :formatter="WeekFormat" label="星期" min-width="100"></el-table-column>
         <el-table-column prop="bookingItemText" label="型号"></el-table-column>
         <el-table-column prop="stockAmount" label="库存量"></el-table-column>
         <el-table-column prop="bookingAmount" label="已预约"></el-table-column>
@@ -236,7 +236,7 @@
         this.$http.post('/v1/a/biz/stock/add', {
           s: this.product.productStock,
           productItemId: this.product.productItemId,
-          bookingItemId: (this.product.productItemKindId === null) ? 0 : this.products.product.productItemKindId,
+          bookingItemId: (this.product.productItemKindId === null) ? 0 : this.product.productItemKindId,
           status: 0,
           dayStart: moment(start).format('YYYY-MM-DD'),
           dayEnd: moment(end).format('YYYY-MM-DD')
