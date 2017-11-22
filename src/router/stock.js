@@ -8,7 +8,7 @@ export default {
       }
     },
     {
-      path: '/stock_not_booking/:id',
+      path: '/stock/:operation/:id',
       name: 'stockInfo',
       component (resolve) {
         require(['VIEW/stock/show'], resolve)
