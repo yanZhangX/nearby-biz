@@ -13,7 +13,12 @@
     <div class="main-container">
       <el-table :data="tableData" :highlight-current-row="true" v-loading.body="loading" stripe scope="scope" max-height="500">
         <el-table-column prop="bookingDay" label="日期" min-width="100"></el-table-column>
-        <el-table-column prop="bookingDay" :formatter="WeekFormat" label="星期" min-width="100"></el-table-column>
+        <el-table-column prop="bookingDay" label="星期" min-width="100">
+          <template scope="scope">
+            <span v-if="isDateWeekend(scope.row)" style="color: red">{{weekFormat(scope.row)}}</span>
+            <span v-else>{{weekFormat(scope.row)}}</span>
+          </template>
+        </el-table-column>
         <el-table-column prop="bookingItemText" label="型号"></el-table-column>
         <el-table-column prop="stockAmount" label="库存量"></el-table-column>
         <el-table-column prop="bookingAmount" label="已预约"></el-table-column>
@@ -21,9 +26,11 @@
         <el-table-column prop="name" label="产品名称"></el-table-column>
         <el-table-column label="操作" width="240" fixed="right">
           <template scope="scope">
-            <el-button type="text" @click.stop="manageProductStock(scope.row)">管理库存</el-button>
-            <el-button type="text" @click.stop="bookingDetail(scope.row)">查看预约</el-button>
-            <el-button type="text" @click.stop="completeDetail(scope.row)">查看核销</el-button>
+            <div>
+              <el-button type="text" @click.stop="manageProductStock(scope.row)">管理库存</el-button>
+              <el-button type="text" @click.stop="bookingDetail(scope.row)">查看预约</el-button>
+              <el-button type="text" @click.stop="completeDetail(scope.row)">查看核销</el-button>
+            </div>
           </template>
         </el-table-column>
       </el-table>
@@ -53,7 +60,7 @@
                 </el-select>
               </span>
             </li>
-            <li v-if="this.product.kinds.length !== 0">
+            <li v-if="product.productItemShowModal">
               <span class="info-span-title">产品型号：</span>
               <span>
                 <el-select v-model="product.productItemKindId" placeholder="请选择产品型号" no-data-text="请先选择套餐名称" style="width: 60%;">
@@ -130,7 +137,8 @@
           selectedProductItemIndex: null,
           productStock: 10,
           day: '',
-          dateAppointmentDate: []
+          dateAppointmentDate: [],
+          productItemShowModal: false
         },
         stock: {
           stockId: null,
@@ -152,7 +160,7 @@
           return ''
         }
       },
-      WeekFormat (row) {
+      weekFormat (row) {
         if (row.bookingDay) {
           var date = new Date(row.bookingDay)
           var week = ''
@@ -175,14 +183,25 @@
               break
             case 5:
               week = '星期五'
+              this.textStyle = 'color: red;'
               break
             case 6:
               week = '星期六'
+              this.textStyle = 'color: red;'
               break
           }
           return `${week}`
         } else {
           return row.bookingDay
+        }
+      },
+      isDateWeekend (row) {
+        var date = new Date(row.bookingDay)
+        var weekDay = date.getDay()
+        if (weekDay === 0 || weekDay === 6) {
+          return true
+        } else {
+          return false
         }
       },
       getTableData () {
@@ -227,6 +246,15 @@
         this.getTableData()
       },
       addStockModalAction () {
+        this.product.selectedProductIndex = ''
+        this.product.productId = ''
+        this.product.items = []
+        this.product.kinds = []
+        this.product.productItemId = ''
+        this.product.selectedProductItemIndex = ''
+        this.product.productStock = 10
+        this.product.day = ''
+        console.log(this.product)
         this.getProductAndItemData()
         this.addStockModal = true
       },
@@ -264,23 +292,25 @@
         start.setTime(start.getTime() + 3600 * 1000 * 24)
         end.setTime(end.getTime() + 3600 * 1000 * 24 * 7)
         this.product.dateAppointmentDate = [start, end]
-
-//        var row = {bookingDay: '2020-10-01'}
-//        console.log(this.dateWeekFormat(row))
       },
       productSelecteChanged () {
         let product = this.products[this.product.selectedProductIndex]
         this.product.productId = product.id
         this.product.items = product.items
         this.product.selectedProductItemIndex = 0
+        this.product.productItemKindId = null
         this.productItemSelecteChanged()
       },
       productItemSelecteChanged () {
         var item = this.product.items[this.product.selectedProductItemIndex]
         this.product.productItemId = item.id
         this.product.kinds = item.items
-        if (item.items !== null && item.items.length !== 0) {
-          var kind = item.items[0]
+        console.log(item)
+        if (item.items.length === 0) {
+          this.product.productItemShowModal = false
+        } else {
+          this.product.productItemShowModal = true
+          var kind = this.product.kinds[0]
           this.product.productItemKindId = kind.id
         }
       },
