@@ -254,7 +254,6 @@
         this.product.selectedProductItemIndex = ''
         this.product.productStock = 10
         this.product.day = ''
-        console.log(this.product)
         this.getProductAndItemData()
         this.addStockModal = true
       },
@@ -305,7 +304,6 @@
         var item = this.product.items[this.product.selectedProductItemIndex]
         this.product.productItemId = item.id
         this.product.kinds = item.items
-        console.log(item)
         if (item.items.length === 0) {
           this.product.productItemShowModal = false
         } else {
@@ -348,7 +346,6 @@
         router.push({name: 'stockInfo', params: {id: row.stockId, operation: 'booking'}})
       },
       completeDetail (row) {
-        console.log(row)
         router.push({name: 'stockInfo', params: {id: row.stockId, operation: 'complete'}})
       }
     },

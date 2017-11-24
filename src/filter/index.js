@@ -17,9 +17,6 @@ Vue.filter('infoTimeFormatter', function (timpstamp, format) {
   if (timpstamp == null || timpstamp === '') return ''
   let d = new Date()
   d.setTime(timpstamp)
-  console.log(d)
-  console.log(d.getHours())
-  console.log(d.getMinutes())
   let date = {
     'M+': d.getMonth() + 1,
     'd+': d.getDate(),

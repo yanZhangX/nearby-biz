@@ -145,9 +145,7 @@
                 type: 'error'
               })
             } else {
-              console.log(res.body.data)
               this.info = res.body.data
-              console.log(this.info)
               this.travelTicket = true
             }
           })
