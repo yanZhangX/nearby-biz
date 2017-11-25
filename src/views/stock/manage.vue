@@ -97,7 +97,7 @@
         <div class="info-content-container">
           <el-form :model="stock" label-width="100px">
             <el-form-item label="库存：" v-if="stock!==null">
-              <el-input-number v-model="stock.stockAmount" :min="1" :max="9999" label="请设置库存" ></el-input-number>
+              <el-input-number v-model="stock.stockAmount" :min="0" label="请设置库存" ></el-input-number>
             </el-form-item>
           </el-form>
         </div>
@@ -198,7 +198,7 @@
       isDateWeekend (row) {
         var date = new Date(row.bookingDay)
         var weekDay = date.getDay()
-        if (weekDay === 0 || weekDay === 6) {
+        if (weekDay === 5 || weekDay === 6) {
           return true
         } else {
           return false
