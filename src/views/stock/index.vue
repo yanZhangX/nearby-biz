@@ -46,6 +46,8 @@
             <li><span>下单时间：</span><span>{{info.createDate | infoTimeFormatter('yyyy-MM-dd hh:mm:ss')}}</span></li>
             <li><span>电子码：</span><span>{{info.code}}</span></li>
             <li><span>状态：</span><span>{{info.statusText}}</span></li>
+            <li><span>订单备注：</span><span>{{info.memo}}</span></li>
+            <li><span>预约备注：</span><span>{{info.bookingMemo}}</span></li>
           </ul>
         </div>
 
@@ -88,7 +90,8 @@
           completeDate: '',
           createDate: '',
           code: '',
-          statusText: ''
+          statusText: '',
+          bookingMemo: ''
         }
       }
     },
