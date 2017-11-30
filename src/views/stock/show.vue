@@ -2,7 +2,9 @@
   <div class="stockInfo">
     <div class="breadcrumb">
       <el-breadcrumb separator="/">
-        <el-breadcrumb-item to="/stock">库存管理</el-breadcrumb-item>
+        <el-breadcrumb-item>
+          <span @click="goList">员工详情</span>
+        </el-breadcrumb-item>
         <el-breadcrumb-item>{{operationStr}}</el-breadcrumb-item>
       </el-breadcrumb>
     </div>
@@ -33,7 +35,7 @@
 
 <script>
   import moment from 'moment'
-
+  import router from 'ROUTE'
   export default {
     name: 'stockInfo',
     data () {
@@ -47,7 +49,8 @@
         pageCount: 0,
         operationStr: '',
         requestUrl: '',
-        operation: ''
+        operation: '',
+        pageIndex: 1
       }
     },
     computed: {},
@@ -86,6 +89,9 @@
 
       timeDesc (row, col) {
         return moment(row[col.property]).format('YYYY-MM-DD HH:mm')
+      },
+      goList () {
+        router.push({name: 'stockManage', params: {pageIndex: this.pageIndex}})
       }
     },
     created () {
@@ -98,6 +104,7 @@
         this.operationStr = '查看核销'
       }
       this.getTableData()
+      this.pageIndex = this.$route.params.pageIndex
     }
   }
 </script>

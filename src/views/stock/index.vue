@@ -125,7 +125,6 @@
           this.$message.error('服务器繁忙！')
         })
       },
-
       pageIndexChange (val) {
         this.currentPage = val
         this.getTableData()

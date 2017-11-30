@@ -8,14 +8,14 @@ export default {
       }
     },
     {
-      path: '/stock/:operation/:id',
+      path: '/stock/1/:operation/id/pageIndex',
       name: 'stockInfo',
       component (resolve) {
         require(['VIEW/stock/show'], resolve)
       }
     },
     {
-      path: '/stock',
+      path: '/stock/:pageIndex',
       name: 'stockManage',
       component (resolve) {
         require(['VIEW/stock/manage'], resolve)

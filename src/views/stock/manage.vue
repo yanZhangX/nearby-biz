@@ -343,13 +343,14 @@
         })
       },
       bookingDetail (row) {
-        router.push({name: 'stockInfo', params: {id: row.stockId, operation: 'booking'}})
+        router.push({name: 'stockInfo', params: {id: row.stockId, operation: 'booking', pageIndex: this.currentPage}})
       },
       completeDetail (row) {
-        router.push({name: 'stockInfo', params: {id: row.stockId, operation: 'complete'}})
+        router.push({name: 'stockInfo', params: {id: row.stockId, operation: 'complete', pageIndex: this.currentPage}})
       }
     },
     created () {
+      this.currentPage = this.$route.params.pageIndex
       this.getTableData()
       this.initAppointmentStartAndEndDate()
     }
