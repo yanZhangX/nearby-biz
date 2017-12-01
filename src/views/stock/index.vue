@@ -45,7 +45,12 @@
             <!--<li><span>完成时间：</span><span>{{info.completeDate | infoTimeFormatter('yyyy-MM-dd hh:mm:ss')}}</span></li>-->
             <li><span>下单时间：</span><span>{{info.createDate | infoTimeFormatter('yyyy-MM-dd hh:mm:ss')}}</span></li>
             <li><span>电子码：</span><span>{{info.code}}</span></li>
-            <li><span>状态：</span><span>{{info.statusText}}</span></li>
+            <li>
+              <span>状态：</span>
+              <span>{{info.statusText}}</span>
+              <span>{{info.bookingDateText}}</span>
+              <span>{{info.bookingItemText}}</span>
+            </li>
             <li><span>订单备注：</span><span>{{info.memo}}</span></li>
             <li><span>预约备注：</span><span>{{info.bookingMemo}}</span></li>
           </ul>
@@ -87,11 +92,13 @@
           customerPhoneNumber: '',
           status: '',
           bookingDate: '',
+          bookingDateText: '',
           completeDate: '',
           createDate: '',
           code: '',
           statusText: '',
-          bookingMemo: ''
+          bookingMemo: '',
+          bookingItemText: ''
         }
       }
     },
@@ -100,6 +107,14 @@
       dateFormat (row) {
         if (row.completeDate) {
           return moment(row.completeDate).format('YYYY-MM-DD HH:mm:ss')
+        } else {
+          return ''
+        }
+      },
+      myDateFormat (date) {
+        console.log(date)
+        if (date) {
+          return moment(date).format('YYYY-MM-DD')
         } else {
           return ''
         }
@@ -148,6 +163,9 @@
               })
             } else {
               this.info = res.body.data
+              console.log(res)
+              console.log(this.info)
+              this.info.bookingDateText = this.myDateFormat(this.info.bookingDay)
               this.travelTicket = true
             }
           })
