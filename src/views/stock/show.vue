@@ -21,8 +21,8 @@
         <el-table-column prop="customerName" label="客户姓名"></el-table-column>
         <el-table-column prop="customerPhoneNumber" label="客户电话" min-width="200"></el-table-column>
         <el-table-column prop="createDate" label="下单时间" :formatter="timeDesc" min-width="150"></el-table-column>
-        <el-table-column prop="bookingDate" label="预约时间" :formatter="timeDesc" min-width="150" v-if="operation === 'booking'"></el-table-column>
-        <el-table-column prop="bookingDate" label="核销时间" :formatter="timeDesc" min-width="150" v-if="operation === 'complete'"></el-table-column>
+        <el-table-column prop="bookingTime" label="预约时间" :formatter="timeDesc" min-width="150" v-if="operation === 'booking'"></el-table-column>
+        <el-table-column prop="completeDate" label="核销时间" :formatter="completeDate" min-width="150" v-if="operation === 'complete'"></el-table-column>
       </el-table>
     </div>
     <div class="k-center" v-show="pageCount>1">
@@ -81,14 +81,23 @@
           this.$message.error('服务器繁忙！')
         })
       },
-
       pageIndexChange (val) {
         this.currentPage = val
         this.getTableData()
       },
-
-      timeDesc (row, col) {
-        return moment(row[col.property]).format('YYYY-MM-DD HH:mm')
+      timeDesc (row, col, val) {
+        if (val) {
+          return moment(val).format('YYYY-MM-DD')
+        } else {
+          return ''
+        }
+      },
+      completeDate (row, col, val) {
+        if (val) {
+          return moment(val).format('YYYY-MM-DD HH:mm:ss')
+        } else {
+          return ''
+        }
       },
       goList () {
         router.push({name: 'stockManage', params: {pageIndex: this.pageIndex}})

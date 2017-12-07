@@ -24,11 +24,11 @@
         <el-table-column prop="bookingBeginDate"  :formatter="currency" label="预约日期" min-width="100"></el-table-column>
         <el-table-column prop="validBeginDate"  :formatter="currency" label="使用日期" min-width="100"></el-table-column>
         <el-table-column prop="validEndDate"  :formatter="currency" label="使用结束日期" min-width="100"></el-table-column>
-        <el-table-column prop="productUrl" label="推广链接" min-width="100"></el-table-column>
+        <el-table-column prop="productUrl" label="推广链接" min-width="200"></el-table-column>
         <el-table-column label="操作" min-width="200" fixed="right">
           <template scope="scope">
             <el-button type="text" @click.stop="detail(scope.row)">微信预览</el-button>
-            <el-button type="text" @click.stop="editProduct(scope.row)">复制推广链接</el-button>
+            <!--<el-button type="text" @click.stop="editProduct(scope.row)">复制推广链接</el-button>-->
           </template>
         </el-table-column>
       </el-table>

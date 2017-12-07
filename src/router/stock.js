@@ -8,7 +8,7 @@ export default {
       }
     },
     {
-      path: '/stock/1/:operation/id/pageIndex',
+      path: '/stock/1/:operation/:id/:pageIndex',
       name: 'stockInfo',
       component (resolve) {
         require(['VIEW/stock/show'], resolve)
