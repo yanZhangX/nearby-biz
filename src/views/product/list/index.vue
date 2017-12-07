@@ -53,7 +53,7 @@
   import moment from 'moment'
 
   export default {
-    name: 'checkOrder',
+    name: 'productList',
     data () {
       return {
         tableData: null,
