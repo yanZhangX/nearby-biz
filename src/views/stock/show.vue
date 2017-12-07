@@ -3,7 +3,7 @@
     <div class="breadcrumb">
       <el-breadcrumb separator="/">
         <el-breadcrumb-item>
-          <span @click="goList">员工详情</span>
+          <span @click="goList">库存管理</span>
         </el-breadcrumb-item>
         <el-breadcrumb-item>{{operationStr}}</el-breadcrumb-item>
       </el-breadcrumb>

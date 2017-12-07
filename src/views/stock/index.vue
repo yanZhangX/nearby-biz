@@ -32,7 +32,7 @@
     </div>
 
     <div  class="filter">
-      <span>已完成订单核销：共{{this.rowCount}}条</span>
+      <span>已完成订单核销：共{{this.total}}条</span>
     </div>
 
     <el-dialog v-model="travelTicket" title="电子码信息" :close-on-click-modal="false" :show-close="false" close-on-press-escape >
@@ -85,7 +85,6 @@
         pageSize: 15,
         total: null,
         pageCount: 0,
-        rowCount: 0,
         travelTicket: false,
         info: {
           customerName: '',
@@ -134,7 +133,6 @@
             this.tableData = res.body.data.data
             this.total = res.body.data.rowCount
             this.pageCount = res.body.data.pageCount
-            this.rowCount = res.body.data.rowCount
           }
         }).catch(res => {
           this.$message.error('服务器繁忙！')

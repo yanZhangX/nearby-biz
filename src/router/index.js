@@ -7,6 +7,7 @@ import NoResource from 'VIEW/no-resource'
 import dashboard from './dashboard'
 import stock from './stock'
 import remaining from './remaining'
+import product from './product'
 
 Vue.use(Router)
 
@@ -27,7 +28,12 @@ export default new Router({
       name: 'index',
       redirect: 'dashboard',
       component: Index,
-      children: [...dashboard.routes, ...stock.routes, ...remaining.routes]
+      children: [
+        ...dashboard.routes,
+        ...stock.routes,
+        ...remaining.routes,
+        ...product.routes
+      ]
     },
     { path: '*', redirect: '/' }
   ]

@@ -40,6 +40,7 @@
         layout="total, prev, pager, next, jumper" :total="total">
       </el-pagination>
     </div>
+
     <el-dialog v-model="addStockModal" title="新增库存" :close-on-click-modal="false" :show-close="false" close-on-press-escape>
       <div class="modal-info-container">
         <div class="info-content-container">
@@ -350,7 +351,7 @@
       }
     },
     created () {
-      this.currentPage = this.$route.params.pageIndex
+      this.currentPage = parseInt(this.$route.params.pageIndex)
       this.getTableData()
       this.initAppointmentStartAndEndDate()
     }
