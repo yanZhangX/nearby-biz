@@ -2,7 +2,7 @@ const appHost = function () {
   // return 'https://101.200.129.132'
   // return 'http://crm.difanglian.com'
   return 'http://nb-oa.lianlianlvyou.com'
-  // return 'http://192.168.10.251:9999'
+  // return 'http://192.168.10.157:9999'
 }
 
 const getToken = function () {
