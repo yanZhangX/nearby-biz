@@ -13,7 +13,8 @@
 
       </div>
       <div class="r">
-
+        <el-button type="primary" icon="download">搜索</el-button>
+        <el-button type="primary" icon="plus" @click="exportExcel" v-if="operation === 'complete'">全部导出</el-button>
       </div>
     </div>
     <div class="main-container">
@@ -101,7 +102,8 @@
       },
       goList () {
         router.push({name: 'stockManage', params: {pageIndex: this.pageIndex}})
-      }
+      },
+      exportExcel () {}
     },
     created () {
       this.operation = this.$route.params.operation
