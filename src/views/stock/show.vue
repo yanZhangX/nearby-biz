@@ -13,7 +13,7 @@
 
       </div>
       <div class="r">
-        <el-button type="primary" icon="download" @click="exportExcel" v-if="operation === 'complete'">全部导出</el-button>
+        <!--<el-button type="primary" icon="download" @click="exportExcel" v-if="operation === 'complete'">全部导出</el-button>-->
       </div>
     </div>
     <div class="main-container">
@@ -22,7 +22,7 @@
         <el-table-column prop="customerPhoneNumber" label="客户手机"></el-table-column>
         <el-table-column prop="code" label="电子码" min-width="200"  v-if="operation === 'complete'"></el-table-column>
         <el-table-column prop="createDate" label="下单时间" :formatter="timeDesc" min-width="150"></el-table-column>
-        <el-table-column prop="bookingTime" label="预约时间" :formatter="timeDesc" min-width="150" v-if="operation === 'booking'"></el-table-column>
+        <el-table-column prop="bookingDay" label="预约时间" :formatter="timeDesc" min-width="150" v-if="operation === 'booking'"></el-table-column>
         <el-table-column prop="completeDate" label="核销时间" :formatter="completeDate" min-width="150" v-if="operation === 'complete'"></el-table-column>
         <el-table-column prop="bookingMemo" label="备注" min-width="150"></el-table-column>
       </el-table>
