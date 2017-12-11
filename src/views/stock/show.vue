@@ -13,13 +13,15 @@
 
       </div>
       <div class="r">
-        <!--<el-button type="primary" icon="download" @click="exportExcel" v-if="operation === 'complete'">全部导出</el-button>-->
+        <form ref="form" :action="downloadUrl" method="get">
+          <!--<el-button type="primary" icon="download" @click="exportExcel" v-if="operation === 'complete'">全部导出</el-button>-->
+        </form>
       </div>
     </div>
     <div class="main-container">
       <el-table :data="tableData" :highlight-current-row="true" v-loading.body="loading" stripe max-height="500" @row-click="">
-        <el-table-column prop="customerName" label="客户姓名"></el-table-column>
-        <el-table-column prop="customerPhoneNumber" label="客户手机"></el-table-column>
+        <el-table-column prop="bookingCustomerName" label="客户姓名"></el-table-column>
+        <el-table-column prop="bookingCustomerPhoneNumber" label="客户手机"></el-table-column>
         <el-table-column prop="code" label="电子码" min-width="200"  v-if="operation === 'complete'"></el-table-column>
         <el-table-column prop="createDate" label="下单时间" :formatter="timeDesc" min-width="150"></el-table-column>
         <el-table-column prop="bookingDay" label="预约时间" :formatter="timeDesc" min-width="150" v-if="operation === 'booking'"></el-table-column>
@@ -38,6 +40,7 @@
 <script>
   import moment from 'moment'
   import router from 'ROUTE'
+
   export default {
     name: 'stockInfo',
     data () {
@@ -52,7 +55,8 @@
         operationStr: '',
         requestUrl: '',
         operation: '',
-        pageIndex: 1
+        pageIndex: 1,
+        downloadUrl: null
       }
     },
     computed: {},
@@ -105,24 +109,15 @@
         router.push({name: 'stockManage', params: {pageIndex: this.pageIndex}})
       },
       exportExcel () {
-        if (this.tableData === null || this.tableData.length === 0) {
-          this.$message.error('没有数据')
-          return
-        }
-        this.$http.get(`/v1/a/biz/complete/day/download?id=${this.$route.params.id}`, {
-          params: {
-            pageSize: this.total,
-            pageIndex: this.currentPage
-          }
-        }).then(res => {
-          if (res.body.errMesage) {
-            this.$message.error(res.body.errMessage)
-          } else {
-            window.location.href = res.body.data
-          }
-        }).catch(e => {
-          this.$message.error('服务器繁忙！')
-        })
+        this.downloadUrl = `http://192.168.10.157:9999/v1/a/biz/complete/day/download?id=${this.$route.params.id}`
+        window.open(this.downloadUrl)
+//        console.log(this.$refs.form)
+//        this.$refs.form.submit()
+//        var formData = new FormData()
+//        formData.action = url
+//        formData.method = 'get'
+//        formData.submit()
+//        console.log(formData)
       }
     },
     created () {

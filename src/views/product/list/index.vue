@@ -18,6 +18,7 @@
             </el-tooltip>
           </template>
         </el-table-column>
+        <el-table-column prop="orderAmount" label="销量"></el-table-column>
         <el-table-column prop="endTime" :formatter="currency" label="抢购结束日期" min-width="100"></el-table-column>
         <el-table-column prop="codeTime"  :formatter="currency" label="发码日期" min-width="100"></el-table-column>
         <el-table-column prop="booking"  :formatter="isBooking" label="发码日期" min-width="100"></el-table-column>
