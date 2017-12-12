@@ -40,7 +40,7 @@
 <script>
   import moment from 'moment'
   import router from 'ROUTE'
-  import {appHost} from 'CONST'
+  import {appHost, getToken} from 'CONST'
 
   export default {
     name: 'stockInfo',
@@ -116,7 +116,7 @@
           this.$message.error('没有核销数据')
           return
         }
-        this.downloadUrl = appHost() + '/v1/a/biz/complete/day/download?id=' + this.$route.params.id
+        this.downloadUrl = `${appHost()}/v1/a/biz/complete/day/download?id=${this.$route.params.id}&token=${getToken()}`
         window.open(this.downloadUrl)
       }
     },
