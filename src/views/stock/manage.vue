@@ -11,7 +11,7 @@
       </div>
     </div>
     <div class="main-container">
-      <el-table :data="tableData" :highlight-current-row="true" v-loading.body="loading" stripe scope="scope" max-height="500">
+      <el-table :data="tableData" v-loading.body="loading" stripe scope="scope" max-height=2000>
         <el-table-column prop="bookingDay" label="日期" min-width="100"></el-table-column>
         <el-table-column prop="bookingDay" label="星期" min-width="100">
           <template scope="scope">

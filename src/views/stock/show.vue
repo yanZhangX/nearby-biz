@@ -19,7 +19,7 @@
       </div>
     </div>
     <div class="main-container">
-      <el-table :data="tableData" :highlight-current-row="true" v-loading.body="loading" stripe max-height="500" @row-click="">
+      <el-table :data="tableData" v-loading.body="loading" stripe max-height=2000 @row-click="">
         <el-table-column prop="bookingCustomerName" label="客户姓名"></el-table-column>
         <el-table-column prop="bookingCustomerPhoneNumber" label="客户手机"></el-table-column>
         <el-table-column prop="code" label="电子码" min-width="200"  v-if="operation === 'complete'"></el-table-column>
