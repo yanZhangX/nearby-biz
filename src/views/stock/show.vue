@@ -40,6 +40,7 @@
 <script>
   import moment from 'moment'
   import router from 'ROUTE'
+  import {appHost} from 'CONST'
 
   export default {
     name: 'stockInfo',
@@ -59,7 +60,8 @@
         downloadUrl: null
       }
     },
-    computed: {},
+    computed: {
+    },
     filters: {
       infoTimeFormatter (v) {
         return moment(v).format('YYYY-MM-DD HH:mm')
@@ -67,6 +69,7 @@
     },
     methods: {
       getTableData () {
+        console.log(appHost())
         this.loading = false
         this.$http.get(this.requestUrl + this.$route.params.id, {
           params: {
@@ -113,7 +116,7 @@
           this.$message.error('没有核销数据')
           return
         }
-        this.downloadUrl = `http://192.168.10.157:9999/v1/a/biz/complete/day/download?id=${this.$route.params.id}`
+        this.downloadUrl = appHost() + '/v1/a/biz/complete/day/download?id=' + this.$route.params.id
         window.open(this.downloadUrl)
       }
     },
