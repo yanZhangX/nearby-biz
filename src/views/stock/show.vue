@@ -14,7 +14,7 @@
       </div>
       <div class="r">
         <form ref="form" :action="downloadUrl" method="get">
-          <!--<el-button type="primary" icon="download" @click="exportExcel" v-if="operation === 'complete'">全部导出</el-button>-->
+          <el-button type="primary" icon="download" @click="exportExcel" v-if="operation === 'complete'">全部导出</el-button>
         </form>
       </div>
     </div>
@@ -109,15 +109,12 @@
         router.push({name: 'stockManage', params: {pageIndex: this.pageIndex}})
       },
       exportExcel () {
+        if (this.tableData === null || this.tableData.length === 0) {
+          this.$message.error('没有核销数据')
+          return
+        }
         this.downloadUrl = `http://192.168.10.157:9999/v1/a/biz/complete/day/download?id=${this.$route.params.id}`
         window.open(this.downloadUrl)
-//        console.log(this.$refs.form)
-//        this.$refs.form.submit()
-//        var formData = new FormData()
-//        formData.action = url
-//        formData.method = 'get'
-//        formData.submit()
-//        console.log(formData)
       }
     },
     created () {
