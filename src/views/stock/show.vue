@@ -20,8 +20,8 @@
     </div>
     <div class="main-container">
       <el-table :data="tableData" v-loading.body="loading" stripe max-height=2000 @row-click="">
-        <el-table-column prop="bookingCustomerName" label="客户姓名"></el-table-column>
-        <el-table-column prop="bookingCustomerPhoneNumber" label="客户手机"></el-table-column>
+        <el-table-column prop="bookingCustomerName" label="客户姓名" :formatter="bookingCustomerNameFormat"></el-table-column>
+        <el-table-column prop="bookingCustomerPhoneNumber" label="客户手机" :formatter="bookingCustomerPhoneNumberFormat"></el-table-column>
         <el-table-column prop="code" label="电子码" min-width="200"  v-if="operation === 'complete'"></el-table-column>
         <el-table-column prop="createDate" label="下单时间" :formatter="timeDesc" min-width="150"></el-table-column>
         <el-table-column prop="bookingDay" label="预约时间" :formatter="timeDesc" min-width="150" v-if="operation === 'booking'"></el-table-column>
@@ -106,6 +106,20 @@
           return moment(val).format('YYYY-MM-DD HH:mm:ss')
         } else {
           return ''
+        }
+      },
+      bookingCustomerNameFormat (row, col, val) {
+        if (val) {
+          return val
+        } else {
+          return row.customerName
+        }
+      },
+      bookingCustomerPhoneNumberFormat (row, col, val) {
+        if (val) {
+          return val
+        } else {
+          return row.customerPhoneNumber
         }
       },
       goList () {
