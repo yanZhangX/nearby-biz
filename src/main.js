@@ -14,7 +14,7 @@ Vue.use(VueResource)
 Vue.use(ElementUi)
 
 Vue.http.options.emulateHTTP = true
-Vue.http.options.timeout = 3000
+Vue.http.options.timeout = 30000
 Vue.http.interceptors.push(function (request, next) {
   request.headers.set('Authorization', getToken())
   request.url = appHost() + request.url + (request.url.indexOf('?') > -1 ? ('&timestamp=' + new Date().getTime()) : ('?timestamp=' + new Date().getTime()))
