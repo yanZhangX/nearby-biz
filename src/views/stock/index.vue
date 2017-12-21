@@ -51,6 +51,24 @@
               <span>{{info.bookingDateText}}</span>
               <span>{{info.bookingItemText}}</span>
             </li>
+            <li v-if="completeSettingModal">
+              <span>产品型号选择：</span>
+              <span>
+                <el-select v-model="bookingItemId" placeholder="请选择产品型号">
+                  <el-option v-for="item in info.bookingItems" :label="item.bookingItemText" :value="item.id"></el-option>
+                </el-select>
+              </span>
+            </li>
+            <li v-if="completeSettingModal">
+              <span>到店时间选择：</span>
+              <span>
+                <el-date-picker type="date"
+                                :editable="false"
+                                placeholder="请选择到店时间"
+                                v-model="completeDay"
+                                clearable></el-date-picker>
+              </span>
+            </li>
             <li><span>订单备注：</span><span>{{info.memo}}</span></li>
             <li><span>预约备注：</span><span>{{info.bookingMemo}}</span></li>
           </ul>
@@ -86,10 +104,14 @@
         total: null,
         pageCount: 0,
         travelTicket: false,
+        itemList: [],
+        completeSettingModal: false,
+        bookingItemId: null,
+        completeDay: null,
         info: {
           customerName: '',
           customerPhoneNumber: '',
-          status: '',
+          status: 0,
           bookingDate: '',
           bookingDateText: '',
           completeDate: '',
@@ -97,7 +119,8 @@
           code: '',
           statusText: '',
           bookingMemo: '',
-          bookingItemText: ''
+          bookingItemText: '',
+          bookingItems: []
         }
       }
     },
@@ -111,7 +134,6 @@
         }
       },
       myDateFormat (date) {
-        console.log(date)
         if (date) {
           return moment(date).format('YYYY-MM-DD')
         } else {
@@ -160,23 +182,35 @@
                 type: 'error'
               })
             } else {
+              this.completeDay = new Date()
               this.info = res.body.data
-              console.log(res)
-              console.log(this.info)
               this.info.bookingDateText = this.myDateFormat(this.info.bookingDay)
               this.travelTicket = true
+              if (this.info.status === 1) {
+                this.completeSettingModal = true
+              } else {
+                this.completeSettingModal = false
+              }
             }
           })
         }
       },
       del (row) {
+        if (row.status === 1 && this.bookingItemId === null) {
+          this.$message.error('请选择产品型号')
+          return
+        }
         this.travelTicket = false
         this.$confirm('确定核销吗？', '温馨提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          this.$http.post(`/v1/a/biz/code?c=${row.code}`).then(function (res) {
+          var url = `/v1/a/biz/code?c=${row.code}`
+          if (this.info.status === 1) {
+            url = `/v1/a/biz/code?c=${row.code}&bookingItemId=${this.bookingItemId}&bookingDay=${this.completeDay.getTime()}`
+          }
+          this.$http.post(url).then(function (res) {
             if (res.body.errMessage) {
               this.$message({
                 showClose: true,
