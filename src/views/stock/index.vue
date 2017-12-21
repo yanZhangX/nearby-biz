@@ -54,9 +54,9 @@
             <li v-if="completeSettingModal">
               <span>产品型号选择：</span>
               <span>
-                <el-select v-model="bookingItemId" placeholder="请选择产品型号">
-                  <el-option v-for="item in info.bookingItems" :label="item.bookingItemText" :value="item.id"></el-option>
-                </el-select>
+                <el-radio-group v-model="bookingItemId" size="small">
+                  <el-radio  v-for="item in info.bookingItems" :label="item.id">{{item.bookingItemText}}</el-radio>
+                </el-radio-group>
               </span>
             </li>
             <li v-if="completeSettingModal">
@@ -66,7 +66,7 @@
                                 :editable="false"
                                 placeholder="请选择到店时间"
                                 v-model="completeDay"
-                                clearable></el-date-picker>
+                                :clearable="false"></el-date-picker>
               </span>
             </li>
             <li><span>订单备注：</span><span>{{info.memo}}</span></li>
@@ -186,8 +186,11 @@
               this.info = res.body.data
               this.info.bookingDateText = this.myDateFormat(this.info.bookingDay)
               this.travelTicket = true
-              if (this.info.status === 1) {
+              if (this.info.status === 1 && this.info.booking === 1) {
                 this.completeSettingModal = true
+                if (this.info.bookingItems !== null && this.info.bookingItems.length > 0) {
+                  this.bookingItemId = this.info.bookingItems[0].id
+                }
               } else {
                 this.completeSettingModal = false
               }
@@ -196,10 +199,7 @@
         }
       },
       del (row) {
-        if (row.status === 1 && this.bookingItemId === null) {
-          this.$message.error('请选择产品型号')
-          return
-        }
+        console.log(this.bookingItemId)
         this.travelTicket = false
         this.$confirm('确定核销吗？', '温馨提示', {
           confirmButtonText: '确定',
@@ -207,7 +207,7 @@
           type: 'warning'
         }).then(() => {
           var url = `/v1/a/biz/code?c=${row.code}`
-          if (this.info.status === 1) {
+          if (this.info.status === 1 && this.info.booking === 1) {
             url = `/v1/a/biz/code?c=${row.code}&bookingItemId=${this.bookingItemId}&bookingDay=${this.completeDay.getTime()}`
           }
           this.$http.post(url).then(function (res) {
