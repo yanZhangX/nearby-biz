@@ -14,7 +14,7 @@
       </div>
       <div class="r">
         <form ref="form" :action="downloadUrl" method="get">
-          <el-button type="primary" icon="download" @click="exportExcel" v-if="operation === 'complete'">全部导出</el-button>
+          <el-button type="primary" icon="download" @click="exportExcel" v-if="operation === 'complete' || operation === 'booking'">全部导出</el-button>
         </form>
       </div>
     </div>
@@ -127,11 +127,22 @@
       },
       exportExcel () {
         if (this.tableData === null || this.tableData.length === 0) {
-          this.$message.error('没有核销数据')
+          if (this.operation === 'complete') {
+            this.$message.error('没有核销数据')
+          } else if (this.operation === 'booking') {
+            this.$message.error('没有预约数据')
+          } else {
+            this.$message.error('没有数据')
+          }
           return
         }
-        this.downloadUrl = `${appHost()}/v1/a/biz/complete/day/download?id=${this.$route.params.id}&token=${getToken()}`
-        window.open(this.downloadUrl)
+        if (this.operation === 'complete') {
+          this.downloadUrl = `${appHost()}/v1/a/biz/complete/day/download?id=${this.$route.params.id}&token=${getToken()}`
+          window.open(this.downloadUrl)
+        } else if (this.operation === 'booking') {
+          this.downloadUrl = `${appHost()}/v1/a/biz/booking/day/download?id=${this.$route.params.id}&token=${getToken()}`
+          window.open(this.downloadUrl)
+        }
       }
     },
     created () {
