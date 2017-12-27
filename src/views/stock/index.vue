@@ -199,7 +199,6 @@
         }
       },
       del (row) {
-        console.log(this.bookingItemId)
         this.travelTicket = false
         this.$confirm('确定核销吗？', '温馨提示', {
           confirmButtonText: '确定',

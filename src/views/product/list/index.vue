@@ -6,7 +6,11 @@
       </el-breadcrumb>
     </div>
     <div class="filter">
-
+      <div class="l">
+        <el-select v-model="locationId" placeholder="请选择站点" @change="locationChanged">
+          <el-option v-for="item in locationList" :label="item.city" :value="item.id"></el-option>
+        </el-select>
+      </div>
     </div>
     <div class="main-container">
       <el-table :data="tableData" stripe max-height=2000>
@@ -19,12 +23,18 @@
           </template>
         </el-table-column>
         <el-table-column prop="orderAmount" label="销量"></el-table-column>
-        <el-table-column prop="endTime" :formatter="currency" label="抢购结束日期" min-width="100"></el-table-column>
-        <el-table-column prop="codeTime"  :formatter="currency" label="发码日期" min-width="100"></el-table-column>
-        <el-table-column prop="booking"  :formatter="isBooking" label="发码日期" min-width="100"></el-table-column>
-        <el-table-column prop="bookingBeginDate"  :formatter="currency" label="预约日期" min-width="100"></el-table-column>
-        <el-table-column prop="validBeginDate"  :formatter="currency" label="使用日期" min-width="100"></el-table-column>
-        <el-table-column prop="validEndDate"  :formatter="currency" label="使用结束日期" min-width="100"></el-table-column>
+        <el-table-column prop="dateStr" label="限时抢购" min-width="190">
+          <template scope="scope">
+            <span v-html="scope.row.dateStr"></span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="booking" :formatter="isBooking" label="预约" min-width="100"></el-table-column>
+        <el-table-column prop="validDateStr" label="有效期" min-width="190">
+          <template scope="scope">
+            <span v-html="scope.row.validDateStr"></span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="cityName" label="城市"></el-table-column>
         <el-table-column prop="productUrl" label="推广链接" min-width="200"></el-table-column>
         <el-table-column label="操作" min-width="200" fixed="right">
           <template scope="scope">
@@ -64,10 +74,17 @@
         total: null,
         pageCount: 0,
         imagePreviewModal: false,
-        imageUrl: null
+        imageUrl: null,
+        locationList: [],
+        locationId: 0,
+        allLocation: {
+          id: 0,
+          city: '全部'
+        }
       }
     },
     created () {
+      this.getLocationList()
       this.getTableData()
     },
     methods: {
@@ -76,7 +93,8 @@
           params: {
             pageSize: this.pageSize,
             pageIndex: this.currentPage,
-            date: this.timeStamp
+            date: this.timeStamp,
+            locationId: this.locationId
           }
         }).then(res => {
           if (res.body.errMessage) {
@@ -89,6 +107,22 @@
         }).catch(res => {
           this.$message.error('服务器繁忙！')
         })
+      },
+      getLocationList () {
+        this.$http.get('/v2/nearby/location/list').then(res => {
+          if (res.body.errMessage) {
+            this.$message.error(res.body.errMessage)
+          } else {
+            this.locationList.push(this.allLocation)
+            this.locationList = this.locationList.concat(res.body.data.data)
+          }
+        }).catch(e => {
+          this.$message.error('服务器错误')
+        })
+      },
+      locationChanged () {
+        this.currentPage = 1
+        this.getTableData()
       },
       detail (row) {
         this.imagePreviewModal = true
