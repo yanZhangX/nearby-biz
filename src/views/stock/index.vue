@@ -186,7 +186,7 @@
               this.info = res.body.data
               this.info.bookingDateText = this.myDateFormat(this.info.bookingDay)
               this.travelTicket = true
-              if (this.info.bookingItems !== null && this.info.bookingItems.length > 0) {
+              if (typeof (this.info.bookingItems) !== 'undefined' && this.info.bookingItems !== null && this.info.bookingItems.length > 0) {
                 this.bookingItemId = this.info.bookingItems[0].id
                 this.completeSettingModal = true
               } else {
