@@ -7,7 +7,8 @@
     </div>
     <div class="filter">
       <div class="l">
-        <el-select v-model="locationId" placeholder="请选择站点" @change="locationChanged">
+        <span>城市选择：</span>
+        <el-select v-model="locationId" placeholder="请选择城市" @change="locationChanged">
           <el-option v-for="item in locationList" :label="item.city" :value="item.id"></el-option>
         </el-select>
       </div>
@@ -80,7 +81,8 @@
         allLocation: {
           id: 0,
           city: '全部'
-        }
+        },
+        form: {}
       }
     },
     created () {
