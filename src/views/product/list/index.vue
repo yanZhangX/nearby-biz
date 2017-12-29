@@ -63,7 +63,7 @@
 <script>
 
   import moment from 'moment'
-
+  import {getUser} from 'CONST'
   export default {
     name: 'productList',
     data () {
@@ -76,18 +76,16 @@
         pageCount: 0,
         imagePreviewModal: false,
         imageUrl: null,
-        locationList: [],
-        locationId: 0,
-        allLocation: {
+        locationList: [{
           id: 0,
           city: '全部'
-        },
+        }],
+        locationId: null,
         form: {}
       }
     },
     created () {
       this.getLocationList()
-      this.getTableData()
     },
     methods: {
       getTableData () {
@@ -115,8 +113,8 @@
           if (res.body.errMessage) {
             this.$message.error(res.body.errMessage)
           } else {
-            this.locationList.push(this.allLocation)
             this.locationList = this.locationList.concat(res.body.data.data)
+            this.locationId = getUser().locationId
           }
         }).catch(e => {
           this.$message.error('服务器错误')

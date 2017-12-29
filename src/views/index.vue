@@ -219,12 +219,7 @@
             })
           } else {
             next(vm => {
-              setUser({
-                id: res.body.data.uid,
-                name: res.body.data.name,
-                headPic: res.body.data.headIconUrl,
-                phone: res.body.data.phoneNumber
-              })
+              setUser(res.body.data)
               vm.headIconUrl = res.body.data.headIconUrl
               vm.name = res.body.data.name
               vm.phoneNumber = res.body.data.phoneNumber
