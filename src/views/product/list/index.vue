@@ -15,6 +15,7 @@
     </div>
     <div class="main-container">
       <el-table :data="tableData" stripe max-height=2000>
+        <el-table-column prop="cityName" label="城市" fixed="left"></el-table-column>
         <el-table-column prop="name" label="产品" min-width="100">
           <template scope="scope">
             <el-tooltip placement="top-start">
@@ -35,7 +36,6 @@
             <span v-html="scope.row.validDateStr"></span>
           </template>
         </el-table-column>
-        <el-table-column prop="cityName" label="城市"></el-table-column>
         <el-table-column prop="productUrl" label="推广链接" min-width="200"></el-table-column>
         <el-table-column label="操作" min-width="200" fixed="right">
           <template scope="scope">
