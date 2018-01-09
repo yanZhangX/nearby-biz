@@ -8,6 +8,7 @@ import dashboard from './dashboard'
 import stock from './stock'
 import remaining from './remaining'
 import product from './product'
+import bookingSureList from './bookingSureList'
 
 Vue.use(Router)
 
@@ -32,7 +33,8 @@ export default new Router({
         ...dashboard.routes,
         ...stock.routes,
         ...remaining.routes,
-        ...product.routes
+        ...product.routes,
+        ...bookingSureList.routes
       ]
     },
     { path: '*', redirect: '/' }

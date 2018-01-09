@@ -26,6 +26,11 @@
         <el-table-column prop="bookingDay" label="预约时间" min-width="200" :formatter="timeDesc" v-if="operation === 'booking'"></el-table-column>
         <el-table-column prop="completeDate" label="核销时间" min-width="200" :formatter="completeDate" v-if="operation === 'complete'"></el-table-column>
         <el-table-column prop="bookingMemo" label="备注" min-width="150"></el-table-column>
+        <el-table-column label="操作" min-width="100" v-if="operation === 'booking'" fixed="right">
+          <template scope="scope">
+            <el-button type="text" @click="confirmBookingItem(scope.row)" v-if="scope.row.sure !== 'undefined' && scope.row.sure === 0">预约确认</el-button>
+          </template>
+        </el-table-column>
       </el-table>
     </div>
     <div class="k-center" v-show="pageCount>1">
@@ -68,7 +73,6 @@
     },
     methods: {
       getTableData () {
-        console.log(appHost())
         this.loading = false
         this.$http.get(this.requestUrl + this.$route.params.id, {
           params: {
@@ -108,15 +112,15 @@
         }
       },
       bookingCustomerNameFormat (row, col, val) {
-        if (val) {
-          return val
+        if (row.bookingCustomerName) {
+          return row.bookingCustomerName
         } else {
           return row.customerName
         }
       },
       bookingCustomerPhoneNumberFormat (row, col, val) {
-        if (val) {
-          return val
+        if (row.bookingCustomerPhoneNumber) {
+          return row.bookingCustomerPhoneNumber
         } else {
           return row.customerPhoneNumber
         }
@@ -142,6 +146,33 @@
           this.downloadUrl = `${appHost()}/v1/a/biz/booking/day/download?id=${this.$route.params.id}&token=${getToken()}`
           window.open(this.downloadUrl)
         }
+      },
+      confirmBookingItem (row) {
+        var h = this.$createElement
+        this.$msgbox({
+          title: '温馨提示',
+          message: h('p', null, [
+            h('span', null, '确认已经知晓用户（'),
+            h('pan', {style: 'color: red;'}, `${this.bookingCustomerNameFormat(row, null, null)}：${this.bookingCustomerPhoneNumberFormat(row, null, null)}`),
+            h('span', null, '）的预约信息了吗？')
+          ]),
+          showCancelButton: true,
+          confirmButtonText: '确认',
+          cancelButtonText: '取消',
+          type: 'warning',
+          center: true
+        }).then(() => {
+          this.$http.post(`/v1/a/biz/order/sure?orderId=${row.orderId}`).then(res => {
+            if (res.body.errMessage) {
+              this.$message.error(res.body.errMessage)
+            } else {
+              this.$message.success('确认操作成功')
+              this.getTableData()
+            }
+          }).catch(e => {
+            this.$message.error('服务器错误')
+          })
+        })
       }
     },
     created () {
