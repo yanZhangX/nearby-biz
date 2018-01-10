@@ -28,7 +28,7 @@
         <el-table-column prop="bookingMemo" label="备注" min-width="150"></el-table-column>
         <el-table-column label="操作" min-width="100" v-if="operation === 'booking'" fixed="right">
           <template scope="scope">
-            <el-button type="text" @click="confirmBookingItem(scope.row)" v-if="scope.row.sure !== 'undefined' && scope.row.sure === 0">预约确认</el-button>
+            <el-button type="text" @click="confirmBookingItem(scope.row)" v-if="scope.row.sure !== 'undefined' && scope.row.sure === 0">确认</el-button>
           </template>
         </el-table-column>
       </el-table>
