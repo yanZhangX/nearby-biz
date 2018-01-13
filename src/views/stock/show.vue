@@ -28,7 +28,16 @@
         <el-table-column prop="bookingMemo" label="备注" min-width="150"></el-table-column>
         <el-table-column label="操作" min-width="100" v-if="operation === 'booking'" fixed="right">
           <template scope="scope">
-            <el-button type="text" @click="confirmBookingItem(scope.row)" v-if="scope.row.sure !== 'undefined' && scope.row.sure === 0">预约确认</el-button>
+            <el-button type="text" @click="confirmBookingItem(scope.row)" v-if="scope.row.sure !== 'undefined' && scope.row.sure === 0 && designateOrderModal === false">预约确认</el-button>
+
+            <el-dropdown @command="designateOrderToSupplier" trigger="click" v-if="designateOrderModal">
+              <el-button type="text" @click="selectDesignateOrder(scope.row)">
+                指派接单商家
+              </el-button>
+              <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item v-for="item in supplierList" :command="item">{{item.name}}</el-dropdown-item>
+              </el-dropdown-menu>
+            </el-dropdown>
           </template>
         </el-table-column>
       </el-table>
@@ -44,7 +53,7 @@
 <script>
   import moment from 'moment'
   import router from 'ROUTE'
-  import {appHost, getToken} from 'CONST'
+  import {appHost, getToken, getUser} from 'CONST'
 
   export default {
     name: 'stockInfo',
@@ -61,14 +70,11 @@
         requestUrl: '',
         operation: '',
         pageIndex: 1,
-        downloadUrl: null
-      }
-    },
-    computed: {
-    },
-    filters: {
-      infoTimeFormatter (v) {
-        return moment(v).format('YYYY-MM-DD HH:mm')
+        downloadUrl: null,
+        supplierList: [],
+        row: null,
+        supplierId: null,
+        designateOrderModal: false
       }
     },
     methods: {
@@ -90,6 +96,17 @@
           }
         }).catch(res => {
           this.loading = false
+          this.$message.error('服务器繁忙！')
+        })
+      },
+      getSupplierList (orderId) {
+        this.$http.get(`/v1/a/biz/user/supplier/list?orderId=${orderId}`).then(res => {
+          if (res.body.errMessage) {
+            this.$message.error(res.body.errMessage)
+          } else {
+            this.supplierList = res.body.data.data
+          }
+        }).catch(res => {
           this.$message.error('服务器繁忙！')
         })
       },
@@ -173,6 +190,44 @@
             this.$message.error('服务器错误')
           })
         })
+      },
+      selectDesignateOrder (row) {
+        this.row = row
+        this.supplierId = null
+        this.getSupplierList(row.orderId)
+      },
+      designateOrderToSupplier (command) {
+        if (this.row === null || this.row.orderId === null) {
+          this.$message.error('请选择订单')
+          return
+        }
+        const h = this.$createElement
+        this.$msgbox({
+          title: '订单指派提示',
+          message: h('p', null, [
+            h('span', null, '确认要将订单（'),
+            h('div', {style: 'padding-left: 20px;color:red;'}, this.bookingCustomerNameFormat(this.row) + ':' + this.bookingCustomerPhoneNumberFormat(this.row)),
+            h('span', null, '）指派给商家（'),
+            h('div', {style: 'padding-left: 20px;color:red;'}, command.name),
+            h('span', null, '）吗？')
+          ]),
+          showCancelButton: true,
+          confirmButtonText: '确认指派',
+          cancelButtonText: '再考虑一下',
+          type: 'warning',
+          center: true
+        }).then(() => {
+          this.$http.post(`/v1/a/biz/user/supplier/set?orderId=${this.row.orderId}&bizUid=${command.id}`).then(res => {
+            if (res.body.errMessage) {
+              this.$message.error(res.body.errMessage)
+            } else {
+              this.getTableData()
+              this.$message.success('指派成功')
+            }
+          }).catch(res => {
+            this.$message.error('服务器繁忙！')
+          })
+        })
       }
     },
     created () {
@@ -186,6 +241,9 @@
       }
       this.getTableData()
       this.pageIndex = this.$route.params.pageIndex
+      if (getUser().isAllot === 1) {
+        this.designateOrderModal = true
+      }
     }
   }
 </script>
