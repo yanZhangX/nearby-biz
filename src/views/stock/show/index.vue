@@ -3,7 +3,7 @@
     <div class="breadcrumb">
       <el-breadcrumb separator="/">
         <el-breadcrumb-item>
-          <span @click="goList">库存管理</span>
+          <span @click="back">{{this.$route.params.info.routeMenu}}</span>
         </el-breadcrumb-item>
         <el-breadcrumb-item>{{operationStr}}</el-breadcrumb-item>
       </el-breadcrumb>
@@ -78,9 +78,15 @@
       }
     },
     methods: {
+      paramIsNull (param) {
+        if (typeof (param) === 'undefined' || param === null) {
+          return true
+        }
+        return false
+      },
       getTableData () {
         this.loading = false
-        this.$http.get(this.requestUrl + this.$route.params.id, {
+        this.$http.get(this.requestUrl + this.$route.params.info.id, {
           params: {
             pageSize: this.pageSize,
             pageIndex: this.currentPage
@@ -142,8 +148,15 @@
           return row.customerPhoneNumber
         }
       },
-      goList () {
-        router.push({name: 'stockManage', params: {pageIndex: this.pageIndex}})
+      back () {
+        router.push(
+          {
+            name: this.$route.params.info.routeName,
+            params: {
+              pageIndex: this.pageIndex
+            }
+          }
+        )
       },
       exportExcel () {
         if (this.tableData === null || this.tableData.length === 0) {
@@ -231,16 +244,18 @@
       }
     },
     created () {
-      this.operation = this.$route.params.operation
-      if (this.operation === 'booking') {
-        this.requestUrl = '/v1/a/biz/booking/day?id='
-        this.operationStr = '查看预约'
-      } else if (this.operation === 'complete') {
-        this.requestUrl = '/v1/a/biz/complete/day?id='
-        this.operationStr = '查看核销'
+      this.operation = this.$route.params.info.operation
+      if (!this.paramIsNull(this.operation)) {
+        if (this.operation === 'booking') {
+          this.requestUrl = '/v1/a/biz/booking/day?id='
+          this.operationStr = '查看预约'
+        } else if (this.operation === 'complete') {
+          this.requestUrl = '/v1/a/biz/complete/day?id='
+          this.operationStr = '查看核销'
+        }
       }
       this.getTableData()
-      this.pageIndex = this.$route.params.pageIndex
+      this.pageIndex = this.$route.params.info.pageIndex
       if (getUser().isAllot === 1) {
         this.designateOrderModal = true
       }

@@ -15,7 +15,7 @@
       </div>
     </div>
     <div class="main-container">
-      <el-table :data="tableData" :highlight-current-row="true" v-loading.body="loading" stripe scope="scope" max-height="500">
+      <el-table :data="tableData" :highlight-current-row="true" v-loading.body="loading" stripe scope="scope" max-height=2000>
         <el-table-column prop="orderid" label="订单号"></el-table-column>
         <!--<el-table-column prop="customerName" label="顾客姓名"></el-table-column>-->
         <!--<el-table-column prop="customerPhoneNumber" label="顾客手机号"></el-table-column>-->

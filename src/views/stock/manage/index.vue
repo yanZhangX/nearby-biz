@@ -64,21 +64,27 @@
             <li v-if="product.productItemShowModal">
               <span class="info-span-title">产品型号：</span>
               <span>
-                <el-select v-model="product.productItemKindId" placeholder="请选择产品型号" no-data-text="请先选择套餐名称" style="width: 60%;">
-                  <el-option v-for="item in product.kinds" :key="item.id" :label="item.bookingItemText" :value="item.id"></el-option>
+                <el-select v-model="product.selectedItemKindIndex" placeholder="请选择产品型号"  @change="productItemKindSelecteChanged" no-data-text="请先选择套餐名称" style="width: 60%;">
+                  <el-option v-for="(item, index) in product.kinds" :key="item.id" :label="item.bookingItemText" :value="index"></el-option>
                 </el-select>
               </span>
             </li>
             <li>
               <span class="info-span-title">库存数量：</span>
               <span>
-                <el-input-number v-model="product.productStock" :min="1" :max="9999" label="请设置库存"></el-input-number>
+                <el-input-number v-model="product.productStock" :min="0" :max="9999" label="请设置库存"></el-input-number>
               </span>
             </li>
             <li>
               <span class="info-span-title">可预约时间：</span>
               <span>
-                <el-date-picker  style="width: 60%;" v-model="product.dateAppointmentDate" type="daterange" start-placeholder="请选择开始日期" end-placeholder="请选择结束日期" range-separator="至" :picker-options="dateAppointmentOptions"></el-date-picker>
+                <el-date-picker  style="width: 60%;"
+                                 v-model="product.dateAppointmentDate"
+                                 type="daterange"
+                                 placeholder="请选择可预约日期"
+                                 range-separator="至"
+                                 :picker-options="dateAppointmentOptions">
+                </el-date-picker>
               </span>
             </li>
           </ul>
@@ -136,6 +142,7 @@
           productItemId: null,
           productItemKindId: null,
           selectedProductItemIndex: null,
+          selectedItemKindIndex: null,
           productStock: 10,
           day: '',
           dateAppointmentDate: [],
@@ -154,9 +161,15 @@
     },
     computed: {},
     methods: {
-      dateFormat (row) {
-        if (row.completeDate) {
-          return moment(row.completeDate).format('YYYY-MM-DD')
+      paramIsNull (param) {
+        if (typeof (param) === 'undefined' || param === null) {
+          return true
+        }
+        return false
+      },
+      dateFormat (row, col, val) {
+        if (val) {
+          return moment(val).format('YYYY-MM-DD')
         } else {
           return ''
         }
@@ -235,8 +248,6 @@
             this.$message.error(res.body.errMessage)
           } else {
             this.products = res.body.data
-            this.product.selectedProductIndex = 0
-            this.productSelecteChanged()
           }
         }).catch(res => {
           this.$message.error('服务器繁忙！')
@@ -247,43 +258,84 @@
         this.getTableData()
       },
       addStockModalAction () {
-        this.product.selectedProductIndex = ''
-        this.product.productId = ''
+        this.product.selectedProductIndex = null
+        this.product.productId = null
         this.product.items = []
         this.product.kinds = []
-        this.product.productItemId = ''
-        this.product.selectedProductItemIndex = ''
-        this.product.productStock = 10
-        this.product.day = ''
+        this.product.productItemId = null
+        this.product.selectedProductItemIndex = null
+        this.product.productStock = 0
+        this.product.day = null
+        this.product.productItemKindId = null
+        this.product.dateAppointmentDate = null
+        this.product.selectedItemKindIndex = null
         this.getProductAndItemData()
         this.addStockModal = true
       },
       addStock () {
+        if (this.paramIsNull(this.product.productId)) {
+          this.$message.error('请选择产品')
+          return
+        }
+        if (this.paramIsNull(this.product.productItemId)) {
+          this.$message.error('请选择套餐')
+          return
+        }
+        if (!this.paramIsNull(this.product.kinds) && this.product.kinds.length !== 0 && this.paramIsNull(this.product.productItemKindId)) {
+          this.$message.error('请选择产品型号')
+          return
+        }
+        if (this.paramIsNull(this.product.productStock) || this.product.productStock === 0) {
+          this.$message.error('请设置库存数量')
+          return
+        }
+        if (this.paramIsNull(this.product.dateAppointmentDate) || this.product.dateAppointmentDate.length < 2) {
+          this.$message.error('请选择可预约日期')
+          return
+        }
         var start = this.product.dateAppointmentDate[0]
         var end = Date.parse(this.product.dateAppointmentDate[1])
-        this.$http.post('/v1/a/biz/stock/add', {
-          s: this.product.productStock,
-          productItemId: this.product.productItemId,
-          bookingItemId: (this.product.productItemKindId === null) ? 0 : this.product.productItemKindId,
-          status: 0,
-          dayStart: moment(start).format('YYYY-MM-DD'),
-          dayEnd: moment(end).format('YYYY-MM-DD')
-        }).then((res) => {
-          if (res.body.errMessage) {
-            this.$message({
-              showClose: true,
-              message: res.body.errMessage,
-              type: 'error'
-            })
-          } else {
-            this.$message({
-              showClose: true,
-              message: '新增库存成功',
-              type: 'success'
-            })
-            this.addStockModal = false
-            this.getTableData()
-          }
+        var h = this.$createElement
+        this.$msgbox({
+          title: '温馨提示',
+          message: h('p', null, [
+            h('div', null, '新增产品库存信息确认：'),
+            h('div', {style: 'color: red;'}, `产品：${this.products[this.product.selectedProductIndex].name}`),
+            h('div', {style: 'color: red;'}, `套餐：${this.product.items[this.product.selectedProductItemIndex].subTitle}`),
+            h('div', {style: 'color: red;'}, `型号：${this.product.kinds[this.product.selectedItemKindIndex].bookingItemText}`),
+            h('div', {style: 'color: red;'}, `库存：${this.product.productStock}`),
+            h('div', {style: 'color: red;'}, `预约日期：${this.dateFormat(null, null, start)}至${this.dateFormat(null, null, end)}`)
+          ]),
+          showCancelButton: true,
+          confirmButtonText: '确认无误新增',
+          cancelButtonText: '再检查一下',
+          type: 'warning',
+          center: true
+        }).then(() => {
+          this.$http.post('/v1/a/biz/stock/add', {
+            s: this.product.productStock,
+            productItemId: this.product.productItemId,
+            bookingItemId: (this.product.productItemKindId === null) ? 0 : this.product.productItemKindId,
+            status: 0,
+            dayStart: moment(start).format('YYYY-MM-DD'),
+            dayEnd: moment(end).format('YYYY-MM-DD')
+          }).then((res) => {
+            if (res.body.errMessage) {
+              this.$message({
+                showClose: true,
+                message: res.body.errMessage,
+                type: 'error'
+              })
+            } else {
+              this.$message({
+                showClose: true,
+                message: '新增库存成功',
+                type: 'success'
+              })
+              this.addStockModal = false
+              this.getTableData()
+            }
+          })
         })
       },
       initAppointmentStartAndEndDate () {
@@ -297,21 +349,29 @@
         let product = this.products[this.product.selectedProductIndex]
         this.product.productId = product.id
         this.product.items = product.items
-        this.product.selectedProductItemIndex = 0
+        this.product.selectedProductItemIndex = null
         this.product.productItemKindId = null
         this.productItemSelecteChanged()
       },
       productItemSelecteChanged () {
+        if (this.product.selectedProductItemIndex === null) {
+          return
+        }
         var item = this.product.items[this.product.selectedProductItemIndex]
         this.product.productItemId = item.id
         this.product.kinds = item.items
-        if (item.items.length === 0) {
+        this.product.productItemKindId = null
+        if (this.paramIsNull(this.product.kinds) || this.product.kinds.length === 0) {
           this.product.productItemShowModal = false
         } else {
           this.product.productItemShowModal = true
-          var kind = this.product.kinds[0]
-          this.product.productItemKindId = kind.id
         }
+      },
+      productItemKindSelecteChanged () {
+        if (this.paramIsNull(this.product.selectedItemKindIndex)) {
+          return
+        }
+        this.product.productItemKindId = this.product.kinds[this.product.selectedItemKindIndex].id
       },
       manageProductStock (row) {
         this.stock.stockId = row.stockId
@@ -344,16 +404,44 @@
         })
       },
       bookingDetail (row) {
-        router.push({name: 'stockInfo', params: {id: row.stockId, operation: 'booking', pageIndex: this.currentPage}})
+        router.push(
+          {
+            name: 'stockInfo',
+            params: {
+              info: {
+                id: row.stockId,
+                operation: 'booking',
+                pageIndex: this.currentPage,
+                routeName: 'stockManage',
+                routeMenu: '库存管理'
+              }
+            }
+          }
+        )
       },
       completeDetail (row) {
-        router.push({name: 'stockInfo', params: {id: row.stockId, operation: 'complete', pageIndex: this.currentPage}})
+        router.push(
+          {
+            name: 'stockInfo',
+            params: {
+              info: {
+                id: row.stockId,
+                operation: 'complete',
+                pageIndex: this.currentPage,
+                routeName: 'stockManage',
+                routeMenu: '库存管理'
+              }
+            }
+          }
+        )
       }
     },
     created () {
-      this.currentPage = parseInt(this.$route.params.pageIndex)
+      var pageIndex = this.$route.params.pageIndex
+      if (!this.paramIsNull(pageIndex)) {
+        this.currentPage = parseInt(pageIndex)
+      }
       this.getTableData()
-      this.initAppointmentStartAndEndDate()
     }
   }
 </script>
