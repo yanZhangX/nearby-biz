@@ -16,11 +16,11 @@
         <el-table-column prop="code" label="电子码"></el-table-column>
         <el-table-column prop="name" label="产品名称" min-width="200"></el-table-column>
         <el-table-column prop="subTitle" label="套餐" min-width="100"></el-table-column>
-        <el-table-column prop="expressInfo" label="快递单号" min-width="180">
+        <el-table-column prop="expressInfo" label="快递单号" min-width="140"></el-table-column>
+        <el-table-column label="操作" min-width="200" fixed="right">
           <templete slot-scope="scope">
             <el-button type="text" @click="inputDeliveryNumber(scope.row)" v-if="paramIsNull(scope.row.expressInfo)">新增快递单号</el-button>
-            <span v-else>{{scope.row.expressInfo}}</span>
-            <el-button type="text" @click="inputDeliveryNumber(scope.row)" v-if="!paramIsNull(scope.row.expressInfo)">修改快递单号</el-button>
+            <el-button type="text" @click="inputDeliveryNumber(scope.row)" v-else>修改快递单号</el-button>
           </templete>
         </el-table-column>
       </el-table>
