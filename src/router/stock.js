@@ -22,10 +22,17 @@ export default {
       }
     },
     {
-      path: 'stock/history/1',
+      path: '/stock/history/1',
       name: 'stockHistoryList',
       component (resolve) {
         require(['VIEW/stock/history/list'], resolve)
+      }
+    },
+    {
+      path: '/delivery/list/1',
+      name: 'deliveryList',
+      component (resolve) {
+        require(['VIEW/delivery/list'], resolve)
       }
     }
   ]
