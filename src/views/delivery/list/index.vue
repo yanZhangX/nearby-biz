@@ -12,13 +12,13 @@
       <el-table :data="tableData" :highlight-current-row="true" v-loading.body="loading" stripe scope="scope" max-height=2000>
         <el-table-column prop="customerName" label="顾客姓名" min-width="85"></el-table-column>
         <el-table-column prop="customerPhoneNumber" label="顾客手机号" min-width="115"></el-table-column>
+        <el-table-column prop="memo" label="邮寄地址" min-width="160"></el-table-column>
         <el-table-column prop="expressInfo" label="快递单号" min-width="140">
           <template scope="scope">
             <span style="color: red">{{scope.row.expressInfo}}</span>
           </template>
         </el-table-column>
         <el-table-column prop="orderId" label="订单号" min-width="130"></el-table-column>
-        <el-table-column prop="code" label="电子码" min-width="100"></el-table-column>
         <el-table-column prop="name" label="产品名称" min-width="120"></el-table-column>
         <el-table-column prop="subTitle" label="套餐" min-width="100"></el-table-column>
         <el-table-column label="操作" min-width="120" fixed="right">
@@ -152,7 +152,7 @@
             if (res.body.errMessage) {
               this.$message.error(res.body.errMessage)
             } else {
-              this.$message.success('新增快递单号成功')
+              this.$message.success('录入快递单号成功')
               this.getTableData()
             }
           }).catch(e => {
