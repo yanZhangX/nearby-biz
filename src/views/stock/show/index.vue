@@ -170,10 +170,10 @@
           return
         }
         if (this.operation === 'complete') {
-          this.downloadUrl = `${appHost()}/v1/a/biz/complete/day/download?id=${this.$route.params.id}&token=${getToken()}`
+          this.downloadUrl = `${appHost()}/v1/a/biz/complete/day/download?id=${this.$route.params.info.id}&token=${getToken()}`
           window.open(this.downloadUrl)
         } else if (this.operation === 'booking') {
-          this.downloadUrl = `${appHost()}/v1/a/biz/booking/day/download?id=${this.$route.params.id}&token=${getToken()}`
+          this.downloadUrl = `${appHost()}/v1/a/biz/booking/day/download?id=${this.$route.params.info.id}&token=${getToken()}`
           window.open(this.downloadUrl)
         }
       },
