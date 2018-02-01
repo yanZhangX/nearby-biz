@@ -6,25 +6,29 @@
       </el-breadcrumb>
     </div>
     <div class="filter">
-
+      <div class="r">
+        <el-button type="primary" @click="sendExpressMsgSms">发送物流信息短信</el-button>
+      </div>
     </div>
     <div class="main-container">
       <el-table :data="tableData" :highlight-current-row="true" v-loading.body="loading" stripe scope="scope" max-height=2000>
         <el-table-column prop="customerName" label="顾客姓名" min-width="85"></el-table-column>
         <el-table-column prop="customerPhoneNumber" label="顾客手机号" min-width="115"></el-table-column>
-        <el-table-column prop="memo" label="邮寄地址" min-width="160"></el-table-column>
+        <el-table-column prop="address" label="邮寄地址" min-width="160"></el-table-column>
+        <el-table-column prop="memo" label="备注" min-width="120"></el-table-column>
         <el-table-column prop="expressInfo" label="快递单号" min-width="140">
           <template scope="scope">
             <span style="color: red">{{scope.row.expressInfo}}</span>
           </template>
         </el-table-column>
         <el-table-column prop="orderId" label="订单号" min-width="130"></el-table-column>
-        <el-table-column prop="name" label="产品名称" min-width="120"></el-table-column>
+        <el-table-column prop="sendSmsStr" label="发短信" min-width="80"></el-table-column>
+        <el-table-column prop="name" label="产品名称" min-width="100"></el-table-column>
         <el-table-column prop="subTitle" label="套餐" min-width="100"></el-table-column>
         <el-table-column label="操作" min-width="120" fixed="right">
           <templete slot-scope="scope">
-            <el-button type="text" @click="inputDeliveryNumber(scope.row)" v-if="paramIsNull(scope.row.expressInfo)">录入快递单号</el-button>
-            <el-button type="text" @click="inputDeliveryNumber(scope.row)" v-else>修改快递单号</el-button>
+            <el-button type="text" @click="inputDeliveryNumber(scope.row)" v-if="paramIsNull(scope.row.expressInfo)">录入快递信息</el-button>
+            <el-button type="text" @click="inputDeliveryNumber(scope.row)" v-else>修改快递信息</el-button>
           </templete>
         </el-table-column>
       </el-table>
@@ -35,9 +39,12 @@
       </el-pagination>
     </div>
 
-    <el-dialog v-model="inputDeliveryNumberModal" title="快递单号信息" :close-on-click-modal="false" :show-close="false" close-on-press-escape >
+    <el-dialog v-model="inputDeliveryNumberModal" title="快递信息" :close-on-click-modal="false" :show-close="false" close-on-press-escape >
       <div class="modal-info-container">
         <div class="info-content-container">
+          <ul>
+            <li><el-input v-model="deliveryName" placeholder="请输入快递公司"></el-input></li>
+          </ul>
           <ul>
             <li><el-input v-model="deliveryNumber" placeholder="请输入快递单号"></el-input></li>
           </ul>
@@ -67,11 +74,23 @@
         total: null,
         inputDeliveryNumberModal: false,
         row: null,
+        deliveryName: null,
         deliveryNumber: null
       }
     },
     computed: {},
     methods: {
+      sendExpressMsgSms () {
+        this.$http.get('/v1/a/biz/order/express/send').then(res => {
+          if (res.body.errMessage) {
+            this.$message.error(res.body.errMessage)
+          } else {
+            this.$message.success('短信发送成功')
+          }
+        }).catch(res => {
+          this.$message.error('服务器繁忙！')
+        })
+      },
       trim: function (str) {
         return str.replace(/(^\s*)|(\s*$)/g, '')
       },
@@ -118,10 +137,15 @@
       },
       inputDeliveryNumber (row) {
         this.row = row
+        this.deliveryName = null
         this.deliveryNumber = null
         this.inputDeliveryNumberModal = true
       },
       completeInput () {
+        if (this.paramIsNull(this.deliveryName)) {
+          this.$message.error('快递公司不能为空')
+          return
+        }
         if (this.paramIsNull(this.deliveryNumber)) {
           this.$message.error('快递单号不能为空')
           return
@@ -137,6 +161,7 @@
             h('div', {style: 'color: red;'}, `顾客姓名：${this.row.customerName}`),
             h('div', {style: 'color: red;'}, `顾客手机：${this.row.customerPhoneNumber}`),
             h('div', {style: 'color: red;'}, `订单号：${this.row.orderId}`),
+            h('div', {style: 'color: red;'}, `快递公司：${this.deliveryName}`),
             h('div', {style: 'color: red;'}, `快递单号：${this.deliveryNumber}`)
           ]),
           showCancelButton: true,
@@ -147,6 +172,7 @@
         }).then(() => {
           this.$http.post('/v1/a/biz/user/order/express/add', {
             orderId: this.row.orderId,
+            expressName: this.deliveryName,
             expressInfo: this.deliveryNumber
           }).then((res) => {
             if (res.body.errMessage) {
