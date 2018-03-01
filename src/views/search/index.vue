@@ -74,6 +74,9 @@
           </ul>
         </div>
 
+        <div class="complete-container" v-if="info.status === 3">
+          <img src="/static/img/home/complete.png" alt="">
+        </div>
       </div>
       <div slot="footer" class="dialog-footer">
         <div class="k-center">

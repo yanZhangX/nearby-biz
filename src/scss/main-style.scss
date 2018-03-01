@@ -115,5 +115,16 @@ input::-webkit-input-placeholder{
     }
   }
 
+  .complete-container{
+    width: 100%;
+    position: absolute;
+    top: 240px;
+    img{
+      float: left;
+      width: 120px;
+      margin-left: 310px;
+    }
+  }
+
 
 }
