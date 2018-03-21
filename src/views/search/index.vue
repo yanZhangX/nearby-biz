@@ -11,7 +11,9 @@
           <i class="el-icon-search k-center" @click="search"></i>
           <input type="text" placeholder="请输入电子码" v-focus class="k-search-input" v-model="keywords" @keyup.enter="search">
         </div>
-
+        <el-select style="width: 270px" v-model="index" placeholder="请选择店铺" @change="locationChanged">
+          <el-option v-for="(item, index) in storeList" :label="item.name" :value="index"></el-option>
+        </el-select>
       </div>
     </div>
     <div class="main-container">
@@ -74,6 +76,9 @@
           </ul>
         </div>
 
+        <div class="complete-container" v-if="info.status === 3">
+          <img src="/static/img/home/complete.png" alt="">
+        </div>
       </div>
       <div slot="footer" class="dialog-footer">
         <div class="k-center">
@@ -87,6 +92,7 @@
 
 <script>
   import moment from 'moment'
+  import {getUser} from 'CONST'
   export default {
     name: 'stock',
     data () {
@@ -121,7 +127,10 @@
           bookingMemo: '',
           bookingItemText: '',
           bookingItems: []
-        }
+        },
+        storeList: null,
+        index: null,
+        store: null
       }
     },
     computed: {},
@@ -140,13 +149,36 @@
           return ''
         }
       },
+      locationChanged () {
+        this.currentPage = (this.pageIndex !== 0 ? this.pageIndex : 1)
+        this.pageIndex = 0
+        this.store = this.storeList[this.index]
+        this.getTableData()
+      },
+      getStoreList () {
+        this.$http.get('/v1/a/biz/store/list').then(res => {
+          if (res.body.errMessage) {
+            this.$message.error(res.body.errMessage)
+          } else {
+            this.storeList = res.body.data
+            let size = this.storeList.length
+            for (let i = 0; i < size; i++) {
+              if (this.storeList[i].status === 1 && this.storeList[i].bizUid === getUser().id) {
+                this.index = i
+                break
+              }
+            }
+          }
+        })
+      },
       getTableData () {
         this.$http.get('/v1/a/biz/code/list', {
           params: {
             pageSize: this.pageSize,
             order: this.sortType,
             pageIndex: this.currentPage,
-            status: this.state
+            status: this.store.status,
+            bizUid: this.store.bizUid
           }
         }).then(res => {
           if (res.body.errMessage) {
@@ -234,6 +266,7 @@
       }
     },
     created () {
+      this.getStoreList()
       this.getTableData()
     }
   }
