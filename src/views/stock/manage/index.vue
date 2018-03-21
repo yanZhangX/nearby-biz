@@ -154,7 +154,7 @@
         },
         dateAppointmentOptions: {
           disabledDate: (startDate, endDate) => {
-            return startDate <= new Date()
+            return startDate <= Date.now()
           }
         }
       }
