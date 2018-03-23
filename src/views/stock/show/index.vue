@@ -27,7 +27,7 @@
         <el-table-column prop="completeDate" label="核销时间" min-width="200" :formatter="completeDate" v-if="operation === 'complete'"></el-table-column>
         <el-table-column prop="bookingMemo" label="备注" min-width="150"></el-table-column>
         <el-table-column label="操作" min-width="100" v-if="operation === 'booking'" fixed="right">
-          <template scope="scope">
+          <template slot-scope="scope">
             <el-button type="text" @click="confirmBookingItem(scope.row)" v-if="scope.row.sure !== 'undefined' && scope.row.sure === 0 && designateOrderModal === false">预约确认</el-button>
 
             <el-dropdown @command="designateOrderToSupplier" trigger="click" v-if="designateOrderModal">
@@ -35,7 +35,7 @@
                 指派接单商家
               </el-button>
               <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item v-for="item in supplierList" :command="item">{{item.name}}</el-dropdown-item>
+                <el-dropdown-item v-for="(item, index) in supplierList" :key="index" :command="item">{{item.name}}</el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
           </template>

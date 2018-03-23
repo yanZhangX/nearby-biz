@@ -17,7 +17,7 @@
         <el-table-column prop="address" label="邮寄地址" min-width="160"></el-table-column>
         <el-table-column prop="memo" label="备注" min-width="120"></el-table-column>
         <el-table-column prop="expressInfo" label="快递单号" min-width="140">
-          <template scope="scope">
+          <template slot-scope="scope">
             <span style="color: red">{{scope.row.expressInfo}}</span>
           </template>
         </el-table-column>

@@ -11,16 +11,14 @@
           <i class="el-icon-search k-center" @click="search"></i>
           <input type="text" placeholder="请输入电子码" v-focus class="k-search-input" v-model="keywords" @keyup.enter="search">
         </div>
-        <el-select style="width: 270px" v-model="index" placeholder="请选择店铺" @change="locationChanged">
-          <el-option v-for="(item, index) in storeList" :label="item.name" :value="index"></el-option>
+        <el-select style="width: 270px" v-model="storeIndex" placeholder="请选择店铺" @change="storeChanged">
+          <el-option v-for="(item, index) in storeList" :label="item.name" :key="index" :value="index"></el-option>
         </el-select>
       </div>
     </div>
     <div class="main-container">
-      <el-table :data="tableData" :highlight-current-row="true" v-loading.body="loading" stripe scope="scope" max-height=2000>
+      <el-table :data="tableData" :highlight-current-row="true" v-loading.body="loading" stripe max-height=2000>
         <el-table-column prop="orderid" label="订单号"></el-table-column>
-        <!--<el-table-column prop="customerName" label="顾客姓名"></el-table-column>-->
-        <!--<el-table-column prop="customerPhoneNumber" label="顾客手机号"></el-table-column>-->
         <el-table-column prop="code" label="电子码"></el-table-column>
         <el-table-column prop="completeDate" :formatter="dateFormat" label="核销时间" min-width="100"></el-table-column>
         <el-table-column prop="title" label="产品名称" min-width="200"></el-table-column>
@@ -41,10 +39,6 @@
       <div class="modal-info-container">
         <div class="info-content-container">
           <ul>
-            <!--<li><span>游客姓名：</span><span>{{info.customerName}}</span></li>-->
-            <!--<li><span>游客电话：</span><span>{{info.customerPhoneNumber}}</span></li>-->
-            <!--<li><span>预定时间：</span><span>{{info.bookingDate | infoTimeFormatter('yyyy-MM-dd hh:mm:ss')}}</span></li>-->
-            <!--<li><span>完成时间：</span><span>{{info.completeDate | infoTimeFormatter('yyyy-MM-dd hh:mm:ss')}}</span></li>-->
             <li><span>下单时间：</span><span>{{info.createDate | infoTimeFormatter('yyyy-MM-dd hh:mm:ss')}}</span></li>
             <li><span>电子码：</span><span>{{info.code}}</span></li>
             <li>
@@ -57,7 +51,7 @@
               <span>产品型号选择：</span>
               <span>
                 <el-radio-group v-model="bookingItemId" size="small">
-                  <el-radio  v-for="item in info.bookingItems" :label="item.id">{{item.bookingItemText}}</el-radio>
+                  <el-radio  v-for="(item, index) in info.bookingItems" :label="item.id" :key="index">{{item.bookingItemText}}</el-radio>
                 </el-radio-group>
               </span>
             </li>
@@ -129,8 +123,12 @@
           bookingItems: []
         },
         storeList: null,
-        index: null,
-        store: null
+        storeIndex: null,
+        store: {
+          name: null,
+          bizUid: null,
+          status: null
+        }
       }
     },
     computed: {},
@@ -149,10 +147,10 @@
           return ''
         }
       },
-      locationChanged () {
+      storeChanged () {
         this.currentPage = (this.pageIndex !== 0 ? this.pageIndex : 1)
         this.pageIndex = 0
-        this.store = this.storeList[this.index]
+        this.store = this.storeList[this.storeIndex]
         this.getTableData()
       },
       getStoreList () {
@@ -164,7 +162,7 @@
             let size = this.storeList.length
             for (let i = 0; i < size; i++) {
               if (this.storeList[i].status === 1 && this.storeList[i].bizUid === getUser().id) {
-                this.index = i
+                this.storeIndex = i
                 break
               }
             }
