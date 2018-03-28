@@ -81,7 +81,7 @@
     computed: {},
     methods: {
       sendExpressMsgSms () {
-        this.$http.get('/v1/a/biz/order/express/send').then(res => {
+        this.$http.post('/v1/a/biz/order/express/send').then(res => {
           if (res.body.errMessage) {
             this.$message.error(res.body.errMessage)
           } else {
