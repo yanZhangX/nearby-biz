@@ -14,7 +14,7 @@
       <el-table :data="tableData" v-loading.body="loading" stripe scope="scope" max-height=2000>
         <el-table-column prop="bookingDay" label="日期" min-width="100"></el-table-column>
         <el-table-column prop="bookingDay" label="星期" min-width="100">
-          <template scope="scope">
+          <template slot-scope="scope">
             <span v-if="isDateWeekend(scope.row)" style="color: red">{{weekFormat(scope.row)}}</span>
             <span v-else>{{weekFormat(scope.row)}}</span>
           </template>
@@ -25,7 +25,7 @@
         <el-table-column prop="completeAmount" label="已核销"></el-table-column>
         <el-table-column prop="name" label="产品名称"></el-table-column>
         <el-table-column label="操作" width="240" fixed="right">
-          <template scope="scope">
+          <template slot-scope="scope">
             <div>
               <el-button type="text" @click.stop="manageProductStock(scope.row)">管理库存</el-button>
               <el-button type="text" @click.stop="bookingDetail(scope.row)">查看预约</el-button>
@@ -154,7 +154,7 @@
         },
         dateAppointmentOptions: {
           disabledDate: (startDate, endDate) => {
-            return startDate <= new Date()
+            return startDate <= Date.now()
           }
         }
       }

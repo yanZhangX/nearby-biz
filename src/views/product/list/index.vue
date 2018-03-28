@@ -9,7 +9,7 @@
       <div class="l">
         <span>城市选择：</span>
         <el-select v-model="locationId" placeholder="请选择城市" @change="locationChanged">
-          <el-option v-for="item in locationList" :label="item.city" :value="item.id"></el-option>
+          <el-option v-for="item in locationList" :label="item.city" :key="item.id" :value="item.id"></el-option>
         </el-select>
       </div>
     </div>
@@ -17,7 +17,7 @@
       <el-table :data="tableData" stripe max-height=2000>
         <el-table-column prop="cityName" label="城市" fixed="left"></el-table-column>
         <el-table-column prop="name" label="产品" min-width="100">
-          <template scope="scope">
+          <template slot-scope="scope">
             <el-tooltip placement="top-start">
               <div slot="content" class="tool-tip-content">{{scope.row.title}}</div>
               <span>{{scope.row.name}}</span>
@@ -26,19 +26,19 @@
         </el-table-column>
         <el-table-column prop="orderAmount" label="销量"></el-table-column>
         <el-table-column prop="dateStr" label="限时抢购" min-width="190">
-          <template scope="scope">
+          <template slot-scope="scope">
             <span v-html="scope.row.dateStr"></span>
           </template>
         </el-table-column>
         <el-table-column prop="booking" :formatter="isBooking" label="预约" min-width="100"></el-table-column>
         <el-table-column prop="validDateStr" label="有效期" min-width="190">
-          <template scope="scope">
+          <template slot-scope="scope">
             <span v-html="scope.row.validDateStr"></span>
           </template>
         </el-table-column>
         <el-table-column prop="productUrl" label="推广链接" min-width="200"></el-table-column>
         <el-table-column label="操作" min-width="200" fixed="right">
-          <template scope="scope">
+          <template slot-scope="scope">
             <el-button type="text" @click.stop="detail(scope.row)">微信预览</el-button>
             <!--<el-button type="text" @click.stop="editProduct(scope.row)">复制推广链接</el-button>-->
           </template>
