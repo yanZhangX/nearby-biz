@@ -76,10 +76,7 @@
         pageCount: 0,
         imagePreviewModal: false,
         imageUrl: null,
-        locationList: [{
-          id: 0,
-          city: '全部'
-        }],
+        locationList: [],
         locationId: null,
         form: {}
       }
@@ -109,7 +106,7 @@
         })
       },
       getLocationList () {
-        this.$http.get('/v2/nearby/location/list').then(res => {
+        this.$http.get('/v1/a/biz/location/list').then(res => {
           if (res.body.errMessage) {
             this.$message.error(res.body.errMessage)
           } else {
