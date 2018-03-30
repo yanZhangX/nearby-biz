@@ -68,7 +68,7 @@
             </li>
             <li><span>订单备注：</span><span>{{info.memo}}</span></li>
             <li><span>预约备注：</span><span>{{info.bookingMemo}}</span></li>
-            <li v-if="info.status === 1"><span>核销备注：</span><span><el-input v-model="info.completeMemo" size="small" placeholder="请输入核销备注" style="width: 70%;"></el-input></span></li>
+            <li v-if="info.status === 1 || info.status === 2"><span>核销备注：</span><span><el-input v-model="info.completeMemo" size="small" placeholder="请输入核销备注" style="width: 70%;"></el-input></span></li>
             <li v-else><span>核销备注：</span><span>{{info.completeMemo}}</span></li>
           </ul>
         </div>
