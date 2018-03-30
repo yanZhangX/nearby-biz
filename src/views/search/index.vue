@@ -23,6 +23,7 @@
         <el-table-column prop="completeDate" :formatter="dateFormat" label="核销时间" min-width="100"></el-table-column>
         <el-table-column prop="title" label="产品名称" min-width="200"></el-table-column>
         <el-table-column prop="subTitle" label="套餐" min-width="100"></el-table-column>
+        <el-table-column prop="completeMemo" label="核销备注" min-width="200"></el-table-column>
       </el-table>
     </div>
     <div class="k-center" v-show="pageCount>1">
@@ -67,6 +68,8 @@
             </li>
             <li><span>订单备注：</span><span>{{info.memo}}</span></li>
             <li><span>预约备注：</span><span>{{info.bookingMemo}}</span></li>
+            <li v-if="info.status === 1"><span>核销备注：</span><span><el-input v-model="info.completeMemo" size="small" placeholder="请输入核销备注" style="width: 70%;"></el-input></span></li>
+            <li v-else><span>核销备注：</span><span>{{info.completeMemo}}</span></li>
           </ul>
         </div>
 
@@ -120,7 +123,8 @@
           statusText: '',
           bookingMemo: '',
           bookingItemText: '',
-          bookingItems: []
+          bookingItems: [],
+          completeMemo: null
         },
         storeList: null,
         storeIndex: null,
@@ -222,6 +226,7 @@
               } else {
                 this.completeSettingModal = false
               }
+              console.log(this.info)
             }
           })
         }
@@ -233,9 +238,9 @@
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          var url = `/v1/a/biz/code?c=${row.code}`
+          var url = `/v1/a/biz/code?c=${row.code}&memo=${this.info.completeMemo}`
           if (this.info.status === 1 && this.info.booking === 1) {
-            url = `/v1/a/biz/code?c=${row.code}&bookingItemId=${this.bookingItemId}&bookingDay=${this.completeDay.getTime()}`
+            url = `/v1/a/biz/code?c=${row.code}&memo=${this.info.completeMemo}&bookingItemId=${this.bookingItemId}&bookingDay=${this.completeDay.getTime()}`
           }
           this.$http.post(url).then(function (res) {
             if (res.body.errMessage) {
