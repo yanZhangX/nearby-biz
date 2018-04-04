@@ -8,10 +8,12 @@ import 'SCSS/common.scss'
 import './filter'
 import ElementUi from 'element-ui'
 import {appHost, getToken} from './const'
+import MyPlugin from './plugin/index'
 
 Vue.use(VueRouter)
 Vue.use(VueResource)
 Vue.use(ElementUi)
+Vue.use(MyPlugin)
 
 Vue.http.options.emulateHTTP = true
 Vue.http.options.timeout = 30000

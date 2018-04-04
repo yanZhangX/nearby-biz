@@ -39,38 +39,43 @@
     <el-dialog v-model="travelTicket" title="电子码信息" :close-on-click-modal="false" :show-close="false" close-on-press-escape >
       <div class="modal-info-container">
         <div class="info-content-container">
-          <ul>
-            <li><span>下单时间：</span><span>{{info.createDate | infoTimeFormatter('yyyy-MM-dd hh:mm:ss')}}</span></li>
-            <li><span>电子码：</span><span>{{info.code}}</span></li>
-            <li>
-              <span>状态：</span>
+          <el-form ref="form" :model="info" label-width="140px" :inline-message="true" label-position="left">
+            <el-form-item label="下单时间：">
+              {{info.createDate | infoTimeFormatter('yyyy-MM-dd hh:mm:ss')}}
+            </el-form-item>
+            <el-form-item label="电子码：">
+              <span>{{info.code}}</span>
+              <span>{{getUserName()}}</span>
+              <span>{{getUserPhoneNumber()}}</span>
+            </el-form-item>
+            <el-form-item label="状态：">
               <span>{{info.statusText}}</span>
               <span>{{info.bookingDateText}}</span>
               <span>{{info.bookingItemText}}</span>
-            </li>
-            <li v-if="completeSettingModal">
-              <span>产品型号选择：</span>
-              <span>
-                <el-radio-group v-model="bookingItemId" size="small">
-                  <el-radio  v-for="(item, index) in info.bookingItems" :label="item.id" :key="index">{{item.bookingItemText}}</el-radio>
-                </el-radio-group>
-              </span>
-            </li>
-            <li v-if="completeSettingModal">
-              <span>到店时间选择：</span>
-              <span>
-                <el-date-picker type="date"
-                                :editable="false"
-                                placeholder="请选择到店时间"
-                                v-model="completeDay"
-                                :clearable="false"></el-date-picker>
-              </span>
-            </li>
-            <li><span>订单备注：</span><span>{{info.memo}}</span></li>
-            <li><span>预约备注：</span><span>{{info.bookingMemo}}</span></li>
-            <li v-if="info.status === 1 || info.status === 2"><span>核销备注：</span><span><el-input v-model="info.completeMemo" size="small" placeholder="请输入核销备注" style="width: 70%;"></el-input></span></li>
-            <li v-else><span>核销备注：</span><span>{{info.completeMemo}}</span></li>
-          </ul>
+            </el-form-item>
+            <el-form-item label="产品型号选择：" v-if="completeSettingModal">
+              <el-radio-group v-model="bookingItemId" size="small">
+                <el-radio  v-for="(item, index) in info.bookingItems" :label="item.id" :key="index">{{item.bookingItemText}}</el-radio>
+              </el-radio-group>
+            </el-form-item>
+            <el-form-item label="到店时间选择：" v-if="completeSettingModal">
+              <el-date-picker type="date"
+                              :editable="false"
+                              placeholder="请选择到店时间"
+                              v-model="completeDay"
+                              :clearable="false"></el-date-picker>
+            </el-form-item>
+            <el-form-item label="订单备注：">
+              {{info.memo}}
+            </el-form-item>
+            <el-form-item label="预约备注：">
+              {{info.bookingMemo}}
+            </el-form-item>
+            <el-form-item label="核销备注：">
+              <span v-if="info.status === 1 || info.status === 2"><el-input v-model="info.completeMemo" size="small" placeholder="请输入核销备注" style="width: 70%;"></el-input></span>
+              <span v-else>{{info.completeMemo}}</span>
+            </el-form-item>
+          </el-form>
         </div>
 
         <div class="complete-container" v-if="info.status === 3">
@@ -114,6 +119,8 @@
         info: {
           customerName: '',
           customerPhoneNumber: '',
+          bookingCustomerName: '',
+          bookingCustomerPhoneNumber: '',
           status: 0,
           bookingDate: '',
           bookingDateText: '',
@@ -137,6 +144,24 @@
     },
     computed: {},
     methods: {
+      getUserName () {
+        var reg = /^(.).*$/
+        if (!this.paramIsNull(this.info.bookingCustomerName)) {
+          return this.info.bookingCustomerName.replace(reg, '$1**')
+        } else if (!this.paramIsNull(this.info.customerName)) {
+          return this.info.customerName.replace(reg, '$1**')
+        }
+        return ''
+      },
+      getUserPhoneNumber () {
+        var reg = /(\d{3})\d{4}(\d{4})/
+        if (!this.paramIsNull(this.info.bookingCustomerPhoneNumber)) {
+          return this.info.bookingCustomerPhoneNumber.replace(reg, '$1****$2')
+        } else if (!this.paramIsNull(this.info.customerPhoneNumber)) {
+          return this.info.customerPhoneNumber.replace(reg, '$1****$2')
+        }
+        return ''
+      },
       dateFormat (row) {
         if (row.completeDate) {
           return moment(row.completeDate).format('YYYY-MM-DD HH:mm:ss')
@@ -226,7 +251,6 @@
               } else {
                 this.completeSettingModal = false
               }
-              console.log(this.info)
             }
           })
         }
@@ -238,9 +262,13 @@
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          var url = `/v1/a/biz/code?c=${row.code}&memo=${this.info.completeMemo}`
+          var memo = this.info.completeMemo
+          if (this.paramIsNull(memo)) {
+            memo = ''
+          }
+          var url = `/v1/a/biz/code?c=${row.code}&memo=${memo}`
           if (this.info.status === 1 && this.info.booking === 1) {
-            url = `/v1/a/biz/code?c=${row.code}&memo=${this.info.completeMemo}&bookingItemId=${this.bookingItemId}&bookingDay=${this.completeDay.getTime()}`
+            url = `/v1/a/biz/code?c=${row.code}&memo=${memo}&bookingItemId=${this.bookingItemId}&bookingDay=${this.completeDay.getTime()}`
           }
           this.$http.post(url).then(function (res) {
             if (res.body.errMessage) {
