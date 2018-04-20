@@ -26,6 +26,7 @@
         <el-table-column prop="bookingDay" label="预约时间" min-width="200" :formatter="timeDesc" v-if="operation === 'booking'"></el-table-column>
         <el-table-column prop="completeDate" label="核销时间" min-width="200" :formatter="completeDate" v-if="operation === 'complete'"></el-table-column>
         <el-table-column prop="bookingMemo" label="备注" min-width="150"></el-table-column>
+        <el-table-column prop="address" label="地址" min-width="150"></el-table-column>
         <el-table-column label="操作" min-width="100" v-if="operation === 'booking'" fixed="right">
           <template slot-scope="scope">
             <el-button type="text" @click="confirmBookingItem(scope.row)" v-if="scope.row.sure !== 'undefined' && scope.row.sure === 0 && designateOrderModal === false">预约确认</el-button>
