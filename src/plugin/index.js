@@ -68,5 +68,50 @@ export default{
         return ''
       }
     }
+    Vue.prototype.pro_isWechatClient = function () {
+      var ua = window.navigator.userAgent.toLowerCase()
+      var str = ua.match(/MicroMessenger/i)
+      if (!this.paramIsNull(str)) {
+        return true
+      } else {
+        return false
+      }
+    }
+    Vue.prototype.pro_addQueryString = function (url, name, value) {
+      let currentUrl = url.split('#')[0]
+      if (/\?/g.test(currentUrl)) {
+        if (/name=[-\w]{4,25}/g.test(currentUrl)) {
+          currentUrl = currentUrl.replace(/name=[-\w]{4,25}/g, name + '=' + value)
+        } else {
+          currentUrl += (currentUrl.endsWith('?') ? '' : '&') + name + '=' + value
+        }
+      } else {
+        currentUrl += '?' + name + '=' + value
+      }
+      if (url.split('#')[1]) {
+        return currentUrl + '#' + url.split('#')[1]
+      } else {
+        return currentUrl
+      }
+    }
+    Vue.prototype.pro_deleteQueryString = function (url, name) {
+      let reg = new RegExp('(|&)' + name + '=([^&/#]*)')
+      let str = url.match(reg)
+      if (str && str[0]) {
+        let newurl = url.replace(str[0], '')
+        return newurl.replace('?&', '?').replace('?#', '#')
+      }
+      return url
+    }
+    Vue.prototype.pro_getQueryString = function (name) {
+      let reg = new RegExp('(^|&)' + name + '=([^&]*)(&|$)')
+      if (window.location.search.indexOf('=') > -1) {
+        let r = window.location.search.substr(1).match(reg)
+        if (r) {
+          return unescape(r[2])
+        }
+      }
+      return ''
+    }
   }
 }

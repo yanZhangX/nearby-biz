@@ -37,6 +37,61 @@
   </div>
 </template>
 
+<script>
+import Vue from 'vue'
+import router from '@/router'
+import {setToken, getToken} from 'CONST'
+export default {
+  name: 'login',
+  data () {
+    return {
+      position: 'left',
+      login: {
+        userName: '',
+        password: ''
+      }
+    }
+  },
+  methods: {
+    passwordFocus () {
+      var password = document.getElementById('password')
+      password.focus()
+    },
+    switchOld: function () {
+      location.href = 'http://crm.2tai.net'
+    },
+    onSubmit () {
+      if (this.login.userName === '' || this.login.password === '') {
+        return
+      } else {
+        this.$http.post('/v1/biz/user', {
+          account: this.login.userName,
+          pwd: this.login.password
+        }).then(function (res) {
+          if (res.body.errMessage) {
+            this.$message({
+              showClose: true,
+              message: res.body.errMessage,
+              type: 'error'
+            })
+          } else {
+            setToken(res.body.data.token)
+            Vue.http.headers.common['Authorization'] = getToken()
+            router.push('/')
+          }
+        }).catch(function (res) {
+          this.$message({
+            showClose: true,
+            message: '服务器连接超时',
+            type: 'error'
+          })
+        })
+      }
+    }
+  }
+}
+</script>
+
 <style lang="scss" scoped>
 
   .blur{
@@ -162,58 +217,3 @@
   }
 
 </style>
-
-<script>
-import Vue from 'vue'
-import router from '@/router'
-import {setToken, getToken} from 'CONST'
-export default {
-  name: 'login',
-  data () {
-    return {
-      position: 'left',
-      login: {
-        userName: '',
-        password: ''
-      }
-    }
-  },
-  methods: {
-    passwordFocus () {
-      var password = document.getElementById('password')
-      password.focus()
-    },
-    switchOld: function () {
-      location.href = 'http://crm.2tai.net'
-    },
-    onSubmit () {
-      if (this.login.userName === '' || this.login.password === '') {
-        return
-      } else {
-        this.$http.post('/v1/biz/user', {
-          account: this.login.userName,
-          pwd: this.login.password
-        }).then(function (res) {
-          if (res.body.errMessage) {
-            this.$message({
-              showClose: true,
-              message: res.body.errMessage,
-              type: 'error'
-            })
-          } else {
-            setToken(res.body.data.token)
-            Vue.http.headers.common['Authorization'] = getToken()
-            router.push('/')
-          }
-        }).catch(function (res) {
-          this.$message({
-            showClose: true,
-            message: '服务器连接超时',
-            type: 'error'
-          })
-        })
-      }
-    }
-  }
-}
-</script>

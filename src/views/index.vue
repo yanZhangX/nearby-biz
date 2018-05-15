@@ -13,6 +13,10 @@
             <img src="/static/img/home/icon_password.png" alt="" class="mr">
             <span>修改密码</span>
           </div>
+          <div class="k-menu-item" @click="bindingWechat">
+            <img src="/static/img/home/icon_password.png" alt="" class="mr">
+            <span>绑定微信</span>
+          </div>
           <div class="k-menu-item" @click="logout">
             <img src="/static/img/home/icon_exit.png" alt="" class="mr">
             <span>退出登录</span>
@@ -61,33 +65,27 @@
         <el-button type="primary" @click="modifyPass">确 定</el-button>
       </div>
     </el-dialog>
+
+    <el-dialog title="账号绑定" v-model="userWxBindingModal" :close-on-click-modal="false">
+      <div v-if="userWxBindingInfo !== null">
+        <div>
+          <span>第一步：</span>
+          <span>请扫描下图二维码，关注「联联周边游成都站」后，即可在微信接收商家后台通知</span>
+        </div>
+        <div class="message-box-center">
+          <img :src="userWxBindingInfo.qrCodeUrl">
+        </div>
+        <div>
+          <span>第二步：</span>
+          <span>请扫描下图二维码，完成个人微信账号绑定后，接收微信通知</span>
+        </div>
+        <div class="message-box-center">
+          <img :src="userWxBindingInfo.bindingUrl">
+        </div>
+      </div>
+    </el-dialog>
   </div>
 </template>
-
-<style lang="scss" scoped>
-  .el-dialog__body{
-    padding-bottom: 0;
-  }
-  .warpper{
-    height: 100%;
-    .header{
-      background: #FFFFFF;
-      box-shadow: 0 0 10px 0 rgba(0,0,0,0.10);
-      height: 60px;
-      position: relative;
-      h1{
-        line-height: 1.3;
-        font-size: 16px;
-        margin: 0;
-        line-height: 60px;
-        text-align: left;
-        padding-left: 50px;
-        color: #333;
-        font-weight: bolder;
-      }
-    }
-  }
-</style>
 
 <script>
   import Vue from 'vue'
@@ -109,7 +107,9 @@
         headIconUrl: '',
         name: '',
         phoneNumber: '',
-        menuItemId: ''
+        menuItemId: '',
+        userWxBindingModal: false,
+        userWxBindingInfo: null
       }
     },
     computed: {
@@ -128,7 +128,7 @@
         }
       },
       handleShowUserMenu () {
-        this.$refs.userMenu.style.height = '80px'
+        this.$refs.userMenu.style.height = '100px'
       },
       handleHideUserMenu () {
         this.$refs.userMenu.style.height = '0'
@@ -203,6 +203,27 @@
           Vue.http.headers.custom['Authorization'] = getToken()
           router.push('/login')
         }).catch(() => {})
+      },
+
+      bindingWechat () {
+        var loading = this.$loading({
+          lock: true,
+          text: '加载中……',
+          spinner: 'el-icon-loading',
+          background: 'rgba(0, 0, 0, 0.7)'
+        })
+        this.$http.get('/v1/biz/user/binding/info').then(res => {
+          loading.close()
+          if (res.body.errMessage) {
+            this.$message.error(res.body.errMessage)
+          } else {
+            this.userWxBindingInfo = res.body.data
+            this.userWxBindingModal = true
+          }
+        }).catch(e => {
+          loading.close()
+          this.$message.error('服务器繁忙')
+        })
       }
     },
     watch: {
@@ -245,3 +266,34 @@
     }
   }
 </script>
+
+<style lang="scss" scoped>
+  .el-dialog__body{
+    padding-bottom: 0;
+  }
+  .warpper{
+    height: 100%;
+    .header{
+      background: #FFFFFF;
+      box-shadow: 0 0 10px 0 rgba(0,0,0,0.10);
+      height: 60px;
+      position: relative;
+      h1{
+        line-height: 1.3;
+        font-size: 16px;
+        margin: 0;
+        line-height: 60px;
+        text-align: left;
+        padding-left: 50px;
+        color: #333;
+        font-weight: bolder;
+      }
+    }
+    .message-box-center {
+      width: 100%;
+      height: auto;
+      display: inline-block;
+      text-align: center;
+    }
+  }
+</style>

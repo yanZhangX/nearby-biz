@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import Login from '@/views/Login'
 import Index from '@/views'
+import WxLogin from '@/views/wxLogin'
 import NoResource from 'VIEW/no-resource'
 
 import dashboard from './dashboard'
@@ -18,6 +19,11 @@ export default new Router({
       path: '/login',
       name: 'login',
       component: Login
+    },
+    {
+      path: '/wxLogin',
+      name: 'wxLogin',
+      component: WxLogin
     },
     {
       path: '/no-resource/:code',
