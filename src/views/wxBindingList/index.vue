@@ -17,7 +17,7 @@
           </template>
         </el-table-column>
         <el-table-column prop="shopName" label="店名"></el-table-column>
-        <el-table-column prop="shopTypeStr" label="店铺类型"></el-table-column>
+        <!--<el-table-column prop="shopTypeStr" label="店铺类型"></el-table-column>-->
         <el-table-column label="操作" width="240" fixed="right">
           <template slot-scope="scope">
             <div>
