@@ -70,7 +70,7 @@
       <div v-if="userWxBindingInfo !== null">
         <div>
           <span>第一步：</span>
-          <span>请扫描下图二维码，关注「联联周边游成都站」后，即可在微信接收商家后台通知</span>
+          <span>请扫描下图二维码，关注「联联周边游{{this.userWxBindingInfo.city}}」后，即可在微信接收商家后台通知</span>
         </div>
         <div class="message-box-center">
           <img :src="userWxBindingInfo.qrCodeUrl">
