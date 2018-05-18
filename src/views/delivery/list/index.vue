@@ -21,6 +21,7 @@
       </div>
     </div>
     <div class="main-container">
+      <div style="color: red" v-model="importExcelMessage" ref="importExcelMessage"></div>
       <el-table :data="tableData" :highlight-current-row="true" v-loading.body="loading" stripe scope="scope" max-height=2000>
         <el-table-column prop="customerName" label="顾客姓名" min-width="85"></el-table-column>
         <el-table-column prop="customerPhoneNumber" label="顾客手机号" min-width="115"></el-table-column>
@@ -86,7 +87,8 @@
         row: null,
         deliveryName: null,
         deliveryNumber: null,
-        importExcelFile: null
+        importExcelFile: null,
+        importExcelMessage: null
       }
     },
     computed: {},
@@ -221,6 +223,7 @@
         })
       },
       fileListChange (file, fileList) {
+        this.$refs.importExcelMessage.innerHTML = null
         this.importExcelFile = file
         var h = this.$createElement
         this.$msgbox({
