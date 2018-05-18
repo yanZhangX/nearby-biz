@@ -14,7 +14,7 @@
             <span>修改密码</span>
           </div>
           <div class="k-menu-item" @click="bindingWechat">
-            <img src="/static/img/home/icon_password.png" alt="" class="mr">
+            <img src="/static/img/home/icon_wx_binding.png" alt="" class="mr">
             <span>绑定微信</span>
           </div>
           <div class="k-menu-item" @click="logout">
