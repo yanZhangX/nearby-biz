@@ -7,7 +7,17 @@
     </div>
     <div class="filter">
       <div class="r">
-        <el-button type="primary" @click="sendExpressMsgSms">发送物流信息短信</el-button>
+        <el-button type="primary" @click="downloadExcelModel">下载物流模版</el-button>
+        <el-upload class="uploader"
+                   action="form.action"
+                   :multiple="false"
+                   :auto-upload="false"
+                   accept=".xls,.xlsx"
+                   :on-change="fileListChange"
+                   :show-file-list="false">
+          <el-button type="primary">导入物流信息</el-button>
+        </el-upload>
+        <el-button class="uploader" type="primary" @click="sendExpressMsgSms">发送物流信息短信</el-button>
       </div>
     </div>
     <div class="main-container">
@@ -75,20 +85,41 @@
         inputDeliveryNumberModal: false,
         row: null,
         deliveryName: null,
-        deliveryNumber: null
+        deliveryNumber: null,
+        importExcelFile: null
       }
     },
     computed: {},
     methods: {
       sendExpressMsgSms () {
-        this.$http.post('/v1/a/biz/order/express/send').then(res => {
-          if (res.body.errMessage) {
-            this.$message.error(res.body.errMessage)
-          } else {
-            this.$message.success('短信发送成功')
-          }
-        }).catch(res => {
-          this.$message.error('服务器繁忙！')
+        this.$msgbox({
+          title: '温馨提示',
+          message: this.$createElement('p', null, [
+            this.$createElement('span', null, '确认要给「已有物流信息」并且「未发送过短信」的用户发送物流信息短信?')
+          ]),
+          showCancelButton: true,
+          confirmButtonText: '确认发送',
+          cancelButtonText: '再考虑一下',
+          type: 'warning',
+          center: true
+        }).then(() => {
+          var loading = this.$loading({
+            lock: true,
+            text: '物流信息短信发送中……',
+            spinner: 'el-icon-loading',
+            background: 'rgba(0, 0, 0, 0.7)'
+          })
+          this.$http.post('/v1/a/biz/order/express/send').then(res => {
+            loading.close()
+            if (res.body.errMessage) {
+              this.$message.error(res.body.errMessage)
+            } else {
+              this.$message.success('短信发送成功')
+            }
+          }).catch(res => {
+            loading.close()
+            this.$message.error('服务器繁忙！')
+          })
         })
       },
       trim: function (str) {
@@ -188,6 +219,51 @@
         }).catch(() => {
           this.inputDeliveryNumberModal = true
         })
+      },
+      fileListChange (file, fileList) {
+        this.importExcelFile = file
+        var h = this.$createElement
+        this.$msgbox({
+          title: '温馨提示',
+          message: h('p', null, [
+            h('div', null, '导入物流信息确认：'),
+            h('div', {style: 'color: red;'}, `导入表格：${this.importExcelFile.raw.name}`)
+          ]),
+          showCancelButton: true,
+          confirmButtonText: '确认无误并导入',
+          cancelButtonText: '再检查一下',
+          type: 'warning',
+          center: true
+        }).then(() => {
+          var formData = new FormData()
+          formData.append('file', this.importExcelFile.raw)
+          var loading = this.$loading({
+            lock: true,
+            text: '物流信息导入中……',
+            spinner: 'el-icon-loading',
+            background: 'rgba(0, 0, 0, 0.7)'
+          })
+          this.$http.post('/v1/a/biz/order/import/expressinfo/excel', formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }
+          }).then(res => {
+            loading.close()
+            if (res.body.errMessage) {
+              this.$message.error(res.body.errMessage)
+            } else {
+              this.$refs.importExcelMessage.innerHTML = res.body.data
+            }
+            this.currentPage = 1
+            this.getTableData()
+          }).catch(res => {
+            loading.close()
+            this.$message.error('服务器繁忙！')
+          })
+        })
+      },
+      downloadExcelModel () {
+        window.open('https://cdn.lianlianlvyou.com/excel/%E5%AF%BC%E5%85%A5%E8%BF%90%E5%8D%95%E6%A8%A1%E7%89%88.xls')
       }
     },
     created () {
