@@ -14,7 +14,7 @@
             <span>修改密码</span>
           </div>
           <div class="k-menu-item" @click="bindingWechat">
-            <img src="/static/img/home/icon_password.png" alt="" class="mr">
+            <img src="/static/img/home/icon_wx_binding.png" alt="" class="mr">
             <span>绑定微信</span>
           </div>
           <div class="k-menu-item" @click="logout">
@@ -70,7 +70,7 @@
       <div v-if="userWxBindingInfo !== null">
         <div>
           <span>第一步：</span>
-          <span>请扫描下图二维码，关注「联联周边游{{this.userWxBindingInfo.city}}」后，即可在微信接收商家后台通知</span>
+          <span>请扫描下图二维码，关注「联联周边游{{this.cityName}}」后，即可在微信接收商家后台通知</span>
         </div>
         <div class="message-box-center">
           <img :src="userWxBindingInfo.qrCodeUrl">
@@ -109,7 +109,8 @@
         phoneNumber: '',
         menuItemId: '',
         userWxBindingModal: false,
-        userWxBindingInfo: null
+        userWxBindingInfo: null,
+        cityName: null
       }
     },
     computed: {
@@ -218,6 +219,7 @@
             this.$message.error(res.body.errMessage)
           } else {
             this.userWxBindingInfo = res.body.data
+            this.cityName = this.userWxBindingInfo.city
             this.userWxBindingModal = true
           }
         }).catch(e => {

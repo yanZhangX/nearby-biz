@@ -17,11 +17,14 @@
           </template>
         </el-table-column>
         <el-table-column prop="shopName" label="店名"></el-table-column>
+        <el-table-column prop="subscribeStr" label="通知状态"></el-table-column>
         <!--<el-table-column prop="shopTypeStr" label="店铺类型"></el-table-column>-->
         <el-table-column label="操作" width="240" fixed="right">
           <template slot-scope="scope">
             <div>
               <el-button type="text" @click.stop="unbindWx(scope.row)">解除绑定</el-button>
+              <el-button type="text" @click.stop="openOrCloseNotifiation(scope.row)" v-if="scope.row.isSubscribe === 1">关闭通知</el-button>
+              <el-button type="text" @click.stop="openOrCloseNotifiation(scope.row)" v-if="scope.row.isSubscribe === 0">开启通知</el-button>
             </div>
           </template>
         </el-table-column>
@@ -50,12 +53,19 @@
     computed: {},
     methods: {
       getTableData () {
+        var loading = this.$loading({
+          lock: true,
+          text: '加载中……',
+          spinner: 'el-icon-loading',
+          background: 'rgba(0, 0, 0, 0.7)'
+        })
         this.$http.get('/v1/biz/user/wx/binding/list', {
           params: {
             pageSize: this.pageSize,
             pageIndex: this.currentPage
           }
         }).then(res => {
+          loading.close()
           if (res.body.errMessage) {
             this.$message.error(res.body.errMessage)
           } else {
@@ -65,6 +75,7 @@
             this.rowCount = res.body.data.rowCount
           }
         }).catch(res => {
+          loading.close()
           this.$message.error('服务器繁忙！')
         })
       },
@@ -89,7 +100,14 @@
           type: 'warning',
           center: true
         }).then(() => {
+          var loading = this.$loading({
+            lock: true,
+            text: '设置中……',
+            spinner: 'el-icon-loading',
+            background: 'rgba(0, 0, 0, 0.7)'
+          })
           this.$http.post(`/v1/biz/user/wx/unbind?id=${row.id}`).then(res => {
+            loading.close()
             if (res.body.errMessage) {
               this.$message.error(res.body.errMessage)
             } else {
@@ -97,6 +115,46 @@
               this.getTableData()
             }
           }).catch(e => {
+            loading.close()
+            this.$message.error('服务器错误！')
+          })
+        })
+      },
+      openOrCloseNotifiation (row) {
+        var operation = '关闭'
+        if (row.isSubscribe === 0) {
+          operation = '开启'
+        }
+        const h = this.$createElement
+        this.$msgbox({
+          title: '温馨提示',
+          message: h('p', null, [
+            h('span', null, '确认要' + operation + '微信公众号推送给（'),
+            h('span', {style: 'color: red;'}, row.nickName),
+            h('span', null, ')的通知吗？')
+          ]),
+          showCancelButton: true,
+          confirmButtonText: '确认' + operation,
+          cancelButtonText: '再考虑一下',
+          type: 'warning',
+          center: true
+        }).then(() => {
+          var loading = this.$loading({
+            lock: true,
+            text: '设置中……',
+            spinner: 'el-icon-loading',
+            background: 'rgba(0, 0, 0, 0.7)'
+          })
+          this.$http.post(`/v1/biz/user/wx/update/subscribe?id=${row.id}`).then(res => {
+            loading.close()
+            if (res.body.errMessage) {
+              this.$message.error(res.body.errMessage)
+            } else {
+              this.$message.success(res.body.data)
+              this.getTableData()
+            }
+          }).catch(e => {
+            loading.close()
             this.$message.error('服务器错误！')
           })
         })
