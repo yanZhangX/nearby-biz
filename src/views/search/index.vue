@@ -270,7 +270,14 @@
           if (this.info.status === 1 && this.info.booking === 1) {
             url = `/v1/a/biz/code?c=${row.code}&memo=${memo}&bookingItemId=${this.bookingItemId}&bookingDay=${this.completeDay.getTime()}`
           }
+          var loading = this.$loading({
+            lock: true,
+            text: '核销中……',
+            spinner: 'el-icon-loading',
+            background: 'rgba(0, 0, 0, 0.7)'
+          })
           this.$http.post(url).then(function (res) {
+            loading.close()
             if (res.body.errMessage) {
               this.$message({
                 showClose: true,
@@ -287,6 +294,7 @@
               this.getTableData()
             }
           }).catch(function (res) {
+            loading.close()
             this.$message({
               showClose: true,
               message: '服务器连接超时',
