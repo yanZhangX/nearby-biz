@@ -199,6 +199,12 @@
         })
       },
       getTableData () {
+        var loading = this.$loading({
+          lock: true,
+          text: '数据加载中……',
+          spinner: 'el-icon-loading',
+          background: 'rgba(0, 0, 0, 0.7)'
+        })
         this.$http.get('/v1/a/biz/code/list', {
           params: {
             pageSize: this.pageSize,
@@ -208,6 +214,7 @@
             bizUid: this.store.bizUid
           }
         }).then(res => {
+          loading.close()
           if (res.body.errMessage) {
             this.$message.error(res.body.errMessage)
           } else {
@@ -216,6 +223,7 @@
             this.pageCount = res.body.data.pageCount
           }
         }).catch(res => {
+          loading.close()
           this.$message.error('服务器繁忙！')
         })
       },
@@ -229,11 +237,18 @@
       },
       search () {
         if (this.keywords) {
+          var loading = this.$loading({
+            lock: true,
+            text: '查询中……',
+            spinner: 'el-icon-loading',
+            background: 'rgba(0, 0, 0, 0.7)'
+          })
           this.$http.get('/v1/a/biz/code', {
             params: {
               c: this.keywords
             }
           }).then((res) => {
+            loading.close()
             if (res.body.errMessage) {
               this.$message({
                 showClose: true,
@@ -252,6 +267,9 @@
                 this.completeSettingModal = false
               }
             }
+          }).catch(e => {
+            loading.close()
+            this.$message.error('服务器错误')
           })
         }
       },

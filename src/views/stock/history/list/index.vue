@@ -141,12 +141,19 @@
         }
       },
       getTableData () {
+        var loading = this.$loading({
+          lock: true,
+          text: '数据加载中……',
+          spinner: 'el-icon-loading',
+          background: 'rgba(0, 0, 0, 0.7)'
+        })
         this.$http.get('/v1/a/biz/stock/list/history', {
           params: {
             pageSize: this.pageSize,
             pageIndex: this.currentPage
           }
         }).then(res => {
+          loading.close()
           if (res.body.errMessage) {
             this.$message.error(res.body.errMessage)
           } else {
@@ -156,6 +163,7 @@
             this.rowCount = res.body.data.rowCount
           }
         }).catch(res => {
+          loading.close()
           this.$message.error('服务器繁忙！')
         })
       },

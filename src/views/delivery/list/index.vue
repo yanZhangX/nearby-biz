@@ -28,7 +28,7 @@
         <el-table-column prop="address" label="邮寄地址" min-width="160"></el-table-column>
         <el-table-column prop="memo" label="备注" min-width="120"></el-table-column>
         <el-table-column prop="expressInfo" label="快递单号" min-width="140">
-          <template slot-scope="scope">
+          <template scope="scope">
             <span style="color: red">{{scope.row.expressInfo}}</span>
           </template>
         </el-table-column>
@@ -37,14 +37,14 @@
         <el-table-column prop="name" label="产品名称" min-width="100"></el-table-column>
         <el-table-column prop="subTitle" label="套餐" min-width="100"></el-table-column>
         <el-table-column label="操作" min-width="120" fixed="right">
-          <templete slot-scope="scope">
+          <template scope="scope">
             <el-button type="text" @click="inputDeliveryNumber(scope.row)" v-if="paramIsNull(scope.row.expressInfo)">录入快递信息</el-button>
             <el-button type="text" @click="inputDeliveryNumber(scope.row)" v-else>修改快递信息</el-button>
-          </templete>
+          </template>
         </el-table-column>
       </el-table>
     </div>
-    <div class="k-center" v-show="pageCount>1">
+    <div class="k-center" v-show="total>1">
       <el-pagination @current-change="pageIndexChange" :current-page="currentPage" :page-size="pageSize"
                      layout="total, prev, pager, next, jumper" :total="total">
       </el-pagination>
@@ -127,18 +127,6 @@
       trim: function (str) {
         return str.replace(/(^\s*)|(\s*$)/g, '')
       },
-      paramIsNull (param) {
-        if (typeof (param) === 'undefined' || param === null) {
-          return true
-        } else if (typeof (param) === 'string') {
-          if (param.replace(/(^\s*)|(\s*$)/g, '').length === 0) {
-            return true
-          } else {
-            return false
-          }
-        }
-        return false
-      },
       dateFormat (row) {
         if (row.completeDate) {
           return moment(row.completeDate).format('YYYY-MM-DD HH:mm:ss')
@@ -147,12 +135,19 @@
         }
       },
       getTableData () {
+        var loading = this.$loading({
+          lock: true,
+          text: '数据加载中……',
+          spinner: 'el-icon-loading',
+          background: 'rgba(0, 0, 0, 0.7)'
+        })
         this.$http.get('/v1/a/biz/user/order/express/list', {
           params: {
             pageSize: this.pageSize,
             pageIndex: this.currentPage
           }
         }).then(res => {
+          loading.close()
           if (res.body.errMessage) {
             this.$message.error(res.body.errMessage)
           } else {
@@ -161,6 +156,7 @@
             this.pageCount = res.body.data.pageCount
           }
         }).catch(res => {
+          loading.close()
           this.$message.error('服务器繁忙！')
         })
       },

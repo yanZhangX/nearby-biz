@@ -86,6 +86,12 @@
     },
     methods: {
       getTableData () {
+        var loading = this.$loading({
+          lock: true,
+          text: '数据加载中……',
+          spinner: 'el-icon-loading',
+          background: 'rgba(0, 0, 0, 0.7)'
+        })
         this.$http.get('/v1/a/biz/channel/product/list', {
           params: {
             pageSize: this.pageSize,
@@ -94,6 +100,7 @@
             locationId: this.locationId
           }
         }).then(res => {
+          loading.close()
           if (res.body.errMessage) {
             this.$message.error(res.body.errMessage)
           } else {
@@ -102,18 +109,42 @@
             this.pageCount = res.body.data.pageCount
           }
         }).catch(res => {
+          loading.close()
           this.$message.error('服务器繁忙！')
         })
       },
       getLocationList () {
+        var loading = this.$loading({
+          lock: true,
+          text: '数据加载中……',
+          spinner: 'el-icon-loading',
+          background: 'rgba(0, 0, 0, 0.7)'
+        })
         this.$http.get('/v1/a/biz/location/list').then(res => {
+          loading.close()
           if (res.body.errMessage) {
             this.$message.error(res.body.errMessage)
           } else {
             this.locationList = this.locationList.concat(res.body.data.data)
-            this.locationId = getUser().locationId
+            var user = getUser()
+            var flag = false
+            this.locationList.forEach(location => {
+              if (user.locationId === location.id) {
+                flag = true
+                return
+              }
+            })
+            if (!flag) {
+              var location = this.locationList[0]
+              if (!this.paramIsNull(location)) {
+                this.locationId = location.id
+              }
+            } else {
+              this.locationId = user.locationId
+            }
           }
         }).catch(e => {
+          loading.close()
           this.$message.error('服务器错误')
         })
       },
