@@ -7,6 +7,7 @@
     </div>
     <div class="filter">
       <div class="r">
+        <el-button class="uploader" type="primary" @click="exportOrder">导出订单</el-button>
         <el-button type="primary" @click="downloadExcelModel">下载物流模版</el-button>
         <el-upload class="uploader"
                    action="form.action"
@@ -74,6 +75,7 @@
 
 <script>
   import moment from 'moment'
+  import {appHost, getToken} from 'CONST'
   export default {
     data () {
       return {
@@ -263,6 +265,10 @@
       },
       downloadExcelModel () {
         window.open('https://cdn.lianlianlvyou.com/excel/%E5%AF%BC%E5%85%A5%E8%BF%90%E5%8D%95%E6%A8%A1%E7%89%88.xls')
+      },
+      exportOrder () {
+        this.downloadUrl = `${appHost()}/v1/a/order/list/download?token=${getToken()}`
+        window.open(this.downloadUrl)
       }
     },
     created () {

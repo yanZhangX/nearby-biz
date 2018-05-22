@@ -8,6 +8,7 @@
     <div class="filter">
       <div class="r">
         <el-button type="primary" icon="plus" @click="addStockModalAction">新增库存</el-button>
+        <!--<el-button type="primary" @click="stockBatchModifyModalAction">批量修改库存</el-button>-->
       </div>
     </div>
     <div class="main-container">
@@ -46,7 +47,7 @@
         <div class="info-content-container">
           <ul>
             <li>
-              <span class="info-span-title">产品名称：</span>
+              <span class="info-span-title">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;产品名称：</span>
               <span>
                 <el-select v-model="product.selectedProductIndex" placeholder="请选择产品名称" @change="productSelecteChanged" style="width: 60%;">
                   <el-option v-for="(item, rowIndex) in products" :key="item.id" :label="item.name" :value="rowIndex"></el-option>
@@ -54,7 +55,7 @@
               </span>
             </li>
             <li>
-              <span class="info-span-title">套餐名称：</span>
+              <span class="info-span-title">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;套餐名称：</span>
               <span>
                 <el-select v-model="product.selectedProductItemIndex" placeholder="请选择套餐名称" @change="productItemSelecteChanged" no-data-text="请先选择产品名称" style="width: 60%;">
                   <el-option v-for="(item, rowIndex) in product.items" :key="item.id" :label="item.subTitle" :value="rowIndex"></el-option>
@@ -62,7 +63,7 @@
               </span>
             </li>
             <li v-if="product.productItemShowModal">
-              <span class="info-span-title">产品型号：</span>
+              <span class="info-span-title">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;产品型号：</span>
               <span>
                 <el-select v-model="product.selectedItemKindIndex" placeholder="请选择产品型号"  @change="productItemKindSelecteChanged" no-data-text="请先选择套餐名称" style="width: 60%;">
                   <el-option v-for="(item, index) in product.kinds" :key="item.id" :label="item.bookingItemText" :value="index"></el-option>
@@ -70,13 +71,13 @@
               </span>
             </li>
             <li>
-              <span class="info-span-title">库存数量：</span>
+              <span class="info-span-title">每日库存数量：</span>
               <span>
                 <el-input-number v-model="product.productStock" :min="0" :max="9999" label="请设置库存"></el-input-number>
               </span>
             </li>
             <li>
-              <span class="info-span-title">可预约时间：</span>
+              <span class="info-span-title">&nbsp;&nbsp;&nbsp;可预约时间：</span>
               <span>
                 <el-date-picker  style="width: 60%;"
                                  v-model="product.dateAppointmentDate"
@@ -95,6 +96,63 @@
         <div class="k-center">
           <el-button @click="addStockModal = false">关闭</el-button>
           <el-button type="primary" @click="addStock">新增</el-button>
+        </div>
+      </div>
+    </el-dialog>
+
+    <el-dialog v-model="stockBatchModifyModal" title="批量修改库存" :close-on-click-modal="false" :show-close="false" close-on-press-escape>
+      <div class="modal-info-container">
+        <div class="info-content-container">
+          <ul>
+            <li>
+              <span class="info-span-title">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;产品名称：</span>
+              <span>
+                <el-select v-model="product.selectedProductIndex" placeholder="请选择产品名称" @change="productSelecteChanged" style="width: 60%;">
+                  <el-option v-for="(item, rowIndex) in products" :key="item.id" :label="item.name" :value="rowIndex"></el-option>
+                </el-select>
+              </span>
+            </li>
+            <li>
+              <span class="info-span-title">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;套餐名称：</span>
+              <span>
+                <el-select v-model="product.selectedProductItemIndex" placeholder="请选择套餐名称" @change="productItemSelecteChanged" no-data-text="请先选择产品名称" style="width: 60%;">
+                  <el-option v-for="(item, rowIndex) in product.items" :key="item.id" :label="item.subTitle" :value="rowIndex"></el-option>
+                </el-select>
+              </span>
+            </li>
+            <li v-if="product.productItemShowModal">
+              <span class="info-span-title">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;产品型号：</span>
+              <span>
+                <el-select v-model="product.selectedItemKindIndex" placeholder="请选择产品型号"  @change="productItemKindSelecteChanged" no-data-text="请先选择套餐名称" style="width: 60%;">
+                  <el-option v-for="(item, index) in product.kinds" :key="item.id" :label="item.bookingItemText" :value="index"></el-option>
+                </el-select>
+              </span>
+            </li>
+            <li>
+              <span class="info-span-title">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;修改库存数量：</span>
+              <span>
+                <el-input-number v-model="product.productStock" :min="0" :max="9999" label="请设置库存"></el-input-number>
+              </span>
+            </li>
+            <li>
+              <span class="info-span-title">需要修改库存的日期：</span>
+              <span>
+                <el-date-picker  style="width: 60%;"
+                                 v-model="product.dateAppointmentDate"
+                                 type="dates"
+                                 placeholder="请选择需要修改库存的日期"
+                                 :picker-options="dateAppointmentOptions">
+                </el-date-picker>
+              </span>
+            </li>
+          </ul>
+        </div>
+
+      </div>
+      <div slot="footer" class="dialog-footer">
+        <div class="k-center">
+          <el-button @click="stockBatchModifyModal = false">关闭</el-button>
+          <el-button type="primary" @click="stockBatchModify">新增</el-button>
         </div>
       </div>
     </el-dialog>
@@ -133,6 +191,7 @@
         rowCount: 0,
         pageCount: 0,
         addStockModal: false,
+        stockBatchModifyModal: false,
         productStockModal: false,
         product: {
           selectedProductIndex: null,
@@ -345,6 +404,23 @@
             }
           })
         })
+      },
+      stockBatchModifyModalAction () {
+        this.product.selectedProductIndex = null
+        this.product.productId = null
+        this.product.items = []
+        this.product.kinds = []
+        this.product.productItemId = null
+        this.product.selectedProductItemIndex = null
+        this.product.productStock = 0
+        this.product.day = null
+        this.product.productItemKindId = null
+        this.product.dateAppointmentDate = null
+        this.product.selectedItemKindIndex = null
+        this.getProductAndItemData()
+        this.stockBatchModifyModal = true
+      },
+      stockBatchModify () {
       },
       initAppointmentStartAndEndDate () {
         var start = new Date()
