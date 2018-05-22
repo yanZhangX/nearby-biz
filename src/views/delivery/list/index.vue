@@ -51,7 +51,7 @@
       </el-pagination>
     </div>
 
-    <el-dialog v-model="inputDeliveryNumberModal" title="快递信息" :close-on-click-modal="false" :show-close="false" close-on-press-escape >
+    <el-dialog :visible.sync="inputDeliveryNumberModal" title="快递信息" :close-on-click-modal="false" :show-close="false" close-on-press-escape >
       <div class="modal-info-container">
         <div class="info-content-container">
           <ul>

@@ -48,7 +48,7 @@
         <router-view></router-view>
       </el-col>
     </el-row>
-    <el-dialog class="modify-pass" @close="" title="修改密码" v-model="isModalOpen" :close-on-click-modal="false">
+    <el-dialog class="modify-pass" @close="" title="修改密码" :visible.sync="isModalOpen" :close-on-click-modal="false">
       <el-form :model="pwd" label-width="100px">
         <el-form-item label="旧密码">
           <el-input type="text"  placeholder="请输入旧密码" v-model="pwd.old"></el-input>
@@ -66,7 +66,7 @@
       </div>
     </el-dialog>
 
-    <el-dialog title="账号绑定" v-model="userWxBindingModal" :close-on-click-modal="false">
+    <el-dialog title="账号绑定" :visible.sync="userWxBindingModal" :close-on-click-modal="false">
       <div v-if="userWxBindingInfo !== null">
         <div>
           <span>第一步：</span>

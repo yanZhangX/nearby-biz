@@ -13,18 +13,22 @@
         <el-table-column prop="nickName" label="昵称" min-width="100"></el-table-column>
         <el-table-column prop="headImgUrl" label="头像" min-width="80">
           <template scope="scope">
-            <img :src="scope.row.headImgUrl" width="40" height="40"/>
+            <img :src="scope.row.headImgUrl" width="40" height="40" min-width="60"/>
           </template>
         </el-table-column>
-        <el-table-column prop="shopName" label="店名"></el-table-column>
-        <el-table-column prop="subscribeStr" label="通知状态"></el-table-column>
-        <!--<el-table-column prop="shopTypeStr" label="店铺类型"></el-table-column>-->
+        <el-table-column prop="shopName" label="店名" min-width="100"></el-table-column>
+        <el-table-column prop="subscribeStr" label="关注状态" min-width="200">
+          <template scope="scope">
+            <div v-html="scope.row.subscribeStr"></div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="openStr" label="用户预定成功通知" min-width="100"></el-table-column>
         <el-table-column label="操作" width="240" fixed="right">
           <template slot-scope="scope">
             <div>
               <el-button type="text" @click.stop="unbindWx(scope.row)">解除绑定</el-button>
-              <el-button type="text" @click.stop="openOrCloseNotifiation(scope.row)" v-if="scope.row.isSubscribe === 1">关闭通知</el-button>
-              <el-button type="text" @click.stop="openOrCloseNotifiation(scope.row)" v-if="scope.row.isSubscribe === 0">开启通知</el-button>
+              <el-button type="text" @click.stop="openOrCloseNotifiation(scope.row)" v-if="scope.row.isOpen === 1">关闭通知</el-button>
+              <el-button type="text" @click.stop="openOrCloseNotifiation(scope.row)" v-if="scope.row.isOpen === 0">开启通知</el-button>
             </div>
           </template>
         </el-table-column>
@@ -145,14 +149,14 @@
             spinner: 'el-icon-loading',
             background: 'rgba(0, 0, 0, 0.7)'
           })
-          this.$http.post(`/v1/biz/user/wx/update/subscribe?id=${row.id}`).then(res => {
+          this.$http.post(`/v1/biz/user/wx/update/open?id=${row.id}`).then(res => {
             loading.close()
             if (res.body.errMessage) {
               this.$message.error(res.body.errMessage)
             } else {
               this.$message.success(res.body.data)
-              this.getTableData()
             }
+            this.getTableData()
           }).catch(e => {
             loading.close()
             this.$message.error('服务器错误！')

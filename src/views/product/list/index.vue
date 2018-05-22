@@ -51,7 +51,7 @@
       </el-pagination>
     </div>
 
-    <el-dialog :visible.sync="imagePreviewModal" fullscreen="true">
+    <el-dialog :visible.sync="imagePreviewModal" :fullscreen="true">
       <center>
         <img :src="imageUrl" style="width: 300px;height: 300px;"/>
         <div style="margin-top: 30px;">请使用微信扫描二维码预览</div>

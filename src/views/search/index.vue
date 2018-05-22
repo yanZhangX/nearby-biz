@@ -36,7 +36,7 @@
       <span>已完成订单核销：共{{this.total}}条</span>
     </div>
 
-    <el-dialog v-model="travelTicket" title="电子码信息" :close-on-click-modal="false" :show-close="false" close-on-press-escape >
+    <el-dialog :visible.sync="travelTicket" title="电子码信息" :close-on-click-modal="false" :show-close="false" close-on-press-escape >
       <div class="modal-info-container">
         <div class="info-content-container">
           <el-form ref="form" :model="info" label-width="140px" :inline-message="true" label-position="left">

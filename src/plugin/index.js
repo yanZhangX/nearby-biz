@@ -77,6 +77,19 @@ export default{
         return false
       }
     }
+    Vue.prototype.pro_message_error = function (code, error) {
+      if (code === 404) {
+        this.$message.error('请求资源不存在')
+        return
+      }
+      this.$message.error(error)
+    }
+    Vue.prototype.pro_message_info = function (message) {
+      this.$message.info(message)
+    }
+    Vue.prototype.pro_message_success = function (success) {
+      this.$message.success(success)
+    }
     Vue.prototype.pro_addQueryString = function (url, name, value) {
       let currentUrl = url.split('#')[0]
       if (/\?/g.test(currentUrl)) {

@@ -7,8 +7,8 @@
     </div>
     <div class="filter">
       <div class="r">
-        <el-button type="primary" icon="plus" @click="addStockModalAction">新增库存</el-button>
-        <!--<el-button type="primary" @click="stockBatchModifyModalAction">批量修改库存</el-button>-->
+        <el-button type="primary" icon="plus" @click="getProductAndItemData(1)">新增库存</el-button>
+        <!--<el-button type="primary" @click="getProductAndItemData(2)">批量修改库存</el-button>-->
       </div>
     </div>
     <div class="main-container">
@@ -42,7 +42,7 @@
       </el-pagination>
     </div>
 
-    <el-dialog v-model="addStockModal" title="新增库存" :close-on-click-modal="false" :show-close="false" close-on-press-escape>
+    <el-dialog :visible.sync="addStockModal" title="新增库存" :close-on-click-modal="false" :show-close="false" close-on-press-escape>
       <div class="modal-info-container">
         <div class="info-content-container">
           <ul>
@@ -100,7 +100,7 @@
       </div>
     </el-dialog>
 
-    <el-dialog v-model="stockBatchModifyModal" title="批量修改库存" :close-on-click-modal="false" :show-close="false" close-on-press-escape>
+    <el-dialog :visible.sync="stockBatchModifyModal" title="批量修改库存" :close-on-click-modal="false" :show-close="false" close-on-press-escape>
       <div class="modal-info-container">
         <div class="info-content-container">
           <ul>
@@ -138,10 +138,9 @@
               <span class="info-span-title">需要修改库存的日期：</span>
               <span>
                 <el-date-picker  style="width: 60%;"
-                                 v-model="product.dateAppointmentDate"
+                                 v-model="product.selectDate"
                                  type="dates"
-                                 placeholder="请选择需要修改库存的日期"
-                                 :picker-options="dateAppointmentOptions">
+                                 placeholder="请选择需要修改库存的日期">
                 </el-date-picker>
               </span>
             </li>
@@ -157,7 +156,7 @@
       </div>
     </el-dialog>
 
-    <el-dialog v-model="productStockModal" title="设置库存" :close-on-click-modal="false" :show-close="false" close-on-press-escape>
+    <el-dialog :visible.sync="productStockModal" title="设置库存" :close-on-click-modal="false" :show-close="false" close-on-press-escape>
       <div class="modal-info-container">
         <div class="info-content-container">
           <el-form :model="stock" label-width="100px">
@@ -205,7 +204,8 @@
           productStock: 10,
           day: '',
           dateAppointmentDate: [],
-          productItemShowModal: false
+          productItemShowModal: false,
+          selectDate: []
         },
         stock: {
           stockId: null,
@@ -219,6 +219,13 @@
       }
     },
     computed: {},
+    created () {
+      var pageIndex = this.$route.params.pageIndex
+      if (!this.paramIsNull(pageIndex)) {
+        this.currentPage = parseInt(pageIndex)
+      }
+      this.getTableData()
+    },
     methods: {
       paramIsNull (param) {
         if (typeof (param) === 'undefined' || param === null) {
@@ -304,19 +311,35 @@
           this.$message.error('服务器繁忙！')
         })
       },
-      getProductAndItemData () {
+      getProductAndItemData (type) {
+        if (!this.paramIsNull(this.products)) {
+          this.stockManager(type)
+        }
+        var loading = this.$loading({
+          lock: true,
+          text: '数据加载中……',
+          spinner: 'el-icon-loading',
+          background: 'rgba(0, 0, 0, 0.7)'
+        })
         this.$http.get('/v1/a/biz/product', {
           params: {
             pageSize: this.pageSize,
             pageIndex: this.currentPage
           }
         }).then(res => {
+          loading.close()
           if (res.body.errMessage) {
             this.$message.error(res.body.errMessage)
           } else {
             this.products = res.body.data
+            if (!this.paramIsNull(this.products)) {
+              this.stockManager(type)
+            } else {
+              this.pro_message_error(null, '数据错误')
+            }
           }
         }).catch(res => {
+          loading.close()
           this.$message.error('服务器繁忙！')
         })
       },
@@ -324,7 +347,11 @@
         this.currentPage = val
         this.getTableData()
       },
-      addStockModalAction () {
+      stockManager (type) {
+        if (this.paramIsNull(this.products)) {
+          this.pro_message_error(null, '数据错误')
+          return
+        }
         this.product.selectedProductIndex = null
         this.product.productId = null
         this.product.items = []
@@ -336,8 +363,14 @@
         this.product.productItemKindId = null
         this.product.dateAppointmentDate = null
         this.product.selectedItemKindIndex = null
-        this.getProductAndItemData()
-        this.addStockModal = true
+        this.product.selectDate = []
+        if (type === 1) { // 新增库存
+          this.addStockModal = true
+        } else if (type === 2) { // 批量修改库存
+          this.stockBatchModifyModal = true
+        } else {
+          this.pro_message_error(null, '数据错误')
+        }
       },
       addStock () {
         if (this.paramIsNull(this.product.productId)) {
@@ -404,21 +437,6 @@
             }
           })
         })
-      },
-      stockBatchModifyModalAction () {
-        this.product.selectedProductIndex = null
-        this.product.productId = null
-        this.product.items = []
-        this.product.kinds = []
-        this.product.productItemId = null
-        this.product.selectedProductItemIndex = null
-        this.product.productStock = 0
-        this.product.day = null
-        this.product.productItemKindId = null
-        this.product.dateAppointmentDate = null
-        this.product.selectedItemKindIndex = null
-        this.getProductAndItemData()
-        this.stockBatchModifyModal = true
       },
       stockBatchModify () {
       },
@@ -519,13 +537,6 @@
           }
         )
       }
-    },
-    created () {
-      var pageIndex = this.$route.params.pageIndex
-      if (!this.paramIsNull(pageIndex)) {
-        this.currentPage = parseInt(pageIndex)
-      }
-      this.getTableData()
     }
   }
 </script>
