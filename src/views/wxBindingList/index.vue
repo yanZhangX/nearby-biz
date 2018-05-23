@@ -28,7 +28,7 @@
             <div>
               <el-button type="text" @click.stop="unbindWx(scope.row)">解除绑定</el-button>
               <el-button type="text" @click.stop="openOrCloseNotifiation(scope.row)" v-if="scope.row.isOpen === 1">关闭通知</el-button>
-              <el-button type="text" @click.stop="openOrCloseNotifiation(scope.row)" v-if="scope.row.isOpen === 0">开启通知</el-button>
+              <el-button type="text" @click.stop="openOrCloseNotifiation(scope.row)" v-if="scope.row.isOpen === 0" style="color: red;">开启通知</el-button>
             </div>
           </template>
         </el-table-column>
