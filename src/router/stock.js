@@ -15,7 +15,7 @@ export default {
       }
     },
     {
-      path: '/stock',
+      path: '/stock/1',
       name: 'stockManage',
       component (resolve) {
         require(['VIEW/stock/manage'], resolve)

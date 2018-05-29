@@ -11,7 +11,7 @@
     <div class="filter">
       <div class="r">
         <el-button type="primary" icon="plus" @click="cancelSelect()" v-if="tableDataCount">取消选择</el-button>
-        <el-button type="primary" v-if="tableDataCount" @click="productStockModal = true">确认选择</el-button>
+        <el-button type="primary" v-if="tableDataCount" @click="confirmSelect()">确认选择</el-button>
       </div>
     </div>
     <div class="main-container">
@@ -112,26 +112,15 @@
               if (countDay < 7) {
                 startIndex = 0
               }
+              this.tableData = []
               for (var i = 0; i < countDay; i++) {
                 var item = tableData[i]
                 item.className = 'my-el-card'
                 item.select = false
                 item.confirm = false
                 item.weekDay = this.weekFormat(item.bookingDay)
-                this.tableData.push(item)
                 this.tableData[startIndex + i] = item
               }
-//              tableData.forEach((item, index, array) => {
-//                console.log('startIndex: ' + startIndex)
-//                console.log('index: ' + index)
-//                item.className = 'my-el-card'
-//                item.select = false
-//                item.confirm = false
-//                item.weekDay = this.weekFormat(item.bookingDay)
-//                this.tableData.push(item)
-//                this.tableData[startIndex + index] = item
-//              })
-//              console.log(this.tableData)
               this.total = res.body.data.rowCount
               this.pageCount = res.body.data.pageCount
               this.rowCount = res.body.data.rowCount
@@ -141,6 +130,7 @@
           loading.close()
           this.$message.error('服务器繁忙！')
         })
+
 //        this.tableData = []
 //        this.selectDateList = []
 //
@@ -235,6 +225,20 @@
           }
         }
       },
+      confirmSelect () {
+        var days = []
+        this.tableData.forEach((item, index, array) => {
+          if (item.select) {
+            days.push(new Date(item.bookingDay).getTime())
+          }
+        })
+        if (days.length === 0) {
+          this.pro_message_error(null, '请选择需要设置库存的日期')
+          return
+        }
+        this.stockAmount = null
+        this.productStockModal = true
+      },
       prodcutStockChange () {
         if (this.stockAmount === null) {
           this.pro_message_error(null, '参数错误')
@@ -279,9 +283,7 @@
             loading.close()
             if (res.body.errMessage) {
               this.$message.error(res.body.errMessage)
-              this.productStockModal = true
             } else {
-              this.productStockModal = false
               this.$message.success('设置成功')
               this.getTableData()
             }
