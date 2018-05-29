@@ -3,7 +3,7 @@
     <div class="breadcrumb">
       <el-breadcrumb separator="/">
         <el-breadcrumb-item>
-          <span @click="back">{{this.$route.params.info.routeMenu}}</span>
+          <span @click="back">{{decodeURI(this.$route.query.routeMenu)}}</span>
         </el-breadcrumb-item>
         <el-breadcrumb-item>{{operationStr}}</el-breadcrumb-item>
       </el-breadcrumb>
@@ -78,6 +78,22 @@
         designateOrderModal: false
       }
     },
+    created () {
+      this.operation = this.$route.query.operation
+      if (!this.paramIsNull(this.operation)) {
+        if (this.operation === 'booking') {
+          this.requestUrl = '/v1/a/biz/booking/day?id='
+          this.operationStr = '查看预约'
+        } else if (this.operation === 'complete') {
+          this.requestUrl = '/v1/a/biz/complete/day?id='
+          this.operationStr = '查看核销'
+        }
+      }
+      this.getTableData()
+      if (getUser().isAllot === 1) {
+        this.designateOrderModal = true
+      }
+    },
     methods: {
       paramIsNull (param) {
         if (typeof (param) === 'undefined' || param === null) {
@@ -87,7 +103,7 @@
       },
       getTableData () {
         this.loading = false
-        this.$http.get(this.requestUrl + this.$route.params.info.id, {
+        this.$http.get(this.requestUrl + this.$route.query.id, {
           params: {
             pageSize: this.pageSize,
             pageIndex: this.currentPage
@@ -152,9 +168,9 @@
       back () {
         router.push(
           {
-            name: this.$route.params.info.routeName,
-            params: {
-              pageIndex: this.pageIndex
+            name: this.$route.query.routeName,
+            query: {
+              pageIndex: this.$route.query.pageIndex
             }
           }
         )
@@ -171,10 +187,10 @@
           return
         }
         if (this.operation === 'complete') {
-          this.downloadUrl = `${appHost()}/v1/a/biz/complete/day/download?id=${this.$route.params.info.id}&token=${getToken()}`
+          this.downloadUrl = `${appHost()}/v1/a/biz/complete/day/download?id=${this.$route.query.id}&token=${getToken()}`
           window.open(this.downloadUrl)
         } else if (this.operation === 'booking') {
-          this.downloadUrl = `${appHost()}/v1/a/biz/booking/day/download?id=${this.$route.params.info.id}&token=${getToken()}`
+          this.downloadUrl = `${appHost()}/v1/a/biz/booking/day/download?id=${this.$route.query.id}&token=${getToken()}`
           window.open(this.downloadUrl)
         }
       },
@@ -242,23 +258,6 @@
             this.$message.error('服务器繁忙！')
           })
         })
-      }
-    },
-    created () {
-      this.operation = this.$route.params.info.operation
-      if (!this.paramIsNull(this.operation)) {
-        if (this.operation === 'booking') {
-          this.requestUrl = '/v1/a/biz/booking/day?id='
-          this.operationStr = '查看预约'
-        } else if (this.operation === 'complete') {
-          this.requestUrl = '/v1/a/biz/complete/day?id='
-          this.operationStr = '查看核销'
-        }
-      }
-      this.getTableData()
-      this.pageIndex = this.$route.params.info.pageIndex
-      if (getUser().isAllot === 1) {
-        this.designateOrderModal = true
       }
     }
   }

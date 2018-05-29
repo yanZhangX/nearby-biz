@@ -175,14 +175,12 @@
         router.push(
           {
             name: 'stockInfo',
-            params: {
-              info: {
-                id: row.stockId,
-                operation: 'booking',
-                pageIndex: this.currentPage,
-                routeName: 'stockHistoryList',
-                routeMenu: '历史库存'
-              }
+            query: {
+              id: row.stockId,
+              operation: 'booking',
+              pageIndex: this.currentPage,
+              routeName: 'stockHistoryList',
+              routeMenu: encodeURI('历史库存')
             }
           }
         )
@@ -191,21 +189,19 @@
         router.push(
           {
             name: 'stockInfo',
-            params: {
-              info: {
-                id: row.stockId,
-                operation: 'complete',
-                pageIndex: this.currentPage,
-                routeName: 'stockHistoryList',
-                routeMenu: '历史库存'
-              }
+            query: {
+              id: row.stockId,
+              operation: 'complete',
+              pageIndex: this.currentPage,
+              routeName: 'stockHistoryList',
+              routeMenu: encodeURI('历史库存')
             }
           }
         )
       }
     },
     created () {
-      var pageIndex = this.$route.params.pageIndex
+      var pageIndex = this.$route.query.pageIndex
       if (!this.paramIsNull(pageIndex)) {
         this.currentPage = parseInt(pageIndex)
       }

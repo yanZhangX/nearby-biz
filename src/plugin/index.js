@@ -57,10 +57,10 @@ export default{
             week = '星期四'
             break
           case 5:
-            week = '<p style="color: red;">星期五</p>'
+            week = '<span style="color: red;">星期五</span>'
             break
           case 6:
-            week = '<p style="color: red;">星期六</p>'
+            week = '<span style="color: red;">星期六</span>'
             break
         }
         return week
@@ -125,6 +125,20 @@ export default{
         }
       }
       return ''
+    }
+    Vue.prototype.pro_yyyyMMDDHHmmss = function (row, col, val) {
+      if (typeof (val) === 'undefined' || val === null) {
+        return ''
+      } else {
+        return moment(val).format('YYYY-MM-DD HH:mm:ss')
+      }
+    }
+    Vue.prototype.pro_yyyyMMDD = function (row, col, val) {
+      if (typeof (val) === 'undefined' || val === null) {
+        return ''
+      } else {
+        return moment(val).format('YYYY-MM-DD')
+      }
     }
   }
 }

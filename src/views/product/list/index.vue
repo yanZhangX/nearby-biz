@@ -51,11 +51,11 @@
       </el-pagination>
     </div>
 
-    <el-dialog :visible.sync="imagePreviewModal" :fullscreen="true">
-      <center>
+    <el-dialog :visible.sync="imagePreviewModal">
+      <div class="img-preview-contain">
         <img :src="imageUrl" style="width: 300px;height: 300px;"/>
         <div style="margin-top: 30px;">请使用微信扫描二维码预览</div>
-      </center>
+      </div>
     </el-dialog>
   </div>
 </template>
@@ -142,6 +142,7 @@
             } else {
               this.locationId = user.locationId
             }
+            this.locationChanged()
           }
         }).catch(e => {
           loading.close()

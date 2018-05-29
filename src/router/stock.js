@@ -8,14 +8,14 @@ export default {
       }
     },
     {
-      path: '/stock/1/:info',
+      path: '/stock/show',
       name: 'stockInfo',
       component (resolve) {
         require(['VIEW/stock/show'], resolve)
       }
     },
     {
-      path: '/stock/:pageIndex',
+      path: '/stock',
       name: 'stockManage',
       component (resolve) {
         require(['VIEW/stock/manage'], resolve)
@@ -33,6 +33,13 @@ export default {
       name: 'deliveryList',
       component (resolve) {
         require(['VIEW/delivery/list'], resolve)
+      }
+    },
+    {
+      path: '/stock/manager/batch/modify',
+      name: 'batchModifyStock',
+      component (resolve) {
+        require(['VIEW/stock/batchModifyStock'], resolve)
       }
     }
   ]
