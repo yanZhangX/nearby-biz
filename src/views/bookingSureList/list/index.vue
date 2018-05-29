@@ -7,15 +7,28 @@
     </div>
     <div class="filter">
       <div class="l">
+        <el-select v-model="type" placeholder="请选择类型" @change="bookingTypeChanged">
+          <el-option v-for="item in bookingTypeList" :label="item.name" :value="item.id"></el-option>
+        </el-select>
       </div>
     </div>
     <div class="main-container">
       <el-table :data="tableData" :highlight-current-row="true" stripe scope="scope" max-height=2000>
         <el-table-column prop="bookingCustomerName" label="客户姓名" min-width="100" :formatter="bookingCustomerNameFormat"></el-table-column>
         <el-table-column prop="bookingCustomerPhoneNumber" label="客户手机" min-width="150" :formatter="bookingCustomerPhoneNumberFormat"></el-table-column>
-        <el-table-column prop="bookingDay" label="预约时间" min-width="200" :formatter="bookingDay"></el-table-column>
+        <el-table-column prop="bookingDay" label="预约时间" min-width="100" :formatter="bookingDay"></el-table-column>
+        <el-table-column prop="bookingItemText" label="预约类型" min-width="100"></el-table-column>
         <el-table-column prop="memo" label="预约备注" min-width="100"></el-table-column>
-        <el-table-column prop="createDate" :formatter="createDate" label="确定时间" min-width="100"></el-table-column>
+        <el-table-column prop="createDate" label="确定时间" min-width="160">
+          <template slot-scope="scope">
+            <span v-html="pro_yyyyMMDD(null, null, scope.row.createDate)" v-if="!paramIsNull(scope.row.sure) && scope.row.sure === 1"></span>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" min-width="100" fixed="right">
+          <template slot-scope="scope">
+            <el-button type="text" @click="confirmBookingItem(scope.row)" v-if="!paramIsNull(scope.row.sure) && scope.row.sure === 0">预约确认</el-button>
+          </template>
+        </el-table-column>
       </el-table>
     </div>
     <div class="k-center" v-show="pageCount>1">
@@ -35,8 +48,23 @@
         currentPage: 1,
         pageSize: 15,
         total: null,
-        pageCount: 0
+        pageCount: 0,
+        type: null,
+        bookingTypeList: [
+          {
+            id: 1,
+            name: '未确认'
+          },
+          {
+            id: 0,
+            name: '已确认'
+          }
+        ]
       }
+    },
+    created () {
+      this.type = 1
+      this.getTableData()
     },
     methods: {
       bookingCustomerNameFormat (row, col, val) {
@@ -68,7 +96,7 @@
         }
       },
       getTableData () {
-        this.$http.get('/v1/a/biz/order/sure/list', {
+        this.$http.get(`/v1/a/biz/order/sure/list?type=${this.type}`, {
           params: {
             pageSize: this.pageSize,
             pageIndex: this.currentPage
@@ -88,10 +116,38 @@
       pageIndexChange (val) {
         this.currentPage = val
         this.getTableData()
+      },
+      confirmBookingItem (row) {
+        var h = this.$createElement
+        this.$msgbox({
+          title: '温馨提示',
+          message: h('p', null, [
+            h('span', null, '确认已经知晓用户（'),
+            h('span', {style: 'color: red;'}, `${this.bookingCustomerNameFormat(row, null, null)}：${this.bookingCustomerPhoneNumberFormat(row, null, null)}`),
+            h('span', null, '）的预约信息了吗？')
+          ]),
+          showCancelButton: true,
+          confirmButtonText: '确认',
+          cancelButtonText: '取消',
+          type: 'warning',
+          center: true
+        }).then(() => {
+          this.$http.post(`/v1/a/biz/order/sure?orderId=${row.orderId}`).then(res => {
+            if (res.body.errMessage) {
+              this.$message.error(res.body.errMessage)
+            } else {
+              this.$message.success('确认操作成功')
+              this.getTableData()
+            }
+          }).catch(e => {
+            this.$message.error('服务器错误')
+          })
+        })
+      },
+      bookingTypeChanged () {
+        this.currentPage = 1
+        this.getTableData()
       }
-    },
-    created () {
-      this.getTableData()
     }
   }
 </script>

@@ -8,7 +8,7 @@
     <div class="filter">
       <div class="r">
         <el-button type="primary" icon="plus" @click="getProductAndItemData(1)">新增库存</el-button>
-        <el-button type="primary" @click="getProductAndItemData(2)">批量修改库存</el-button>
+        <!--<el-button type="primary" @click="getProductAndItemData(2)">批量修改库存</el-button>-->
       </div>
     </div>
     <div class="main-container">
