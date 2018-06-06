@@ -15,6 +15,12 @@
           <el-option v-for="(item, index) in storeList" :label="item.name" :key="index" :value="index"></el-option>
         </el-select>
       </div>
+
+      <div class="r">
+        <form ref="form" :action="downloadUrl" method="get">
+          <el-button type="primary" icon="download" @click="exportExcelSelectDate">全部导出</el-button>
+        </form>
+      </div>
     </div>
     <div class="main-container">
       <el-table :data="tableData" :highlight-current-row="true" v-loading.body="loading" stripe max-height=2000>
@@ -26,14 +32,10 @@
         <el-table-column prop="completeMemo" label="核销备注" min-width="200"></el-table-column>
       </el-table>
     </div>
-    <div class="k-center" v-show="pageCount>1">
+    <div class="k-center" v-show="pageCount>0">
       <el-pagination @current-change="pageIndexChange" :current-page="currentPage" :page-size="pageSize"
         layout="total, prev, pager, next, jumper" :total="total">
       </el-pagination>
-    </div>
-
-    <div  class="filter">
-      <span>已完成订单核销：共{{this.total}}条</span>
     </div>
 
     <el-dialog :visible.sync="travelTicket" title="电子码信息" :close-on-click-modal="false" :show-close="false" close-on-press-escape >
@@ -89,12 +91,35 @@
         </div>
       </div>
     </el-dialog>
+
+    <el-dialog :visible.sync="selectDateModal" title="导出日期选择">
+      <div class="modal-info-container">
+        <div class="info-content-container">
+          <el-form ref="form" :model="info" label-width="140px" :inline-message="true" label-position="left">
+            <el-form-item label="导出日期：">
+              <el-date-picker type="daterange"
+                              :editable="false"
+                              range-separator="至"
+                              start-placeholder="开始日期"
+                              end-placeholder="结束日期"
+                              v-model="selectDate"></el-date-picker>
+            </el-form-item>
+          </el-form>
+        </div>
+      </div>
+      <div slot="footer" class="dialog-footer">
+        <div class="k-center">
+          <el-button @click="selectDateModal = false">关闭</el-button>
+          <el-button type="primary" @click="exportExcel">确定导出</el-button>
+      </div>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
   import moment from 'moment'
-  import {getUser} from 'CONST'
+  import {appHost, getToken, getUser} from 'CONST'
   export default {
     name: 'stock',
     data () {
@@ -114,6 +139,8 @@
         travelTicket: false,
         itemList: [],
         completeSettingModal: false,
+        selectDateModal: false,
+        selectDate: null,
         bookingItemId: null,
         completeDay: null,
         info: {
@@ -143,6 +170,10 @@
       }
     },
     computed: {},
+    created () {
+      this.getStoreList()
+      this.getTableData()
+    },
     methods: {
       getUserName () {
         var reg = /^(.).*$/
@@ -320,11 +351,51 @@
             })
           })
         })
+      },
+      exportExcelSelectDate () {
+        if (this.tableData === null || this.tableData.length === 0) {
+          this.pro_message_error(null, '没有数据可导出')
+          return
+        }
+        this.selectDate = null
+        this.selectDateModal = true
+      },
+      exportExcel () {
+        if (this.paramIsNull(this.selectDate)) {
+          this.pro_message_error(null, '请选择日期')
+          return
+        }
+        var startDate = this.selectDate[0]
+        var endDate = this.selectDate[1]
+
+        if (this.paramIsNull(startDate) || this.paramIsNull(endDate)) {
+          this.pro_message_error(null, '请选择日期')
+          return
+        }
+
+        this.selectDateModal = false
+        var h = this.$createElement
+        this.$msgbox({
+          title: '温馨提示',
+          message: h('p', null, [
+            h('span', null, '确认导出（'),
+            h('span', {style: 'color: red;'}, `${this.pro_yyyyMMDD(null, null, startDate)}`),
+            h('span', null, '至'),
+            h('span', {style: 'color: red;'}, `${this.pro_yyyyMMDD(null, null, endDate)}`),
+            h('span', null, '）这段时间的核销数据吗？')
+          ]),
+          showCancelButton: true,
+          confirmButtonText: '确认导出',
+          cancelButtonText: '再考虑一下',
+          type: 'warning',
+          center: true
+        }).then(() => {
+          this.downloadUrl = `${appHost()}/v1/a/biz/complete/all/day/download?bizUid=${this.store.bizUid}&token=${getToken()}&status=${this.store.status}&date=${startDate.getTime()}&endDate=${endDate.getTime()}`
+          window.open(this.downloadUrl)
+        }).catch(e => {
+          this.selectDateModal = true
+        })
       }
-    },
-    created () {
-      this.getStoreList()
-      this.getTableData()
     }
   }
 </script>

@@ -9,6 +9,12 @@
       </el-breadcrumb>
     </div>
     <div class="filter">
+      <div class="l">
+        <div class="table_title" v-if="!paramIsNull(name)">
+          套餐及预约类型：
+          <el-tag type="info">{{name}}</el-tag><el-tag type="info" class="table_title_info">{{bookingItemText}}</el-tag>
+        </div>
+      </div>
       <div class="r">
         <el-button type="primary" icon="plus" @click="cancelSelect()" v-if="tableDataCount">取消选择</el-button>
         <el-button type="primary" v-if="tableDataCount" @click="confirmSelect()">确认选择</el-button>
@@ -71,7 +77,9 @@
         isMouseMove: false,
         tableDataCount: 0,
         productStockModal: false,
-        stockAmount: null
+        stockAmount: null,
+        name: null,
+        bookingItemText: null
       }
     },
     created () {
@@ -120,6 +128,11 @@
                 item.confirm = false
                 item.weekDay = this.weekFormat(item.bookingDay)
                 this.tableData[startIndex + i] = item
+
+                if (i === 0) {
+                  this.name = item.name
+                  this.bookingItemText = item.bookingItemText
+                }
               }
               this.total = res.body.data.rowCount
               this.pageCount = res.body.data.pageCount

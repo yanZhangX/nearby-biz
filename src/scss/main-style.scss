@@ -92,7 +92,14 @@ input::-webkit-input-placeholder{
   }
 }
 
+.table_title {
+  color: #333;
+  font-size: 14px;
 
+  .table_title_info {
+    margin-left: 10px;
+  }
+}
 
 .modal-info-container{
   width: 100%;
