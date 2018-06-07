@@ -60,7 +60,7 @@
                 <el-radio  v-for="(item, index) in info.bookingItems" :label="item.id" :key="index">{{item.bookingItemText}}</el-radio>
               </el-radio-group>
             </el-form-item>
-            <el-form-item label="到店时间选择：" v-if="completeSettingModal">
+            <el-form-item label="到店时间选择：" v-if="completeSettingDate">
               <el-date-picker type="date"
                               :editable="false"
                               placeholder="请选择到店时间"
@@ -139,6 +139,7 @@
         travelTicket: false,
         itemList: [],
         completeSettingModal: false,
+        completeSettingDate: false,
         selectDateModal: false,
         selectDate: null,
         bookingItemId: null,
@@ -293,7 +294,7 @@
               this.travelTicket = true
               if (typeof (this.info.bookingItems) !== 'undefined' && this.info.bookingItems !== null && this.info.bookingItems.length > 0) {
                 this.bookingItemId = this.info.bookingItems[0].id
-                this.completeSettingModal = false
+                this.completeSettingModal = true
               } else {
                 this.completeSettingModal = false
               }
