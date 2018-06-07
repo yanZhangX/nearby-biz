@@ -293,7 +293,7 @@
               this.travelTicket = true
               if (typeof (this.info.bookingItems) !== 'undefined' && this.info.bookingItems !== null && this.info.bookingItems.length > 0) {
                 this.bookingItemId = this.info.bookingItems[0].id
-                this.completeSettingModal = true
+                this.completeSettingModal = false
               } else {
                 this.completeSettingModal = false
               }
