@@ -24,12 +24,14 @@
     </div>
     <div class="main-container">
       <el-table :data="tableData" :highlight-current-row="true" v-loading.body="loading" stripe max-height=2000>
-        <el-table-column prop="orderid" label="订单号"></el-table-column>
-        <el-table-column prop="code" label="电子码"></el-table-column>
+        <el-table-column prop="customerName" label="姓名" v-if="showCustomer" min-width="80"></el-table-column>
+        <el-table-column prop="customerPhoneNumber" label="手机号" v-if="showCustomer" min-width="100"></el-table-column>
+        <el-table-column prop="orderid" label="订单号" min-width="100"></el-table-column>
+        <el-table-column prop="code" label="电子码" min-width="80"></el-table-column>
         <el-table-column prop="completeDate" :formatter="dateFormat" label="核销时间" min-width="100"></el-table-column>
         <el-table-column prop="title" label="产品名称" min-width="200"></el-table-column>
         <el-table-column prop="subTitle" label="套餐" min-width="100"></el-table-column>
-        <el-table-column prop="completeMemo" label="核销备注" min-width="200"></el-table-column>
+        <el-table-column prop="completeMemo" label="核销备注" min-width="100"></el-table-column>
       </el-table>
     </div>
     <div class="k-center" v-show="pageCount>0">
@@ -167,11 +169,15 @@
           name: null,
           bizUid: null,
           status: null
-        }
+        },
+        showCustomer: false
       }
     },
     computed: {},
     created () {
+      if (getUser().showCustomer) {
+        this.showCustomer = true
+      }
       this.getStoreList()
       this.getTableData()
     },
