@@ -44,6 +44,9 @@
       <div class="modal-info-container">
         <div class="info-content-container">
           <el-form ref="form" :model="info" label-width="140px" :inline-message="true" label-position="left">
+            <el-form-item label="套餐内容：">
+              {{info.subTitle}}
+            </el-form-item>
             <el-form-item label="下单时间：">
               {{info.createDate | infoTimeFormatter('yyyy-MM-dd hh:mm:ss')}}
             </el-form-item>
