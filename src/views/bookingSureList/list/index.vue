@@ -7,6 +7,9 @@
     </div>
     <div class="filter">
       <div class="l">
+        <el-select style="width: 270px" v-model="groupProductIndex" placeholder="请选择产品" @change="groupProductChanged">
+          <el-option v-for="(item, index) in groupProductList" :label="item.name" :key="index" :value="index"></el-option>
+        </el-select>
         <el-select v-model="type" placeholder="请选择类型" @change="bookingTypeChanged">
           <el-option v-for="item in bookingTypeList" :label="item.name" :value="item.id"></el-option>
         </el-select>
@@ -59,14 +62,37 @@
             id: 0,
             name: '已确认'
           }
-        ]
+        ],
+        groupProductList: null,
+        groupProductIndex: null,
+        groupProduct: {
+          productGroupId: null,
+          name: null
+        }
       }
     },
     created () {
       this.type = 1
+      this.getGroupProductList()
       this.getTableData()
     },
     methods: {
+      groupProductChanged () {
+        this.groupProduct = this.groupProductList[this.groupProductIndex]
+        this.getTableData()
+      },
+      getGroupProductList () {
+        this.$http.get('/v1/a/biz/group/product/list').then(res => {
+          if (res.body.errMessage) {
+            this.$message.error(res.body.errMessage)
+          } else {
+            this.groupProductList = res.body.data
+            if (this.groupProductList && this.groupProductList.length > 0) {
+              this.groupProductIndex = 0
+            }
+          }
+        })
+      },
       bookingCustomerNameFormat (row, col, val) {
         if (row.bookingCustomerName) {
           return row.bookingCustomerName
@@ -99,7 +125,8 @@
         this.$http.get(`/v1/a/biz/order/sure/list?type=${this.type}`, {
           params: {
             pageSize: this.pageSize,
-            pageIndex: this.currentPage
+            pageIndex: this.currentPage,
+            productGroupId: this.groupProduct.productGroupId
           }
         }).then(res => {
           if (res.body.errMessage) {

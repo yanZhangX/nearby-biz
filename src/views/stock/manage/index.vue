@@ -6,7 +6,13 @@
       </el-breadcrumb>
     </div>
     <div class="filter">
+      <div class="l">
+        <el-select style="width: 270px" v-model="groupProductIndex" placeholder="请选择产品" @change="groupProductChanged">
+          <el-option v-for="(item, index) in groupProductList" :label="item.name" :key="index" :value="index"></el-option>
+        </el-select>
+      </div>
       <div class="r">
+        <el-button class="uploader" type="primary" @click="exportExcelSelectDate">导出预约</el-button>
         <el-button type="primary" icon="plus" @click="getProductAndItemData(1)">新增库存</el-button>
         <!--<el-button type="primary" @click="getProductAndItemData(2)">批量修改库存</el-button>-->
       </div>
@@ -155,12 +161,36 @@
         <el-button type="primary" @click="prodcutStockChange">确定</el-button>
       </div>
     </el-dialog>
+
+    <el-dialog :visible.sync="selectDateModal" title="导出日期选择">
+      <div class="modal-info-container">
+        <div class="info-content-container">
+          <el-form ref="form" :model="info" label-width="140px" :inline-message="true" label-position="left">
+            <el-form-item label="导出日期：">
+              <el-date-picker type="daterange"
+                              :editable="false"
+                              range-separator="至"
+                              start-placeholder="开始日期"
+                              end-placeholder="结束日期"
+                              v-model="selectDate"></el-date-picker>
+            </el-form-item>
+          </el-form>
+        </div>
+      </div>
+      <div slot="footer" class="dialog-footer">
+        <div class="k-center">
+          <el-button @click="selectDateModal = false">关闭</el-button>
+          <el-button type="primary" @click="exportExcel">确定导出</el-button>
+        </div>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
   import moment from 'moment'
   import router from 'ROUTE'
+  import {appHost, getToken} from 'CONST'
   export default {
     name: 'stockManage',
     data () {
@@ -197,9 +227,17 @@
         },
         dateAppointmentOptions: {
           disabledDate: (startDate, endDate) => {
-            return startDate <= Date.now()
+            return startDate < Date.now() - 60 * 60 * 24 * 1000
           }
-        }
+        },
+        groupProductList: null,
+        groupProductIndex: null,
+        groupProduct: {
+          productGroupId: null,
+          name: null
+        },
+        selectDateModal: false,
+        selectDate: null
       }
     },
     computed: {},
@@ -208,9 +246,26 @@
       if (!this.paramIsNull(pageIndex)) {
         this.currentPage = parseInt(pageIndex)
       }
+      this.getGroupProductList()
       this.getTableData()
     },
     methods: {
+      groupProductChanged () {
+        this.groupProduct = this.groupProductList[this.groupProductIndex]
+        this.getTableData()
+      },
+      getGroupProductList () {
+        this.$http.get('/v1/a/biz/group/product/list').then(res => {
+          if (res.body.errMessage) {
+            this.$message.error(res.body.errMessage)
+          } else {
+            this.groupProductList = res.body.data
+            if (this.groupProductList && this.groupProductList.length > 0) {
+              this.groupProductIndex = 0
+            }
+          }
+        })
+      },
       paramIsNull (param) {
         if (typeof (param) === 'undefined' || param === null) {
           return true
@@ -278,7 +333,8 @@
         this.$http.get('/v1/a/biz/stock/list', {
           params: {
             pageSize: this.pageSize,
-            pageIndex: this.currentPage
+            pageIndex: this.currentPage,
+            productGroupId: this.groupProduct.productGroupId
           }
         }).then(res => {
           loading.close()
@@ -527,6 +583,50 @@
             }
           }
         )
+      },
+      exportExcelSelectDate () {
+        if (this.tableData === null || this.tableData.length === 0) {
+          this.pro_message_error(null, '没有数据可导出')
+          return
+        }
+        this.selectDate = null
+        this.selectDateModal = true
+      },
+      exportExcel () {
+        if (this.paramIsNull(this.selectDate)) {
+          this.pro_message_error(null, '请选择日期')
+          return
+        }
+        var startDate = this.selectDate[0]
+        var endDate = this.selectDate[1]
+
+        if (this.paramIsNull(startDate) || this.paramIsNull(endDate)) {
+          this.pro_message_error(null, '请选择日期')
+          return
+        }
+
+        this.selectDateModal = false
+        var h = this.$createElement
+        this.$msgbox({
+          title: '温馨提示',
+          message: h('p', null, [
+            h('span', null, '确认导出（'),
+            h('span', {style: 'color: red;'}, `${this.pro_yyyyMMDD(null, null, startDate)}`),
+            h('span', null, '至'),
+            h('span', {style: 'color: red;'}, `${this.pro_yyyyMMDD(null, null, endDate)}`),
+            h('span', null, '）这段时间的预约数据吗？')
+          ]),
+          showCancelButton: true,
+          confirmButtonText: '确认导出',
+          cancelButtonText: '再考虑一下',
+          type: 'warning',
+          center: true
+        }).then(() => {
+          this.downloadUrl = `${appHost()}/v1/a/biz/booking/all/day/download?productGroupId=${this.groupProduct.productGroupId}&token=${getToken()}&date=${startDate.getTime()}&endDate=${endDate.getTime()}`
+          window.open(this.downloadUrl)
+        }).catch(e => {
+          this.selectDateModal = true
+        })
       }
     }
   }

@@ -6,7 +6,11 @@
       </el-breadcrumb>
     </div>
     <div class="filter">
-
+      <div class="l">
+        <el-select style="width: 270px" v-model="groupProductIndex" placeholder="请选择产品" @change="groupProductChanged">
+          <el-option v-for="(item, index) in groupProductList" :label="item.name" :key="index" :value="index"></el-option>
+        </el-select>
+      </div>
     </div>
     <div class="main-container">
       <el-table :data="tableData" v-loading.body="loading" stripe scope="scope" max-height=2000>
@@ -78,11 +82,33 @@
           disabledDate: (startDate, endDate) => {
             return startDate <= new Date()
           }
+        },
+        groupProductList: null,
+        groupProductIndex: null,
+        groupProduct: {
+          productGroupId: null,
+          name: null
         }
       }
     },
     computed: {},
     methods: {
+      groupProductChanged () {
+        this.groupProduct = this.groupProductList[this.groupProductIndex]
+        this.getTableData()
+      },
+      getGroupProductList () {
+        this.$http.get('/v1/a/biz/group/product/list').then(res => {
+          if (res.body.errMessage) {
+            this.$message.error(res.body.errMessage)
+          } else {
+            this.groupProductList = res.body.data
+            if (this.groupProductList && this.groupProductList.length > 0) {
+              this.groupProductIndex = 0
+            }
+          }
+        })
+      },
       paramIsNull (param) {
         if (typeof (param) === 'undefined' || param === null) {
           return true
@@ -150,7 +176,8 @@
         this.$http.get('/v1/a/biz/stock/list/history', {
           params: {
             pageSize: this.pageSize,
-            pageIndex: this.currentPage
+            pageIndex: this.currentPage,
+            productGroupId: this.groupProduct.productGroupId
           }
         }).then(res => {
           loading.close()
@@ -205,6 +232,7 @@
       if (!this.paramIsNull(pageIndex)) {
         this.currentPage = parseInt(pageIndex)
       }
+      this.getGroupProductList()
       this.getTableData()
     }
   }

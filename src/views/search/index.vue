@@ -14,6 +14,9 @@
         <el-select style="width: 270px" v-model="storeIndex" placeholder="请选择店铺" @change="storeChanged">
           <el-option v-for="(item, index) in storeList" :label="item.name" :key="index" :value="index"></el-option>
         </el-select>
+        <el-select style="width: 270px" v-model="groupProductIndex" placeholder="请选择产品" @change="groupProductChanged">
+          <el-option v-for="(item, index) in groupProductList" :label="item.name" :key="index" :value="index"></el-option>
+        </el-select>
       </div>
 
       <div class="r">
@@ -116,7 +119,7 @@
         <div class="k-center">
           <el-button @click="selectDateModal = false">关闭</el-button>
           <el-button type="primary" @click="exportExcel">确定导出</el-button>
-      </div>
+        </div>
       </div>
     </el-dialog>
   </div>
@@ -173,7 +176,13 @@
           bizUid: null,
           status: null
         },
-        showCustomer: false
+        showCustomer: false,
+        groupProductList: null,
+        groupProductIndex: null,
+        groupProduct: {
+          productGroupId: null,
+          name: null
+        }
       }
     },
     computed: {},
@@ -182,6 +191,7 @@
         this.showCustomer = true
       }
       this.getStoreList()
+      this.getGroupProductList()
       this.getTableData()
     },
     methods: {
@@ -239,7 +249,29 @@
           }
         })
       },
+      groupProductChanged () {
+        this.currentPage = (this.pageIndex !== 0 ? this.pageIndex : 1)
+        this.pageIndex = 0
+        this.groupProduct = this.groupProductList[this.groupProductIndex]
+        this.getTableData()
+      },
+      getGroupProductList () {
+        this.$http.get('/v1/a/biz/group/product/list').then(res => {
+          if (res.body.errMessage) {
+            this.$message.error(res.body.errMessage)
+          } else {
+            this.groupProductList = res.body.data
+            if (this.groupProductList && this.groupProductList.length > 0) {
+              this.groupProductIndex = 0
+            }
+          }
+        })
+      },
       getTableData () {
+        if (!this.groupProduct) {
+          this.$message.error('请选择产品')
+          return
+        }
         var loading = this.$loading({
           lock: true,
           text: '数据加载中……',
@@ -249,10 +281,10 @@
         this.$http.get('/v1/a/biz/code/list', {
           params: {
             pageSize: this.pageSize,
-            order: this.sortType,
             pageIndex: this.currentPage,
             status: this.store.status,
-            bizUid: this.store.bizUid
+            bizUid: this.store.bizUid,
+            productGroupId: this.groupProduct.productGroupId
           }
         }).then(res => {
           loading.close()
@@ -400,7 +432,7 @@
           type: 'warning',
           center: true
         }).then(() => {
-          this.downloadUrl = `${appHost()}/v1/a/biz/complete/all/day/download?bizUid=${this.store.bizUid}&token=${getToken()}&status=${this.store.status}&date=${startDate.getTime()}&endDate=${endDate.getTime()}`
+          this.downloadUrl = `${appHost()}/v1/a/biz/complete/all/day/download?productGroupId=${this.groupProduct.productGroupId}&bizUid=${this.store.bizUid}&token=${getToken()}&status=${this.store.status}&date=${startDate.getTime()}&endDate=${endDate.getTime()}`
           window.open(this.downloadUrl)
         }).catch(e => {
           this.selectDateModal = true
