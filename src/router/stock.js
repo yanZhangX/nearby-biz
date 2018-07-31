@@ -1,6 +1,13 @@
 export default {
   routes: [
     {
+      path: '/consume',
+      name: 'consume',
+      component (resolve) {
+        require(['VIEW/consume/'], resolve)
+      }
+    },
+    {
       path: '/stock_not_booking',
       name: 'search',
       component (resolve) {
