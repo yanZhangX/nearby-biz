@@ -1,6 +1,6 @@
 const appHost = function () {
-  return 'https://nb-oa.lianlianlvyou.com'
-  // return 'http://192.168.10.174:9999'
+  // return 'https://nb-oa.lianlianlvyou.com'
+  return 'http://192.168.10.77:8082'
 }
 
 const getToken = function () {

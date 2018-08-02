@@ -7,8 +7,8 @@
     </div>
     <div class="filter">
       <div class="l">
-        <el-select style="width: 270px" v-model="groupProductIndex" placeholder="请选择产品" @change="groupProductChanged">
-          <el-option v-for="(item, index) in groupProductList" :label="item.name" :key="index" :value="index"></el-option>
+        <el-select style="width: 270px" v-model="bookingItemIndex" placeholder="请选择预约型号" @change="bookingItemChanged">
+          <el-option v-for="(item, index) in bookingItemList" :label="item.name" :key="index" :value="index"></el-option>
         </el-select>
       </div>
     </div>
@@ -83,28 +83,28 @@
             return startDate <= new Date()
           }
         },
-        groupProductList: null,
-        groupProductIndex: null,
-        groupProduct: {
-          productGroupId: null,
+        bookingItemList: null,
+        bookingItemIndex: null,
+        bookingItem: {
+          id: null,
           name: null
         }
       }
     },
     computed: {},
     methods: {
-      groupProductChanged () {
-        this.groupProduct = this.groupProductList[this.groupProductIndex]
+      bookingItemChanged () {
+        this.bookingItem = this.bookingItemList[this.bookingItemIndex]
         this.getTableData()
       },
-      getGroupProductList () {
-        this.$http.get('/v1/a/biz/group/product/list').then(res => {
+      getBookingItemList () {
+        this.$http.get('/v1/a/biz/stock/booking/item/config').then(res => {
           if (res.body.errMessage) {
             this.$message.error(res.body.errMessage)
           } else {
-            this.groupProductList = res.body.data
-            if (this.groupProductList && this.groupProductList.length > 0) {
-              this.groupProductIndex = 0
+            this.bookingItemList = res.body.data
+            if (this.bookingItemList && this.bookingItemList.length > 0) {
+              this.bookingItemIndex = 0
             }
           }
         })
@@ -177,7 +177,7 @@
           params: {
             pageSize: this.pageSize,
             pageIndex: this.currentPage,
-            productGroupId: this.groupProduct.productGroupId
+            bookingItemId: this.bookingItem.id
           }
         }).then(res => {
           loading.close()
@@ -232,7 +232,7 @@
       if (!this.paramIsNull(pageIndex)) {
         this.currentPage = parseInt(pageIndex)
       }
-      this.getGroupProductList()
+      this.getBookingItemList()
       this.getTableData()
     }
   }
