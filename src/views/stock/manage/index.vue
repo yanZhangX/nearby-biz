@@ -53,7 +53,7 @@
         <div class="info-content-container">
           <ul>
             <li>
-              <span class="info-span-title">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;预约库存型号：</span>
+              <span class="info-span-title">预约库存型号：</span>
               <span>
                 <el-select v-model="product.selectedItemKindIndex" placeholder="请选择预约库存型号"  @change="productItemKindSelecteChanged" style="width: 60%;">
                   <el-option v-for="(item, index) in product.kinds" :key="item.id" :label="item.bookingItemText" :value="index"></el-option>
@@ -67,7 +67,7 @@
               </span>
             </li>
             <li>
-              <span class="info-span-title">&nbsp;&nbsp;&nbsp;预约时间范围：</span>
+              <span class="info-span-title">预约时间范围：</span>
               <span>
                 <el-date-picker  style="width: 60%;"
                                  v-model="product.dateAppointmentDate"
@@ -349,7 +349,7 @@
           this.pro_message_error(null, '数据错误')
           return
         }
-        this.product.kinds = []
+        this.product.kinds = this.products
         this.product.productStock = 0
         this.product.day = null
         this.product.productItemKindId = null
