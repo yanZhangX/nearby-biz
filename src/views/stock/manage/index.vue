@@ -534,7 +534,7 @@
           type: 'warning',
           center: true
         }).then(() => {
-          this.downloadUrl = `${appHost()}/v1/a/biz/booking/all/day/download?productGroupId=${this.bookingItem.id}&token=${getToken()}&date=${startDate.getTime()}&endDate=${endDate.getTime()}`
+          this.downloadUrl = `${appHost()}/v1/a/biz/booking/all/day/download?bookingItemId=${this.bookingItem.id}&token=${getToken()}&date=${startDate.getTime()}&endDate=${endDate.getTime()}`
           window.open(this.downloadUrl)
         }).catch(e => {
           this.selectDateModal = true
