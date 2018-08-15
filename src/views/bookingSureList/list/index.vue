@@ -19,7 +19,7 @@
       <el-table :data="tableData" :highlight-current-row="true" stripe scope="scope" max-height=2000>
         <el-table-column prop="bookingCustomerName" label="客户姓名" min-width="100" :formatter="bookingCustomerNameFormat"></el-table-column>
         <el-table-column prop="bookingCustomerPhoneNumber" label="客户手机" min-width="150" :formatter="bookingCustomerPhoneNumberFormat"></el-table-column>
-        <el-table-column prop="bookingDay" label="预约时间" min-width="100" :formatter="bookingDay"></el-table-column>
+        <el-table-column prop="bookingDay" label="预约时间" min-width="100" :formatter="pro_yyyyMMDD"></el-table-column>
         <el-table-column prop="bookingItemText" label="预约类型" min-width="100"></el-table-column>
         <el-table-column prop="memo" label="预约备注" min-width="100"></el-table-column>
         <el-table-column prop="createDate" label="确定时间" min-width="160">
