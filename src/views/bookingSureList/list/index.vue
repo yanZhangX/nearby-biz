@@ -7,6 +7,9 @@
     </div>
     <div class="filter">
       <div class="l">
+        <el-select style="width: 270px" v-model="bookingItemIndex" placeholder="请选择产品" @change="bookingItemChanged">
+          <el-option v-for="(item, index) in bookingItemList" :label="item.name" :key="index" :value="index"></el-option>
+        </el-select>
         <el-select v-model="type" placeholder="请选择类型" @change="bookingTypeChanged">
           <el-option v-for="item in bookingTypeList" :label="item.name" :value="item.id"></el-option>
         </el-select>
@@ -59,14 +62,37 @@
             id: 0,
             name: '已确认'
           }
-        ]
+        ],
+        bookingItemList: null,
+        bookingItemIndex: null,
+        bookingItem: {
+          id: null,
+          name: null
+        }
       }
     },
     created () {
       this.type = 1
+      this.getBookingItemList()
       this.getTableData()
     },
     methods: {
+      bookingItemChanged () {
+        this.bookingItem = this.bookingItemList[this.bookingItemIndex]
+        this.getTableData()
+      },
+      getBookingItemList () {
+        this.$http.get('/v1/a/biz/stock/booking/item/config').then(res => {
+          if (res.body.errMessage) {
+            this.$message.error(res.body.errMessage)
+          } else {
+            this.bookingItemList = res.body.data
+            if (this.bookingItemList && this.bookingItemList.length > 0) {
+              this.bookingItemIndex = 0
+            }
+          }
+        })
+      },
       bookingCustomerNameFormat (row, col, val) {
         if (row.bookingCustomerName) {
           return row.bookingCustomerName
@@ -99,7 +125,8 @@
         this.$http.get(`/v1/a/biz/order/sure/list?type=${this.type}`, {
           params: {
             pageSize: this.pageSize,
-            pageIndex: this.currentPage
+            pageIndex: this.currentPage,
+            bookingItemId: this.bookingItem.id
           }
         }).then(res => {
           if (res.body.errMessage) {

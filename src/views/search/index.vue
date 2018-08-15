@@ -2,17 +2,16 @@
   <div class="stock">
     <div class="breadcrumb">
       <el-breadcrumb separator="/">
-        <el-breadcrumb-item>查询</el-breadcrumb-item>
+        <el-breadcrumb-item>查询功能</el-breadcrumb-item>
       </el-breadcrumb>
     </div>
     <div class="filter">
       <div class="l">
-        <div class="k-search-contaienr">
-          <i class="el-icon-search k-center" @click="search"></i>
-          <input type="text" placeholder="请输入电子码" v-focus class="k-search-input" v-model="keywords" @keyup.enter="search">
-        </div>
         <el-select style="width: 270px" v-model="storeIndex" placeholder="请选择店铺" @change="storeChanged">
           <el-option v-for="(item, index) in storeList" :label="item.name" :key="index" :value="index"></el-option>
+        </el-select>
+        <el-select style="width: 270px" v-model="groupProductIndex" placeholder="请选择产品" @change="groupProductChanged">
+          <el-option v-for="(item, index) in groupProductList" :label="item.name" :key="index" :value="index"></el-option>
         </el-select>
       </div>
 
@@ -24,12 +23,14 @@
     </div>
     <div class="main-container">
       <el-table :data="tableData" :highlight-current-row="true" v-loading.body="loading" stripe max-height=2000>
-        <el-table-column prop="orderid" label="订单号"></el-table-column>
-        <el-table-column prop="code" label="电子码"></el-table-column>
+        <el-table-column prop="customerName" label="姓名" v-if="showCustomer" min-width="80"></el-table-column>
+        <el-table-column prop="customerPhoneNumber" label="手机号" v-if="showCustomer" min-width="100"></el-table-column>
+        <el-table-column prop="orderid" label="订单号" min-width="100"></el-table-column>
+        <el-table-column prop="code" label="电子码" min-width="80"></el-table-column>
         <el-table-column prop="completeDate" :formatter="dateFormat" label="核销时间" min-width="100"></el-table-column>
         <el-table-column prop="title" label="产品名称" min-width="200"></el-table-column>
         <el-table-column prop="subTitle" label="套餐" min-width="100"></el-table-column>
-        <el-table-column prop="completeMemo" label="核销备注" min-width="200"></el-table-column>
+        <el-table-column prop="completeMemo" label="核销备注" min-width="100"></el-table-column>
       </el-table>
     </div>
     <div class="k-center" v-show="pageCount>0">
@@ -37,60 +38,6 @@
         layout="total, prev, pager, next, jumper" :total="total">
       </el-pagination>
     </div>
-
-    <el-dialog :visible.sync="travelTicket" title="电子码信息" :close-on-click-modal="false" :show-close="false" close-on-press-escape >
-      <div class="modal-info-container">
-        <div class="info-content-container">
-          <el-form ref="form" :model="info" label-width="140px" :inline-message="true" label-position="left">
-            <el-form-item label="下单时间：">
-              {{info.createDate | infoTimeFormatter('yyyy-MM-dd hh:mm:ss')}}
-            </el-form-item>
-            <el-form-item label="电子码：">
-              <span>{{info.code}}</span>
-              <span>{{getUserName()}}</span>
-              <span>{{getUserPhoneNumber()}}</span>
-            </el-form-item>
-            <el-form-item label="状态：">
-              <span>{{info.statusText}}</span>
-              <span>{{info.bookingDateText}}</span>
-              <span>{{info.bookingItemText}}</span>
-            </el-form-item>
-            <el-form-item label="产品型号选择：" v-if="completeSettingModal">
-              <el-radio-group v-model="bookingItemId" size="small">
-                <el-radio  v-for="(item, index) in info.bookingItems" :label="item.id" :key="index">{{item.bookingItemText}}</el-radio>
-              </el-radio-group>
-            </el-form-item>
-            <el-form-item label="到店时间选择：" v-if="completeSettingDate">
-              <el-date-picker type="date"
-                              :editable="false"
-                              placeholder="请选择到店时间"
-                              v-model="completeDay"
-                              :clearable="false"></el-date-picker>
-            </el-form-item>
-            <el-form-item label="订单备注：">
-              {{info.memo}}
-            </el-form-item>
-            <el-form-item label="预约备注：">
-              {{info.bookingMemo}}
-            </el-form-item>
-            <el-form-item label="核销备注：">
-              <span v-if="info.status === 1 || info.status === 2"><el-input v-model="info.completeMemo" size="small" placeholder="请输入核销备注" style="width: 70%;"></el-input></span>
-              <span v-else>{{info.completeMemo}}</span>
-            </el-form-item>
-          </el-form>
-        </div>
-
-        <div class="complete-container" v-if="info.status === 3">
-          <img src="/static/img/home/complete.png" alt="">
-        </div>
-      </div>
-      <div slot="footer" class="dialog-footer">
-        <div class="k-center">
-          <el-button @click="travelTicket = false">关闭</el-button>
-          <el-button type="primary" @click="del(info)" v-if="info.status === 1 || info.status === 2">核销</el-button>
-        </div>
-      </div>
-    </el-dialog>
 
     <el-dialog :visible.sync="selectDateModal" title="导出日期选择">
       <div class="modal-info-container">
@@ -111,7 +58,7 @@
         <div class="k-center">
           <el-button @click="selectDateModal = false">关闭</el-button>
           <el-button type="primary" @click="exportExcel">确定导出</el-button>
-      </div>
+        </div>
       </div>
     </el-dialog>
   </div>
@@ -167,12 +114,24 @@
           name: null,
           bizUid: null,
           status: null
-        }
+        },
+        showCustomer: false,
+        groupProductList: null,
+        groupProductIndex: null,
+        groupProduct: {
+          productGroupId: null,
+          name: null
+        },
+        downloadUrl: ''
       }
     },
     computed: {},
     created () {
+      if (getUser().showCustomer) {
+        this.showCustomer = true
+      }
       this.getStoreList()
+      this.getGroupProductList()
       this.getTableData()
     },
     methods: {
@@ -230,7 +189,29 @@
           }
         })
       },
+      groupProductChanged () {
+        this.currentPage = (this.pageIndex !== 0 ? this.pageIndex : 1)
+        this.pageIndex = 0
+        this.groupProduct = this.groupProductList[this.groupProductIndex]
+        this.getTableData()
+      },
+      getGroupProductList () {
+        this.$http.get('/v1/a/biz/group/product/list').then(res => {
+          if (res.body.errMessage) {
+            this.$message.error(res.body.errMessage)
+          } else {
+            this.groupProductList = res.body.data
+            if (this.groupProductList && this.groupProductList.length > 0) {
+              this.groupProductIndex = 0
+            }
+          }
+        })
+      },
       getTableData () {
+        if (!this.groupProduct) {
+          this.$message.error('请选择产品')
+          return
+        }
         var loading = this.$loading({
           lock: true,
           text: '数据加载中……',
@@ -242,7 +223,8 @@
             pageSize: this.pageSize,
             pageIndex: this.currentPage,
             status: this.store.status,
-            bizUid: this.store.bizUid
+            bizUid: this.store.bizUid,
+            productGroupId: this.groupProduct.productGroupId
           }
         }).then(res => {
           loading.close()
@@ -265,92 +247,6 @@
       setInventory (row) {
         this.stock = row
         this.isModalOpen = true
-      },
-      search () {
-        if (this.keywords) {
-          var loading = this.$loading({
-            lock: true,
-            text: '查询中……',
-            spinner: 'el-icon-loading',
-            background: 'rgba(0, 0, 0, 0.7)'
-          })
-          this.$http.get('/v1/a/biz/code', {
-            params: {
-              c: this.keywords
-            }
-          }).then((res) => {
-            loading.close()
-            if (res.body.errMessage) {
-              this.$message({
-                showClose: true,
-                message: res.body.errMessage,
-                type: 'error'
-              })
-            } else {
-              this.completeDay = new Date()
-              this.info = res.body.data
-              this.info.bookingDateText = this.myDateFormat(this.info.bookingDay)
-              this.travelTicket = true
-              if (typeof (this.info.bookingItems) !== 'undefined' && this.info.bookingItems !== null && this.info.bookingItems.length > 0) {
-                this.bookingItemId = this.info.bookingItems[0].id
-                this.completeSettingModal = true
-              } else {
-                this.completeSettingModal = false
-              }
-            }
-          }).catch(e => {
-            loading.close()
-            this.$message.error('服务器错误')
-          })
-        }
-      },
-      del (row) {
-        this.travelTicket = false
-        this.$confirm('确定核销吗？', '温馨提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          var memo = this.info.completeMemo
-          if (this.paramIsNull(memo)) {
-            memo = ''
-          }
-          var url = `/v1/a/biz/code?c=${row.code}&memo=${memo}`
-          if (this.info.status === 1 && this.info.booking === 1) {
-            url = `/v1/a/biz/code?c=${row.code}&memo=${memo}&bookingItemId=${this.bookingItemId}&bookingDay=${this.completeDay.getTime()}`
-          }
-          var loading = this.$loading({
-            lock: true,
-            text: '核销中……',
-            spinner: 'el-icon-loading',
-            background: 'rgba(0, 0, 0, 0.7)'
-          })
-          this.$http.post(url).then(function (res) {
-            loading.close()
-            if (res.body.errMessage) {
-              this.$message({
-                showClose: true,
-                message: res.body.errMessage,
-                type: 'error'
-              })
-            } else {
-              this.$message({
-                showClose: true,
-                message: '核销成功',
-                type: 'success'
-              })
-              this.isModalOpen = false
-              this.getTableData()
-            }
-          }).catch(function (res) {
-            loading.close()
-            this.$message({
-              showClose: true,
-              message: '服务器连接超时',
-              type: 'error'
-            })
-          })
-        })
       },
       exportExcelSelectDate () {
         if (this.tableData === null || this.tableData.length === 0) {
@@ -390,7 +286,7 @@
           type: 'warning',
           center: true
         }).then(() => {
-          this.downloadUrl = `${appHost()}/v1/a/biz/complete/all/day/download?bizUid=${this.store.bizUid}&token=${getToken()}&status=${this.store.status}&date=${startDate.getTime()}&endDate=${endDate.getTime()}`
+          this.downloadUrl = `${appHost()}/v1/a/biz/complete/all/day/download?productGroupId=${this.groupProduct.productGroupId}&bizUid=${this.store.bizUid}&token=${getToken()}&status=${this.store.status}&date=${startDate.getTime()}&endDate=${endDate.getTime()}`
           window.open(this.downloadUrl)
         }).catch(e => {
           this.selectDateModal = true

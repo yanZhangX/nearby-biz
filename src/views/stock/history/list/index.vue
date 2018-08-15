@@ -6,7 +6,11 @@
       </el-breadcrumb>
     </div>
     <div class="filter">
-
+      <div class="l">
+        <el-select style="width: 270px" v-model="bookingItemIndex" placeholder="请选择预约型号" @change="bookingItemChanged">
+          <el-option v-for="(item, index) in bookingItemList" :label="item.name" :key="index" :value="index"></el-option>
+        </el-select>
+      </div>
     </div>
     <div class="main-container">
       <el-table :data="tableData" v-loading.body="loading" stripe scope="scope" max-height=2000>
@@ -78,11 +82,33 @@
           disabledDate: (startDate, endDate) => {
             return startDate <= new Date()
           }
+        },
+        bookingItemList: null,
+        bookingItemIndex: null,
+        bookingItem: {
+          id: null,
+          name: null
         }
       }
     },
     computed: {},
     methods: {
+      bookingItemChanged () {
+        this.bookingItem = this.bookingItemList[this.bookingItemIndex]
+        this.getTableData()
+      },
+      getBookingItemList () {
+        this.$http.get('/v1/a/biz/stock/booking/item/config').then(res => {
+          if (res.body.errMessage) {
+            this.$message.error(res.body.errMessage)
+          } else {
+            this.bookingItemList = res.body.data
+            if (this.bookingItemList && this.bookingItemList.length > 0) {
+              this.bookingItemIndex = 0
+            }
+          }
+        })
+      },
       paramIsNull (param) {
         if (typeof (param) === 'undefined' || param === null) {
           return true
@@ -150,7 +176,8 @@
         this.$http.get('/v1/a/biz/stock/list/history', {
           params: {
             pageSize: this.pageSize,
-            pageIndex: this.currentPage
+            pageIndex: this.currentPage,
+            bookingItemId: this.bookingItem.id
           }
         }).then(res => {
           loading.close()
@@ -205,6 +232,7 @@
       if (!this.paramIsNull(pageIndex)) {
         this.currentPage = parseInt(pageIndex)
       }
+      this.getBookingItemList()
       this.getTableData()
     }
   }

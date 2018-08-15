@@ -6,7 +6,13 @@
       </el-breadcrumb>
     </div>
     <div class="filter">
+      <div class="l">
+        <el-select style="width: 270px" v-model="bookingItemIndex" placeholder="请选择预约型号" @change="bookingItemChanged">
+          <el-option v-for="(item, index) in bookingItemList" :label="item.name" :key="index" :value="index"></el-option>
+        </el-select>
+      </div>
       <div class="r">
+        <el-button class="uploader" type="primary" @click="exportExcelSelectDate">导出预约</el-button>
         <el-button type="primary" icon="plus" @click="getProductAndItemData(1)">新增库存</el-button>
         <!--<el-button type="primary" @click="getProductAndItemData(2)">批量修改库存</el-button>-->
       </div>
@@ -24,7 +30,6 @@
         <el-table-column prop="stockAmount" label="库存量"></el-table-column>
         <el-table-column prop="bookingAmount" label="已预约"></el-table-column>
         <el-table-column prop="completeAmount" label="已核销"></el-table-column>
-        <el-table-column prop="name" label="产品名称"></el-table-column>
         <el-table-column label="操作" width="240" fixed="right">
           <template slot-scope="scope">
             <div>
@@ -42,30 +47,14 @@
       </el-pagination>
     </div>
 
-    <el-dialog :visible.sync="addStockModal" title="新增库存" :close-on-click-modal="false" :show-close="false" close-on-press-escape>
+    <el-dialog :visible.sync="addStockModal" title="新建库存" :close-on-click-modal="false" :show-close="false" close-on-press-escape>
       <div class="modal-info-container">
         <div class="info-content-container">
           <ul>
             <li>
-              <span class="info-span-title">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;产品名称：</span>
+              <span class="info-span-title">预约库存型号：</span>
               <span>
-                <el-select v-model="product.selectedProductIndex" placeholder="请选择产品名称" @change="productSelecteChanged" style="width: 60%;">
-                  <el-option v-for="(item, rowIndex) in products" :key="item.id" :label="item.name" :value="rowIndex"></el-option>
-                </el-select>
-              </span>
-            </li>
-            <li>
-              <span class="info-span-title">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;套餐名称：</span>
-              <span>
-                <el-select v-model="product.selectedProductItemIndex" placeholder="请选择套餐名称" @change="productItemSelecteChanged" no-data-text="请先选择产品名称" style="width: 60%;">
-                  <el-option v-for="(item, rowIndex) in product.items" :key="item.id" :label="item.subTitle" :value="rowIndex"></el-option>
-                </el-select>
-              </span>
-            </li>
-            <li v-if="product.productItemShowModal">
-              <span class="info-span-title">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;产品型号：</span>
-              <span>
-                <el-select v-model="product.selectedItemKindIndex" placeholder="请选择产品型号"  @change="productItemKindSelecteChanged" no-data-text="请先选择套餐名称" style="width: 60%;">
+                <el-select v-model="product.selectedItemKindIndex" placeholder="请选择预约库存型号"  @change="productItemKindSelecteChanged" style="width: 60%;">
                   <el-option v-for="(item, index) in product.kinds" :key="item.id" :label="item.bookingItemText" :value="index"></el-option>
                 </el-select>
               </span>
@@ -73,16 +62,16 @@
             <li>
               <span class="info-span-title">每日库存数量：</span>
               <span>
-                <el-input-number v-model="product.productStock" :min="0" :max="9999" label="请设置库存"></el-input-number>
+                <el-input-number v-model="product.productStock" :min="0" :max="9999" label="请设置每日库存数量"></el-input-number>
               </span>
             </li>
             <li>
-              <span class="info-span-title">&nbsp;&nbsp;&nbsp;可预约时间：</span>
+              <span class="info-span-title">预约时间范围：</span>
               <span>
                 <el-date-picker  style="width: 60%;"
                                  v-model="product.dateAppointmentDate"
                                  type="daterange"
-                                 placeholder="请选择可预约日期"
+                                 placeholder="请选择预约时间范围"
                                  range-separator="至"
                                  :picker-options="dateAppointmentOptions">
                 </el-date-picker>
@@ -95,7 +84,7 @@
       <div slot="footer" class="dialog-footer">
         <div class="k-center">
           <el-button @click="addStockModal = false">关闭</el-button>
-          <el-button type="primary" @click="addStock">新增</el-button>
+          <el-button type="primary" @click="addStock">新建</el-button>
         </div>
       </div>
     </el-dialog>
@@ -105,25 +94,9 @@
         <div class="info-content-container">
           <ul>
             <li>
-              <span class="info-span-title">产品名称：</span>
+              <span class="info-span-title">预约库存型号：</span>
               <span>
-                <el-select v-model="product.selectedProductIndex" placeholder="请选择产品名称" @change="productSelecteChanged" style="width: 60%;">
-                  <el-option v-for="(item, rowIndex) in products" :key="item.id" :label="item.name" :value="rowIndex"></el-option>
-                </el-select>
-              </span>
-            </li>
-            <li>
-              <span class="info-span-title">套餐名称：</span>
-              <span>
-                <el-select v-model="product.selectedProductItemIndex" placeholder="请选择套餐名称" @change="productItemSelecteChanged" no-data-text="请先选择产品名称" style="width: 60%;">
-                  <el-option v-for="(item, rowIndex) in product.items" :key="item.id" :label="item.subTitle" :value="rowIndex"></el-option>
-                </el-select>
-              </span>
-            </li>
-            <li v-if="product.productItemShowModal">
-              <span class="info-span-title">产品型号：</span>
-              <span>
-                <el-select v-model="product.selectedItemKindIndex" placeholder="请选择产品型号"  @change="productItemKindSelecteChanged" no-data-text="请先选择套餐名称" style="width: 60%;">
+                <el-select v-model="product.selectedItemKindIndex" placeholder="请选择预约库存型号"  @change="productItemKindSelecteChanged" style="width: 60%;">
                   <el-option v-for="(item, index) in product.kinds" :key="item.id" :label="item.bookingItemText" :value="index"></el-option>
                 </el-select>
               </span>
@@ -155,12 +128,36 @@
         <el-button type="primary" @click="prodcutStockChange">确定</el-button>
       </div>
     </el-dialog>
+
+    <el-dialog :visible.sync="selectDateModal" title="导出日期选择">
+      <div class="modal-info-container">
+        <div class="info-content-container">
+          <el-form ref="form" :model="info" label-width="140px" :inline-message="true" label-position="left">
+            <el-form-item label="导出日期：">
+              <el-date-picker type="daterange"
+                              :editable="false"
+                              range-separator="至"
+                              start-placeholder="开始日期"
+                              end-placeholder="结束日期"
+                              v-model="selectDate"></el-date-picker>
+            </el-form-item>
+          </el-form>
+        </div>
+      </div>
+      <div slot="footer" class="dialog-footer">
+        <div class="k-center">
+          <el-button @click="selectDateModal = false">关闭</el-button>
+          <el-button type="primary" @click="exportExcel">确定导出</el-button>
+        </div>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
   import moment from 'moment'
   import router from 'ROUTE'
+  import {appHost, getToken} from 'CONST'
   export default {
     name: 'stockManage',
     data () {
@@ -177,18 +174,12 @@
         stockBatchModifyModal: false,
         productStockModal: false,
         product: {
-          selectedProductIndex: null,
-          productId: '',
-          items: [],
           kinds: [],
-          productItemId: null,
           productItemKindId: null,
-          selectedProductItemIndex: null,
           selectedItemKindIndex: null,
-          productStock: 10,
+          productStock: 0,
           day: '',
           dateAppointmentDate: [],
-          productItemShowModal: false,
           selectDate: []
         },
         stock: {
@@ -197,9 +188,17 @@
         },
         dateAppointmentOptions: {
           disabledDate: (startDate, endDate) => {
-            return startDate <= Date.now()
+            return startDate < Date.now() - 60 * 60 * 24 * 1000
           }
-        }
+        },
+        bookingItemList: null,
+        bookingItemIndex: null,
+        bookingItem: {
+          id: null,
+          name: null
+        },
+        selectDateModal: false,
+        selectDate: null
       }
     },
     computed: {},
@@ -208,9 +207,26 @@
       if (!this.paramIsNull(pageIndex)) {
         this.currentPage = parseInt(pageIndex)
       }
+      this.getBookingItemList()
       this.getTableData()
     },
     methods: {
+      bookingItemChanged () {
+        this.bookingItem = this.bookingItemList[this.bookingItemIndex]
+        this.getTableData()
+      },
+      getBookingItemList () {
+        this.$http.get('/v1/a/biz/stock/booking/item/config').then(res => {
+          if (res.body.errMessage) {
+            this.$message.error(res.body.errMessage)
+          } else {
+            this.bookingItemList = res.body.data
+            if (this.bookingItemList && this.bookingItemList.length > 0) {
+              this.bookingItemIndex = 0
+            }
+          }
+        })
+      },
       paramIsNull (param) {
         if (typeof (param) === 'undefined' || param === null) {
           return true
@@ -278,7 +294,8 @@
         this.$http.get('/v1/a/biz/stock/list', {
           params: {
             pageSize: this.pageSize,
-            pageIndex: this.currentPage
+            pageIndex: this.currentPage,
+            bookingItemId: this.bookingItem.id
           }
         }).then(res => {
           loading.close()
@@ -305,12 +322,7 @@
           spinner: 'el-icon-loading',
           background: 'rgba(0, 0, 0, 0.7)'
         })
-        this.$http.get('/v1/a/biz/product', {
-          params: {
-            pageSize: this.pageSize,
-            pageIndex: this.currentPage
-          }
-        }).then(res => {
+        this.$http.get('/v1/a/biz/stock/booking/item').then(res => {
           loading.close()
           if (res.body.errMessage) {
             this.$message.error(res.body.errMessage)
@@ -336,12 +348,7 @@
           this.pro_message_error(null, '数据错误')
           return
         }
-        this.product.selectedProductIndex = null
-        this.product.productId = null
-        this.product.items = []
-        this.product.kinds = []
-        this.product.productItemId = null
-        this.product.selectedProductItemIndex = null
+        this.product.kinds = this.products
         this.product.productStock = 0
         this.product.day = null
         this.product.productItemKindId = null
@@ -358,24 +365,16 @@
         }
       },
       addStock () {
-        if (this.paramIsNull(this.product.productId)) {
-          this.$message.error('请选择产品')
-          return
-        }
-        if (this.paramIsNull(this.product.productItemId)) {
-          this.$message.error('请选择套餐')
-          return
-        }
-        if (!this.paramIsNull(this.product.kinds) && this.product.kinds.length !== 0 && this.paramIsNull(this.product.productItemKindId)) {
-          this.$message.error('请选择产品型号')
+        if (this.paramIsNull(this.product.productItemKindId)) {
+          this.$message.error('请选择要创建的预约库存型号')
           return
         }
         if (this.paramIsNull(this.product.productStock) || this.product.productStock === 0) {
-          this.$message.error('请设置库存数量')
+          this.$message.error('请设置已选预约库存型号的每日库存数量')
           return
         }
         if (this.paramIsNull(this.product.dateAppointmentDate) || this.product.dateAppointmentDate.length < 2) {
-          this.$message.error('请选择可预约日期')
+          this.$message.error('请选择已选预约库存型号的可预约时间范围')
           return
         }
         var start = this.product.dateAppointmentDate[0]
@@ -384,12 +383,10 @@
         this.$msgbox({
           title: '温馨提示',
           message: h('p', null, [
-            h('div', null, '新增产品库存信息确认：'),
-            h('div', {style: 'color: red;'}, `产品：${this.products[this.product.selectedProductIndex].name}`),
-            h('div', {style: 'color: red;'}, `套餐：${this.product.items[this.product.selectedProductItemIndex].subTitle}`),
-            h('div', {style: 'color: red;'}, `型号：${this.product.kinds[this.product.selectedItemKindIndex].bookingItemText}`),
-            h('div', {style: 'color: red;'}, `库存：${this.product.productStock}`),
-            h('div', {style: 'color: red;'}, `预约日期：${this.dateFormat(null, null, start)}至${this.dateFormat(null, null, end)}`)
+            h('div', null, '新建库存信息确认：'),
+            h('div', {style: 'color: red;'}, `预约库存型号：${this.product.kinds[this.product.selectedItemKindIndex].bookingItemText}`),
+            h('div', {style: 'color: red;'}, `每日库存数量：${this.product.productStock}`),
+            h('div', {style: 'color: red;'}, `预约时间范围：${this.dateFormat(null, null, start)}至${this.dateFormat(null, null, end)}`)
           ]),
           showCancelButton: true,
           confirmButtonText: '确认无误新增',
@@ -399,8 +396,7 @@
         }).then(() => {
           this.$http.post('/v1/a/biz/stock/add', {
             s: this.product.productStock,
-            productItemId: this.product.productItemId,
-            bookingItemId: (this.product.productItemKindId === null) ? 0 : this.product.productItemKindId,
+            bookingItemId: this.product.productItemKindId,
             status: 0,
             dayStart: moment(start).format('YYYY-MM-DD'),
             dayEnd: moment(end).format('YYYY-MM-DD')
@@ -414,7 +410,7 @@
             } else {
               this.$message({
                 showClose: true,
-                message: '新增库存成功',
+                message: '新建「' + this.product.kinds[this.product.selectedItemKindIndex].bookingItemText + '」的库存成功',
                 type: 'success'
               })
               this.addStockModal = false
@@ -425,7 +421,7 @@
       },
       stockBatchModify () {
         if (this.paramIsNull(this.product.productItemKindId)) {
-          this.pro_message_error(null, '请选择产品型号')
+          this.pro_message_error(null, '请选择预约库存型号')
           return
         }
         router.push({
@@ -434,35 +430,6 @@
             id: this.product.productItemKindId
           }
         })
-      },
-      initAppointmentStartAndEndDate () {
-        var start = new Date()
-        var end = new Date()
-        start.setTime(start.getTime() + 3600 * 1000 * 24)
-        end.setTime(end.getTime() + 3600 * 1000 * 24 * 7)
-        this.product.dateAppointmentDate = [start, end]
-      },
-      productSelecteChanged () {
-        let product = this.products[this.product.selectedProductIndex]
-        this.product.productId = product.id
-        this.product.items = product.items
-        this.product.selectedProductItemIndex = null
-        this.product.productItemKindId = null
-        this.productItemSelecteChanged()
-      },
-      productItemSelecteChanged () {
-        if (this.product.selectedProductItemIndex === null) {
-          return
-        }
-        var item = this.product.items[this.product.selectedProductItemIndex]
-        this.product.productItemId = item.id
-        this.product.kinds = item.items
-        this.product.productItemKindId = null
-        if (this.paramIsNull(this.product.kinds) || this.product.kinds.length === 0) {
-          this.product.productItemShowModal = false
-        } else {
-          this.product.productItemShowModal = true
-        }
       },
       productItemKindSelecteChanged () {
         if (this.paramIsNull(this.product.selectedItemKindIndex)) {
@@ -527,6 +494,50 @@
             }
           }
         )
+      },
+      exportExcelSelectDate () {
+        if (this.tableData === null || this.tableData.length === 0) {
+          this.pro_message_error(null, '没有数据可导出')
+          return
+        }
+        this.selectDate = null
+        this.selectDateModal = true
+      },
+      exportExcel () {
+        if (this.paramIsNull(this.selectDate)) {
+          this.pro_message_error(null, '请选择日期')
+          return
+        }
+        var startDate = this.selectDate[0]
+        var endDate = this.selectDate[1]
+
+        if (this.paramIsNull(startDate) || this.paramIsNull(endDate)) {
+          this.pro_message_error(null, '请选择日期')
+          return
+        }
+
+        this.selectDateModal = false
+        var h = this.$createElement
+        this.$msgbox({
+          title: '温馨提示',
+          message: h('p', null, [
+            h('span', null, '确认导出（'),
+            h('span', {style: 'color: red;'}, `${this.pro_yyyyMMDD(null, null, startDate)}`),
+            h('span', null, '至'),
+            h('span', {style: 'color: red;'}, `${this.pro_yyyyMMDD(null, null, endDate)}`),
+            h('span', null, '）这段时间的预约数据吗？')
+          ]),
+          showCancelButton: true,
+          confirmButtonText: '确认导出',
+          cancelButtonText: '再考虑一下',
+          type: 'warning',
+          center: true
+        }).then(() => {
+          this.downloadUrl = `${appHost()}/v1/a/biz/booking/all/day/download?bookingItemId=${this.bookingItem.id}&token=${getToken()}&date=${startDate.getTime()}&endDate=${endDate.getTime()}`
+          window.open(this.downloadUrl)
+        }).catch(e => {
+          this.selectDateModal = true
+        })
       }
     }
   }
