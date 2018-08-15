@@ -240,7 +240,6 @@
         this.$http.get('/v1/a/biz/code/list', {
           params: {
             pageSize: this.pageSize,
-            order: this.sortType,
             pageIndex: this.currentPage,
             status: this.store.status,
             bizUid: this.store.bizUid

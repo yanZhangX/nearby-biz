@@ -96,7 +96,6 @@
           params: {
             pageSize: this.pageSize,
             pageIndex: this.currentPage,
-            date: this.timeStamp,
             locationId: this.locationId
           }
         }).then(res => {
