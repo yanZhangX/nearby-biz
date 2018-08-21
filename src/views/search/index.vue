@@ -41,6 +41,7 @@
         <el-table-column prop="title" label="产品名称" min-width="200"></el-table-column>
         <el-table-column prop="subTitle" label="套餐" min-width="100"></el-table-column>
         <el-table-column prop="completeMemo" label="核销备注" min-width="100"></el-table-column>
+        <el-table-column prop="supplierName" label="核销店铺" min-width="100"></el-table-column>
       </el-table>
     </div>
     <div class="k-center" v-show="pageCount>0">

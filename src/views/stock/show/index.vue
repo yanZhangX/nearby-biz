@@ -23,7 +23,7 @@
         <el-table-column prop="bookingCustomerName" label="客户姓名" min-width="100" :formatter="bookingCustomerNameFormat"></el-table-column>
         <el-table-column prop="bookingCustomerPhoneNumber" label="客户手机" min-width="150" :formatter="bookingCustomerPhoneNumberFormat"></el-table-column>
         <el-table-column prop="code" label="电子码" min-width="140" v-if="operation === 'complete'"></el-table-column>
-        <el-table-column prop="bookingDay" label="预约时间" min-width="200" :formatter="timeDesc" v-if="operation === 'booking'"></el-table-column>
+        <el-table-column prop="bookingDay" label="预约时间" min-width="200" :formatter="pro_yyyyMMDD" v-if="operation === 'booking'"></el-table-column>
         <el-table-column prop="completeDate" label="核销时间" min-width="200" :formatter="completeDate" v-if="operation === 'complete'"></el-table-column>
         <el-table-column prop="bookingMemo" label="备注" min-width="150"></el-table-column>
         <el-table-column prop="address" label="地址" min-width="150"></el-table-column>
