@@ -13,6 +13,16 @@
         <el-select style="width: 270px" v-model="groupProductIndex" placeholder="请选择产品" @change="groupProductChanged">
           <el-option v-for="(item, index) in groupProductList" :label="item.name" :key="index" :value="index"></el-option>
         </el-select>
+        <div class="k-search-contaienr">
+          <el-date-picker type="daterange"
+                          :editable="false"
+                          v-model="selectDateSearch"
+                          range-separator="至"
+                          start-placeholder="开始日期"
+                          end-placeholder="结束日期"
+                          @change="getTableData"
+                          :picker-options="dateAppointmentOptions"></el-date-picker>
+        </div>
       </div>
 
       <div class="r">
@@ -49,7 +59,8 @@
                               range-separator="至"
                               start-placeholder="开始日期"
                               end-placeholder="结束日期"
-                              v-model="selectDate"></el-date-picker>
+                              v-model="selectDate"
+                              :picker-options="dateAppointmentOptions"></el-date-picker>
             </el-form-item>
           </el-form>
         </div>
@@ -122,7 +133,13 @@
           productGroupId: null,
           name: null
         },
-        downloadUrl: ''
+        downloadUrl: '',
+        selectDateSearch: null,
+        dateAppointmentOptions: {
+          disabledDate: (startDate) => {
+            return startDate > Date.now()
+          }
+        }
       }
     },
     computed: {},
@@ -218,13 +235,25 @@
           spinner: 'el-icon-loading',
           background: 'rgba(0, 0, 0, 0.7)'
         })
+        var date = 0
+        var endDate = 0
+        if (!this.paramIsNull(this.selectDateSearch)) {
+          if (!this.paramIsNull(this.selectDateSearch[0])) {
+            date = this.selectDateSearch[0].getTime()
+          }
+          if (!this.paramIsNull(this.selectDateSearch[1])) {
+            endDate = this.selectDateSearch[1].getTime()
+          }
+        }
         this.$http.get('/v1/a/biz/code/list', {
           params: {
             pageSize: this.pageSize,
             pageIndex: this.currentPage,
             status: this.store.status,
             bizUid: this.store.bizUid,
-            productGroupId: this.groupProduct.productGroupId
+            productGroupId: this.groupProduct.productGroupId,
+            date: date,
+            endDate: endDate
           }
         }).then(res => {
           loading.close()
