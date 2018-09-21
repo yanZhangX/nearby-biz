@@ -8,6 +8,13 @@ export default {
       }
     },
     {
+      path: '/consume/today',
+      name: 'consumeToday',
+      component (resolve) {
+        require(['VIEW/consume/today'], resolve)
+      }
+    },
+    {
       path: '/stock_not_booking',
       name: 'search',
       component (resolve) {
