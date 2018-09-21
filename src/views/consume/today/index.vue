@@ -7,6 +7,10 @@
     </div>
     <div class="filter">
       <div class="l">
+        <div class="k-search-contaienr">
+          <i class="el-icon-search k-center" @click="search"></i>
+          <input type="text" placeholder="电子码、手机、姓名" class="k-search-input" v-model="keywords" @keyup.enter="search" v-focus>
+        </div>
       </div>
     </div>
     <div class="main-container">
@@ -56,8 +60,7 @@
         row: null,
         supplierId: null,
         isWillConsume: false,
-        code: '',
-        search: ''
+        code: ''
       }
     },
     created () {
@@ -80,13 +83,13 @@
       getTableData () {
         var loading = this.$loading({
           lock: true,
-          text: '核销中……',
+          text: '加载中……',
           spinner: 'el-icon-loading',
           background: 'rgba(0, 0, 0, 0.7)'
         })
         this.$http.get('/v1/a/biz/booking/today', {
           params: {
-            search: this.search,
+            search: this.keywords,
             pageSize: this.pageSize,
             pageIndex: this.currentPage
           }
@@ -106,6 +109,10 @@
       },
       pageIndexChange (val) {
         this.currentPage = val
+        this.getTableData()
+      },
+      search () {
+        this.currentPage = 1
         this.getTableData()
       },
       completeDate (row, col, val) {
