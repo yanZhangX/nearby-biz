@@ -34,7 +34,7 @@
         </el-table-column>
       </el-table>
     </div>
-    <div class="k-center" v-show="pageCount>1">
+    <div class="k-center" v-show="pageCount>0">
       <el-pagination @current-change="pageIndexChange" :current-page="currentPage" :page-size="pageSize"
                      layout="total, prev, pager, next, jumper" :total="total">
       </el-pagination>
