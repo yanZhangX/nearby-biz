@@ -6,6 +6,15 @@
       </el-breadcrumb>
     </div>
     <div class="filter">
+      <div class="l">
+        <div class="k-search-contaienr">
+          <el-select v-model="type" placeholder="发货状态" @change="search">
+            <el-option v-for="item in typeList" :key="item.type" :label="item.title" :value="item.type">
+            </el-option>
+          </el-select>
+        </div>
+      </div>
+
       <div class="r">
         <el-button class="uploader" type="primary" @click="exportOrder">导出订单</el-button>
         <el-button type="primary" @click="downloadExcelModel">下载物流模版</el-button>
@@ -90,7 +99,22 @@
         deliveryName: null,
         deliveryNumber: null,
         importExcelFile: null,
-        importExcelMessage: null
+        importExcelMessage: null,
+        type: 1,
+        typeList: [
+          {
+            type: 0,
+            title: '全部订单'
+          },
+          {
+            type: 1,
+            title: '未发货订单'
+          },
+          {
+            type: 2,
+            title: '已发货订单'
+          }
+        ]
       }
     },
     computed: {},
@@ -146,7 +170,8 @@
         this.$http.get('/v1/a/biz/user/order/express/list', {
           params: {
             pageSize: this.pageSize,
-            pageIndex: this.currentPage
+            pageIndex: this.currentPage,
+            type: this.type
           }
         }).then(res => {
           loading.close()
@@ -164,6 +189,10 @@
       },
       pageIndexChange (val) {
         this.currentPage = val
+        this.getTableData()
+      },
+      search () {
+        this.currentPage = 1
         this.getTableData()
       },
       inputDeliveryNumber (row) {
@@ -267,7 +296,11 @@
         window.open('https://cdn.lianlianlvyou.com/excel/%E5%AF%BC%E5%85%A5%E8%BF%90%E5%8D%95%E6%A8%A1%E7%89%88.xls')
       },
       exportOrder () {
-        this.downloadUrl = `${appHost()}/v1/a/order/list/download?token=${getToken()}`
+        if (this.paramIsNull(this.tableData)) {
+          this.pro_message_error(null, '暂无订单信息可以导出')
+          return
+        }
+        this.downloadUrl = `${appHost()}/v1/a/order/list/download?token=${getToken()}&type=${this.type}`
         window.open(this.downloadUrl)
       }
     },
