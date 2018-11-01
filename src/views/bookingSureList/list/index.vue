@@ -11,7 +11,7 @@
           <el-option v-for="(item, index) in bookingItemList" :label="item.name" :key="index" :value="index"></el-option>
         </el-select>
         <el-select v-model="type" placeholder="请选择类型" @change="bookingTypeChanged">
-          <el-option v-for="item in bookingTypeList" :label="item.name" :value="item.id"></el-option>
+          <el-option v-for="(item, index) in bookingTypeList" :label="item.name" :key="index" :value="item.id"></el-option>
         </el-select>
         <div class="k-search-contaienr">
           <el-date-picker type="daterange"

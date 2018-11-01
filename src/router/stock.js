@@ -15,6 +15,13 @@ export default {
       }
     },
     {
+      path: '/consume/multiple',
+      name: 'consumeMultiple',
+      component (resolve) {
+        require(['VIEW/consume/multiple'], resolve)
+      }
+    },
+    {
       path: '/stock_not_booking',
       name: 'search',
       component (resolve) {

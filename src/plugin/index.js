@@ -140,5 +140,23 @@ export default{
         return moment(val).format('YYYY-MM-DD')
       }
     }
+    Vue.prototype.pro_getUserName = function (customerName, bookingCustomerName) {
+      var reg = /^(.).*$/
+      if (!this.paramIsNull(bookingCustomerName)) {
+        return bookingCustomerName.replace(reg, '$1**')
+      } else if (!this.paramIsNull(customerName)) {
+        return customerName.replace(reg, '$1**')
+      }
+      return ''
+    }
+    Vue.prototype.pro_getUserPhoneNumber = function (customerPhoneNumber, bookingCustomerPhoneNumber) {
+      var reg = /(\d{3})\d{4}(\d{4})/
+      if (!this.paramIsNull(bookingCustomerPhoneNumber)) {
+        return bookingCustomerPhoneNumber.replace(reg, '$1****$2')
+      } else if (!this.paramIsNull(customerPhoneNumber)) {
+        return customerPhoneNumber.replace(reg, '$1****$2')
+      }
+      return ''
+    }
   }
 }
