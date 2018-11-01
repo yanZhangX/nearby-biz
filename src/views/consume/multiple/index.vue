@@ -193,7 +193,7 @@
           return
         }
         this.isShowDetails = false
-        this.$http.get(`/v1/biz/user/code/list?c=${code}`).then(res => {
+        this.$http.get(`/v1/biz/user/code/list?c=${code}&type=1`).then(res => {
           this.isShowDetails = true
           if (!this.paramIsNull(res.body.errMessage)) {
             this.message = res.body.errMessage
@@ -254,6 +254,11 @@
             this.message = res.body.errMessage
             this.isError = true
           } else {
+            this.$message({
+              showClose: true,
+              message: '核销成功',
+              type: 'success'
+            })
             this.code = null
             this.getTableData(false)
           }
@@ -335,7 +340,8 @@
         this.isShowDetails = true
         this.$http.post(url, {
           memo: '',
-          codes
+          codes,
+          openid: ''
         }).then(function (res) {
           this.isShowDetails = true
           if (res.body.errMessage) {
