@@ -36,6 +36,7 @@
           </template>
         </el-table-column>
         <el-table-column prop="bookingItemText" label="型号"></el-table-column>
+        <el-table-column prop="plusMoneyStr" label="加价"></el-table-column>
         <el-table-column prop="stockAmount" label="库存量"></el-table-column>
         <el-table-column prop="bookingAmount" label="已预约"></el-table-column>
         <el-table-column prop="completeAmount" label="已核销"></el-table-column>
@@ -227,6 +228,13 @@
       var pageIndex = this.$route.query.pageIndex
       if (!this.paramIsNull(pageIndex)) {
         this.currentPage = parseInt(pageIndex)
+      }
+      var selectDateSearch = decodeURI(this.$route.query.selectDateSearch)
+      if (!this.paramIsNull(selectDateSearch)) {
+        selectDateSearch = selectDateSearch.split(',')
+        if (!this.paramIsNull(selectDateSearch)) {
+          this.selectDateSearch = [new Date(selectDateSearch[0]), new Date(selectDateSearch[1])]
+        }
       }
       this.getBookingItemList()
       this.getTableData()
@@ -505,7 +513,8 @@
               operation: 'booking',
               pageIndex: this.currentPage,
               routeName: 'stockManage',
-              routeMenu: encodeURI('库存管理')
+              routeMenu: encodeURI('库存管理'),
+              selectDateSearch: encodeURI(this.selectDateSearch)
             }
           }
         )

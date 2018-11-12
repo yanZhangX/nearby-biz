@@ -180,7 +180,8 @@
           {
             name: this.$route.query.routeName,
             query: {
-              pageIndex: this.$route.query.pageIndex
+              pageIndex: this.$route.query.pageIndex,
+              selectDateSearch: this.$route.query.selectDateSearch
             }
           }
         )
