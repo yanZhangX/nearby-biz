@@ -19,12 +19,17 @@
       </div>
     </div>
     <div class="main-container">
-      <el-table :data="tableData" v-loading.body="loading" stripe max-height=2000 @row-click="">
+      <el-table :data="tableData" v-loading.body="loading" stripe max-height=2000>
         <el-table-column prop="bookingCustomerName" label="客户姓名" min-width="100" :formatter="bookingCustomerNameFormat"></el-table-column>
         <el-table-column prop="bookingCustomerPhoneNumber" label="客户手机" min-width="150" :formatter="bookingCustomerPhoneNumberFormat"></el-table-column>
         <el-table-column prop="code" label="电子码" min-width="140" v-if="operation === 'complete' || bookingShowCode() === 1"></el-table-column>
         <el-table-column prop="bookingDay" label="预约时间" min-width="200" :formatter="pro_yyyyMMDD" v-if="operation === 'booking'"></el-table-column>
         <el-table-column prop="completeDate" label="核销时间" min-width="200" :formatter="completeDate" v-if="operation === 'complete'"></el-table-column>
+        <el-table-column prop="plusStr" label="加价" min-width="150">
+          <template slot-scope="scope">
+            <span v-html="scope.row.plusMoneyStr"></span>
+          </template>
+        </el-table-column>
         <el-table-column prop="bookingMemo" label="备注" min-width="150"></el-table-column>
         <el-table-column prop="address" label="地址" min-width="150"></el-table-column>
         <el-table-column label="操作" min-width="100" v-if="operation === 'booking'" fixed="right">

@@ -22,7 +22,11 @@
           </template>
         </el-table-column>
         <el-table-column prop="bookingItemText" label="型号"></el-table-column>
-        <el-table-column prop="plusMoneyStr" label="加价"></el-table-column>
+        <el-table-column prop="plusStr" label="加价" min-width="150">
+          <template slot-scope="scope">
+            <span v-html="scope.row.plusMoneyStr"></span>
+          </template>
+        </el-table-column>
         <el-table-column prop="stockAmount" label="库存量"></el-table-column>
         <el-table-column prop="bookingAmount" label="已预约"></el-table-column>
         <el-table-column prop="completeAmount" label="已核销"></el-table-column>

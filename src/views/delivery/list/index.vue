@@ -38,7 +38,7 @@
         <el-table-column prop="address" label="邮寄地址" min-width="160"></el-table-column>
         <el-table-column prop="memo" label="备注" min-width="120"></el-table-column>
         <el-table-column prop="expressInfo" label="快递单号" min-width="140">
-          <template scope="scope">
+          <template slot-scope="scope">
             <span style="color: red">{{scope.row.expressInfo}}</span>
           </template>
         </el-table-column>
@@ -47,7 +47,7 @@
         <el-table-column prop="name" label="产品名称" min-width="100"></el-table-column>
         <el-table-column prop="subTitle" label="套餐" min-width="100"></el-table-column>
         <el-table-column label="操作" min-width="120" fixed="right">
-          <template scope="scope">
+          <template slot-scope="scope">
             <el-button type="text" @click="inputDeliveryNumber(scope.row)" v-if="paramIsNull(scope.row.expressInfo)">录入快递信息</el-button>
             <el-button type="text" @click="inputDeliveryNumber(scope.row)" v-else>修改快递信息</el-button>
           </template>

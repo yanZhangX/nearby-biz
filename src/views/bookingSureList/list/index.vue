@@ -11,7 +11,7 @@
           <el-option v-for="(item, index) in bookingItemList" :label="item.name" :key="index" :value="index"></el-option>
         </el-select>
         <el-select v-model="type" placeholder="请选择类型" @change="bookingTypeChanged">
-          <el-option v-for="item in bookingTypeList" :label="item.name" :value="item.id"></el-option>
+          <el-option v-for="(item, index) in bookingTypeList" :label="item.name" :key="index" :value="item.id"></el-option>
         </el-select>
         <div class="k-search-contaienr">
           <el-date-picker type="daterange"
@@ -43,6 +43,11 @@
           </template>
         </el-table-column>
         <el-table-column prop="address" label="地址" min-width="150"></el-table-column>
+        <el-table-column prop="plusStr" label="加价" min-width="150">
+          <template slot-scope="scope">
+            <span v-html="scope.row.plusMoneyStr"></span>
+          </template>
+        </el-table-column>
         <el-table-column prop="createDate" label="确定时间" min-width="160">
           <template slot-scope="scope">
             <span v-html="pro_yyyyMMDD(null, null, scope.row.createDate)" v-if="!paramIsNull(scope.row.sure) && scope.row.sure === 1"></span>

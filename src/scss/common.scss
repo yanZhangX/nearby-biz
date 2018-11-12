@@ -76,7 +76,8 @@ img{
 .menu-container{
   background-color: white;
   position: absolute;
-  width: 150px;
+  width: 200px;
+  height: 60px;
   right: 0;
   top: 0;
   font-size: 14px !important;
@@ -92,9 +93,9 @@ img{
   }
   .k-menu{
     transition: height 0.3s;
-    width: 150px;
+    width: 200px;
     font-size: 14px;
-    line-height: 18px;
+    line-height: 20px;
     color: #848689;
     height: 0;
     overflow: hidden;
@@ -105,8 +106,8 @@ img{
     right: 0;
     top: 60px;
     .k-menu-item{
-      margin: 14px;
-      padding-left: 20px;
+      text-align: left;
+      padding: 10px 20px 0 20px;
       color: #848689;
       img{
         height: 14px;

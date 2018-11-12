@@ -12,13 +12,13 @@
       <el-table :data="tableData" stripe scope="scope" max-height=2000>
         <el-table-column prop="nickName" label="昵称" min-width="100"></el-table-column>
         <el-table-column prop="headImgUrl" label="头像" min-width="80">
-          <template scope="scope">
+          <template slot-scope="scope">
             <img :src="scope.row.headImgUrl" width="40" height="40" min-width="60"/>
           </template>
         </el-table-column>
         <el-table-column prop="shopName" label="店名" min-width="100"></el-table-column>
         <el-table-column prop="subscribeStr" label="关注状态" min-width="200">
-          <template scope="scope">
+          <template slot-scope="scope">
             <div v-html="scope.row.subscribeStr"></div>
           </template>
         </el-table-column>
