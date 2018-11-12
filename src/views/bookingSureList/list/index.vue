@@ -42,6 +42,11 @@
             <span>{{scope.row.bookingMemo}}</span>&nbsp;&nbsp;<span>{{scope.row.memo}}</span>
           </template>
         </el-table-column>
+        <el-table-column prop="plusStr" label="加价" min-width="100">
+          <template slot-scope="scope">
+            <span>{{scope.row.plusMoneyStr}}</span>
+          </template>
+        </el-table-column>
         <el-table-column prop="createDate" label="确定时间" min-width="160">
           <template slot-scope="scope">
             <span v-html="pro_yyyyMMDD(null, null, scope.row.createDate)" v-if="!paramIsNull(scope.row.sure) && scope.row.sure === 1"></span>

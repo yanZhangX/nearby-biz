@@ -132,7 +132,7 @@
     <el-dialog :visible.sync="selectDateModal" title="导出日期选择">
       <div class="modal-info-container">
         <div class="info-content-container">
-          <el-form ref="form" :model="info" label-width="140px" :inline-message="true" label-position="left">
+          <el-form ref="form" label-width="140px" :inline-message="true" label-position="left">
             <el-form-item label="导出日期：">
               <el-date-picker type="daterange"
                               :editable="false"
