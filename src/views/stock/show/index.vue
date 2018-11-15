@@ -186,7 +186,8 @@
             name: this.$route.query.routeName,
             query: {
               pageIndex: this.$route.query.pageIndex,
-              selectDateSearch: this.$route.query.selectDateSearch
+              selectDateSearch: this.$route.query.selectDateSearch,
+              bookingItemIndex: this.$route.query.bookingItemIndex
             }
           }
         )

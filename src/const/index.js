@@ -1,7 +1,7 @@
 const appHost = function () {
-  return 'https://nb-oa.lianlianlvyou.com'
+  // return 'https://nb-oa.lianlianlvyou.com'
+  return 'http://192.168.10.100:9999'
   // return 'http://192.168.1.175:9999'
-  // return 'http://192.168.10.100:9999'
   // return 'http://192.168.10.77:8082'
 }
 
