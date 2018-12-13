@@ -18,26 +18,19 @@
       <div class="r">
         <el-button class="uploader" type="primary" @click="exportOrder">导出订单</el-button>
         <el-button type="primary" @click="downloadExcelModel">下载物流模版</el-button>
-        <el-upload class="uploader"
-                   action="form.action"
-                   :multiple="false"
-                   :auto-upload="false"
-                   accept=".xls,.xlsx"
-                   :on-change="fileListChange"
-                   :show-file-list="false">
-          <el-button type="primary">导入物流信息</el-button>
-        </el-upload>
+        <el-button type="primary" @click="openDeliveryModal">导入物流信息</el-button>
         <el-button class="uploader" type="primary" @click="sendExpressMsgSms">发送物流信息短信</el-button>
       </div>
     </div>
     <div class="main-container">
-      <div style="color: red" v-model="importExcelMessage" ref="importExcelMessage"></div>
+      <div style="color: red" ref="importExcelMessage"></div>
       <el-table :data="tableData" :highlight-current-row="true" v-loading.body="loading" stripe scope="scope" max-height=2000>
         <el-table-column prop="customerName" label="顾客姓名" min-width="85"></el-table-column>
         <el-table-column prop="customerPhoneNumber" label="顾客手机号" min-width="115"></el-table-column>
         <el-table-column prop="address" label="邮寄地址" min-width="160"></el-table-column>
         <el-table-column prop="memo" label="备注" min-width="120"></el-table-column>
-        <el-table-column prop="expressInfo" label="快递单号" min-width="140">
+        <el-table-column prop="expressName" label="快递公司" min-width="120" v-if="type!==1"></el-table-column>
+        <el-table-column prop="expressInfo" label="快递单号" min-width="140" v-if="type!==1">
           <template slot-scope="scope">
             <span style="color: red">{{scope.row.expressInfo}}</span>
           </template>
@@ -50,6 +43,7 @@
           <template slot-scope="scope">
             <el-button type="text" @click="inputDeliveryNumber(scope.row)" v-if="paramIsNull(scope.row.expressInfo)">录入快递信息</el-button>
             <el-button type="text" @click="inputDeliveryNumber(scope.row)" v-else>修改快递信息</el-button>
+            <el-button type="text" @click="onSearchDelovery(scope.row)" v-if="!paramIsNull(scope.row.expressInfo)">查询物流信息</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -64,7 +58,11 @@
       <div class="modal-info-container">
         <div class="info-content-container">
           <ul>
-            <li><el-input v-model="deliveryName" placeholder="请输入快递公司"></el-input></li>
+            <li>
+              <el-select v-model="deliveryName" placeholder="请输入快递公司" style="width: 100%">
+                <el-option v-for="(item, index) in deliveryList" :key="index" :label="item.name" :value="item.name"></el-option>
+              </el-select>
+            </li>
           </ul>
           <ul>
             <li><el-input v-model="deliveryNumber" placeholder="请输入快递单号"></el-input></li>
@@ -79,16 +77,50 @@
         </div>
       </div>
     </el-dialog>
+    <el-dialog :visible.sync="showImportExcelModal" title="请选择物流公司" width="440px">
+      <el-select v-model="selectedDelivery" style="width: 100%" placeholder="请选择物流公司">
+        <el-option v-for="(item, index) in deliveryList" :key="index" :label="item.name" :value="item.id"></el-option>
+      </el-select>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="showImportExcelModal = false">取消导入</el-button>
+        <el-upload style="display: inline-block; margin-left: 10px;"
+                   action="form.action"
+                   :multiple="false"
+                   :auto-upload="false"
+                   accept=".xls,.xlsx"
+                   :on-change="fileListChange"
+                   v-if="selectedDelivery"
+                   :show-file-list="false">
+          <el-button type="primary">导入物流信息</el-button>
+        </el-upload>
+        <el-button type="primary" disabled v-else>请先选择物流公司</el-button>
+      </div>
+    </el-dialog>
+    <el-dialog :visible.sync="showDeliveryDetail" title="物流详情">
+      <div v-if="deliveryInfo.length === 0">暂无物流信息，请稍后再试！</div>
+      <el-steps direction="vertical" :active="1" space="100px" v-else>
+        <el-step v-for="(item, index) in deliveryInfo" :key="index" :title="item.acceptTime" :description="item.acceptStation"></el-step>
+      </el-steps>
+    </el-dialog>
   </div>
 </template>
 
 <script>
+  // const DELIVERY_HOST = 'http://192.168.11.219:8080'
+  const DELIVERY_HOST = 'http://callback.lianlianlvyou.com'
+  const API_GET_DELIVERY = DELIVERY_HOST + '/express/types'
+  const API_GET_DELIERY_DETAIL = DELIVERY_HOST + '/express/query'
   import moment from 'moment'
   import {appHost, getToken} from 'CONST'
   export default {
     data () {
       return {
-        tableData: null,
+        showImportExcelModal: false, // 显示导入弹窗
+        deliveryList: [],
+        selectedDelivery: null,
+        tableData: [],
+        showDeliveryDetail: false,
+        deliveryInfo: [],
         keywords: '',
         loading: false,
         currentPage: 1,
@@ -153,6 +185,53 @@
       trim: function (str) {
         return str.replace(/(^\s*)|(\s*$)/g, '')
       },
+      onSearchDelovery (row) {
+        this.row = JSON.parse(JSON.stringify(row))
+        let expressNo = row.expressInfo
+        if (!expressNo) return this.$message.error('数据错误')
+        let typeName = row.expressName || ''
+        this.$emit('loading', true, '正在查询物流信息。。。')
+        this.$http.get(API_GET_DELIERY_DETAIL, {
+          params: {
+            expressNo,
+            typeName
+          }
+        }).then(res => {
+          this.$emit('loading')
+          if (res.body.errMessage) return this.$message.error(res.body.errMessage)
+          let data = res.body.data || {}
+          let traces = data.traces || []
+          this.deliveryInfo = traces
+          // console.log(traces)
+          // this.deliveryInfo = []
+          this.showDeliveryDetail = true
+        }).catch(e => {
+          this.$emit('loading')
+          this.$message.error('服务器繁忙')
+        })
+      },
+      openDeliveryModal () {
+        this.getDeliveryList().then(() => {
+          this.showImportExcelModal = true
+          this.selectedDelivery = null
+        }).catch(e => {
+          this.$message.error('获取物流公司信息失败：' + e)
+        })
+      },
+      getDeliveryList () {
+        return new Promise((resolve, reject) => {
+          if (this.deliveryList && this.deliveryList.length > 0) {
+            return resolve()
+          }
+          this.$http.get(API_GET_DELIVERY).then(res => {
+            if (res.body.errMessage) return reject(res.body.errMessage)
+            this.deliveryList = res.body.data || []
+            resolve()
+          }).catch(e => {
+            reject('服务器繁忙')
+          })
+        })
+      },
       dateFormat (row) {
         if (row.completeDate) {
           return moment(row.completeDate).format('YYYY-MM-DD HH:mm:ss')
@@ -196,10 +275,14 @@
         this.getTableData()
       },
       inputDeliveryNumber (row) {
-        this.row = row
-        this.deliveryName = null
-        this.deliveryNumber = null
-        this.inputDeliveryNumberModal = true
+        this.getDeliveryList().then(() => {
+          this.row = row
+          this.deliveryName = null
+          this.deliveryNumber = null
+          this.inputDeliveryNumberModal = true
+        }).catch(e => {
+          this.$message.error('获取物流公司信息失败：' + e)
+        })
       },
       completeInput () {
         if (this.paramIsNull(this.deliveryName)) {
@@ -251,13 +334,16 @@
       },
       fileListChange (file, fileList) {
         this.$refs.importExcelMessage.innerHTML = null
+        let delivery = this.deliveryList.find(e => e.id === this.selectedDelivery) || {}
+        let deliveryName = delivery.name || ''
         this.importExcelFile = file
         var h = this.$createElement
         this.$msgbox({
           title: '温馨提示',
           message: h('p', null, [
             h('div', null, '导入物流信息确认：'),
-            h('div', {style: 'color: red;'}, `导入表格：${this.importExcelFile.raw.name}`)
+            h('div', {style: 'color: red;'}, `导入表格：${this.importExcelFile.raw.name}`),
+            h('div', {style: 'color: red;'}, `导入物流公司：${deliveryName}`)
           ]),
           showCancelButton: true,
           confirmButtonText: '确认无误并导入',
@@ -273,7 +359,7 @@
             spinner: 'el-icon-loading',
             background: 'rgba(0, 0, 0, 0.7)'
           })
-          this.$http.post('/v1/a/biz/order/import/expressinfo/excel', formData, {
+          this.$http.post('/v1/a/biz/order/import/expressinfo/excel?name=' + deliveryName, formData, {
             headers: {
               'Content-Type': 'multipart/form-data'
             }
@@ -289,6 +375,8 @@
           }).catch(res => {
             loading.close()
             this.$message.error('服务器繁忙！')
+          }).then(() => {
+            this.showImportExcelModal = false
           })
         })
       },
