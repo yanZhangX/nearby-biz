@@ -10,6 +10,16 @@
         <el-select style="width: 270px" v-model="bookingItemIndex" placeholder="请选择预约型号" @change="bookingItemChanged">
           <el-option v-for="(item, index) in bookingItemList" :label="item.name" :key="index" :value="index"></el-option>
         </el-select>
+        <div class="k-search-contaienr">
+          <el-date-picker type="daterange"
+                          :editable="false"
+                          v-model="selectDateSearch"
+                          range-separator="至"
+                          start-placeholder="开始日期"
+                          end-placeholder="结束日期"
+                          :picker-options="dateAppointmentOptions"
+                          @change="bookingItemChanged"></el-date-picker>
+        </div>
       </div>
     </div>
     <div class="main-container">
@@ -22,6 +32,11 @@
           </template>
         </el-table-column>
         <el-table-column prop="bookingItemText" label="型号"></el-table-column>
+        <el-table-column prop="plusStr" label="加价" min-width="150">
+          <template slot-scope="scope">
+            <span v-html="scope.row.plusMoneyStr"></span>
+          </template>
+        </el-table-column>
         <el-table-column prop="stockAmount" label="库存量"></el-table-column>
         <el-table-column prop="bookingAmount" label="已预约"></el-table-column>
         <el-table-column prop="completeAmount" label="已核销"></el-table-column>
@@ -80,7 +95,7 @@
         },
         dateAppointmentOptions: {
           disabledDate: (startDate, endDate) => {
-            return startDate <= new Date()
+            return startDate > new Date()
           }
         },
         bookingItemList: null,
@@ -88,25 +103,58 @@
         bookingItem: {
           id: null,
           name: null
-        }
+        },
+        selectDateSearch: null
       }
     },
-    computed: {},
+    created () {
+      var pageIndex = this.$route.query.pageIndex
+      if (!this.paramIsNull(pageIndex)) {
+        this.currentPage = parseInt(pageIndex)
+      }
+      var bookingItemIndex = this.$route.query.bookingItemIndex
+      if (!this.paramIsNull(bookingItemIndex)) {
+        this.bookingItemIndex = parseInt(bookingItemIndex)
+      }
+      var selectDateSearch = decodeURI(this.$route.query.selectDateSearch)
+      if (!this.paramIsNull(selectDateSearch)) {
+        selectDateSearch = selectDateSearch.split(',')
+        if (!this.paramIsNull(selectDateSearch)) {
+          this.selectDateSearch = [new Date(selectDateSearch[0]), new Date(selectDateSearch[1])]
+        }
+      }
+      this.getBookingItemList()
+    },
     methods: {
       bookingItemChanged () {
+        this.currentPage = 1
         this.bookingItem = this.bookingItemList[this.bookingItemIndex]
         this.getTableData()
       },
       getBookingItemList () {
+        var loading = this.$loading({
+          lock: true,
+          text: '数据加载中……',
+          spinner: 'el-icon-loading',
+          background: 'rgba(0, 0, 0, 0.7)'
+        })
         this.$http.get('/v1/a/biz/stock/booking/item/config').then(res => {
+          loading.close()
           if (res.body.errMessage) {
             this.$message.error(res.body.errMessage)
           } else {
             this.bookingItemList = res.body.data
             if (this.bookingItemList && this.bookingItemList.length > 0) {
-              this.bookingItemIndex = 0
+              if (this.paramIsNull(this.bookingItemIndex)) {
+                this.bookingItemIndex = 0
+              }
             }
+            this.bookingItem = this.bookingItemList[this.bookingItemIndex]
+            this.getTableData()
           }
+        }).catch(e => {
+          loading.close()
+          this.pro_message_error(null, '服务器错误')
         })
       },
       paramIsNull (param) {
@@ -173,11 +221,19 @@
           spinner: 'el-icon-loading',
           background: 'rgba(0, 0, 0, 0.7)'
         })
+        var startDate = null
+        var endDate = null
+        if (!this.paramIsNull(this.selectDateSearch)) {
+          startDate = this.selectDateSearch[0].getTime()
+          endDate = this.selectDateSearch[1].getTime()
+        }
         this.$http.get('/v1/a/biz/stock/list/history', {
           params: {
             pageSize: this.pageSize,
             pageIndex: this.currentPage,
-            bookingItemId: this.bookingItem.id
+            bookingItemId: this.bookingItem.id,
+            startDate: startDate,
+            endDate: endDate
           }
         }).then(res => {
           loading.close()
@@ -207,7 +263,9 @@
               operation: 'booking',
               pageIndex: this.currentPage,
               routeName: 'stockHistoryList',
-              routeMenu: encodeURI('历史库存')
+              routeMenu: encodeURI('历史库存'),
+              selectDateSearch: encodeURI(this.selectDateSearch),
+              bookingItemIndex: this.bookingItemIndex
             }
           }
         )
@@ -221,19 +279,13 @@
               operation: 'complete',
               pageIndex: this.currentPage,
               routeName: 'stockHistoryList',
-              routeMenu: encodeURI('历史库存')
+              routeMenu: encodeURI('历史库存'),
+              selectDateSearch: encodeURI(this.selectDateSearch),
+              bookingItemIndex: this.bookingItemIndex
             }
           }
         )
       }
-    },
-    created () {
-      var pageIndex = this.$route.query.pageIndex
-      if (!this.paramIsNull(pageIndex)) {
-        this.currentPage = parseInt(pageIndex)
-      }
-      this.getBookingItemList()
-      this.getTableData()
     }
   }
 </script>

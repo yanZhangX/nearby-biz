@@ -19,12 +19,18 @@
         <el-table-column prop="bookingCustomerPhoneNumber" label="客户手机" min-width="120" :formatter="bookingCustomerPhoneNumberFormat"></el-table-column>
         <el-table-column prop="code" label="电子码" min-width="100"></el-table-column>
         <el-table-column prop="bookingDay" label="预约时间" min-width="120" :formatter="pro_yyyyMMDD" ></el-table-column>
+        <el-table-column prop="plusStr" label="加价" min-width="150">
+          <template slot-scope="scope">
+            <span v-html="scope.row.plusMoneyStr"></span>
+          </template>
+        </el-table-column>
         <el-table-column prop="completeDate" label="核销时间" min-width="120" :formatter="completeDate"></el-table-column>
         <el-table-column prop="bookingMemo" label="备注" min-width="120"></el-table-column>
         <el-table-column prop="address" label="地址" min-width="120"></el-table-column>
         <el-table-column label="操作" min-width="80" fixed="right">
           <template slot-scope="scope">
             <el-button type="text" @click="onClickConsume(true, scope.row.code)" v-if="scope.row.status === 2">核销</el-button>
+            <span v-else v-html="scope.row.statusText"></span>
           </template>
         </el-table-column>
       </el-table>

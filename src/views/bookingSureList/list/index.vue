@@ -42,9 +42,10 @@
             <span>{{scope.row.bookingMemo}}</span>&nbsp;&nbsp;<span>{{scope.row.memo}}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="plusStr" label="加价" min-width="100">
+        <el-table-column prop="address" label="地址" min-width="150"></el-table-column>
+        <el-table-column prop="plusStr" label="加价" min-width="150">
           <template slot-scope="scope">
-            <span>{{scope.row.plusMoneyStr}}</span>
+            <span v-html="scope.row.plusMoneyStr"></span>
           </template>
         </el-table-column>
         <el-table-column prop="createDate" label="确定时间" min-width="160">

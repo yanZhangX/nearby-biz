@@ -10,6 +10,16 @@
         <el-select style="width: 270px" v-model="bookingItemIndex" placeholder="请选择预约型号" @change="bookingItemChanged">
           <el-option v-for="(item, index) in bookingItemList" :label="item.name" :key="index" :value="index"></el-option>
         </el-select>
+        <div class="k-search-contaienr">
+          <el-date-picker type="daterange"
+                          :editable="false"
+                          v-model="selectDateSearch"
+                          range-separator="至"
+                          start-placeholder="开始日期"
+                          end-placeholder="结束日期"
+                          :picker-options="dateAppointmentOptions"
+                          @change="bookingItemChanged"></el-date-picker>
+        </div>
       </div>
       <div class="r">
         <el-button class="uploader" type="primary" @click="exportExcelSelectDate">导出预约</el-button>
@@ -27,9 +37,21 @@
           </template>
         </el-table-column>
         <el-table-column prop="bookingItemText" label="型号"></el-table-column>
+        <el-table-column prop="plusMoneyStr" label="加价"></el-table-column>
         <el-table-column prop="stockAmount" label="库存量"></el-table-column>
         <el-table-column prop="bookingAmount" label="已预约"></el-table-column>
         <el-table-column prop="completeAmount" label="已核销"></el-table-column>
+        <!--<el-table-column prop="statusStr" label="库存状态" minWidth="200">-->
+          <!--<template slot-scope="scope">-->
+            <!--<div>-->
+              <!--<span v-html="scope.row.statusStr" v-if="scope.row.status === 0"></span>-->
+              <!--<span v-html="scope.row.statusStr" v-if="scope.row.status === 2" style="color: red;"></span>-->
+              <!--<br/>-->
+              <!--<span v-if="scope.row.status === 0">(<el-button type="text" @click.stop="updateStockStatus(scope.row)">点击关闭库存</el-button>)</span>-->
+              <!--<span v-if="scope.row.status === 2">(<el-button type="text" @click.stop="updateStockStatus(scope.row)">点击开启库存</el-button>)</span>-->
+            <!--</div>-->
+          <!--</template>-->
+        <!--</el-table-column>-->
         <el-table-column label="操作" width="240" fixed="right">
           <template slot-scope="scope">
             <div>
@@ -198,7 +220,8 @@
           name: null
         },
         selectDateModal: false,
-        selectDate: null
+        selectDate: null,
+        selectDateSearch: null
       }
     },
     computed: {},
@@ -207,24 +230,49 @@
       if (!this.paramIsNull(pageIndex)) {
         this.currentPage = parseInt(pageIndex)
       }
+      var bookingItemIndex = this.$route.query.bookingItemIndex
+      if (!this.paramIsNull(bookingItemIndex)) {
+        this.bookingItemIndex = parseInt(bookingItemIndex)
+      }
+      var selectDateSearch = decodeURI(this.$route.query.selectDateSearch)
+      if (!this.paramIsNull(selectDateSearch)) {
+        selectDateSearch = selectDateSearch.split(',')
+        if (!this.paramIsNull(selectDateSearch)) {
+          this.selectDateSearch = [new Date(selectDateSearch[0]), new Date(selectDateSearch[1])]
+        }
+      }
       this.getBookingItemList()
-      this.getTableData()
     },
     methods: {
       bookingItemChanged () {
+        this.currentPage = 1
         this.bookingItem = this.bookingItemList[this.bookingItemIndex]
         this.getTableData()
       },
       getBookingItemList () {
+        var loading = this.$loading({
+          lock: true,
+          text: '数据加载中……',
+          spinner: 'el-icon-loading',
+          background: 'rgba(0, 0, 0, 0.7)'
+        })
         this.$http.get('/v1/a/biz/stock/booking/item/config').then(res => {
+          loading.close()
           if (res.body.errMessage) {
             this.$message.error(res.body.errMessage)
           } else {
             this.bookingItemList = res.body.data
             if (this.bookingItemList && this.bookingItemList.length > 0) {
-              this.bookingItemIndex = 0
+              if (this.paramIsNull(this.bookingItemIndex)) {
+                this.bookingItemIndex = 0
+              }
             }
+            this.bookingItem = this.bookingItemList[this.bookingItemIndex]
+            this.getTableData()
           }
+        }).catch(e => {
+          loading.close()
+          this.pro_message_error(null, '服务器错误')
         })
       },
       paramIsNull (param) {
@@ -291,11 +339,19 @@
           spinner: 'el-icon-loading',
           background: 'rgba(0, 0, 0, 0.7)'
         })
+        var startDate = null
+        var endDate = null
+        if (!this.paramIsNull(this.selectDateSearch)) {
+          startDate = this.selectDateSearch[0].getTime()
+          endDate = this.selectDateSearch[1].getTime()
+        }
         this.$http.get('/v1/a/biz/stock/list', {
           params: {
             pageSize: this.pageSize,
             pageIndex: this.currentPage,
-            bookingItemId: this.bookingItem.id
+            bookingItemId: this.bookingItem.id,
+            startDate: startDate,
+            endDate: endDate
           }
         }).then(res => {
           loading.close()
@@ -476,7 +532,9 @@
               operation: 'booking',
               pageIndex: this.currentPage,
               routeName: 'stockManage',
-              routeMenu: encodeURI('库存管理')
+              routeMenu: encodeURI('库存管理'),
+              selectDateSearch: encodeURI(this.selectDateSearch),
+              bookingItemIndex: this.bookingItemIndex
             }
           }
         )
@@ -490,7 +548,9 @@
               operation: 'complete',
               pageIndex: this.currentPage,
               routeName: 'stockManage',
-              routeMenu: encodeURI('库存管理')
+              routeMenu: encodeURI('库存管理'),
+              selectDateSearch: encodeURI(this.selectDateSearch),
+              bookingItemIndex: this.bookingItemIndex
             }
           }
         )
@@ -537,6 +597,69 @@
           window.open(this.downloadUrl)
         }).catch(e => {
           this.selectDateModal = true
+        })
+      },
+      updateStockStatus (row) {
+        if (this.paramIsNullAndZero(row.stockId)) {
+          this.pro_message_error(null, '数据错误')
+          return
+        }
+        var message = null
+        var status = null
+        if (row.status === 0) {
+          message = '关闭'
+          status = 2
+        } else if (row.status === 2) {
+          message = '开启'
+          status = 0
+        } else {
+          this.pro_message_error(null, '数据错误')
+          return
+        }
+
+        var h = this.$createElement
+        this.$msgbox({
+          title: '温馨提示',
+          message: h('p', null, [
+            h('span', null, '确认要' + message + '('),
+            h('span', {style: 'color: red;'}, row.bookingItemText),
+            h('span', null, ')('),
+            h('span', {style: 'color: red;'}, row.bookingDay),
+            h('span', null, ')的库存吗？')
+          ]),
+          showCancelButton: true,
+          confirmButtonText: '确认' + message,
+          cancelButtonText: '再考虑一下',
+          type: 'warning',
+          center: true
+        }).then(() => {
+          var loading = this.$loading({
+            lock: true,
+            text: '设置中……',
+            spinner: 'el-icon-loading',
+            background: 'rgba(0, 0, 0, 0.7)'
+          })
+          this.$http.post(`/v1/a/biz/stock/status/update`, {
+            stockId: row.stockId,
+            status: status
+          }).then(function (res) {
+            loading.close()
+            if (res.body.errMessage) {
+              this.pro_message_error(null, res.body.errMessage)
+              this.$message({
+                showClose: true,
+                message: res.body.errMessage,
+                type: 'error'
+              })
+            } else {
+              this.pro_message_success(res.body.data)
+              this.getTableData()
+            }
+          }).catch(function (res) {
+            loading.close()
+            this.pro_message_error('服务器错误')
+          })
+        }).catch(e => {
         })
       }
     }
