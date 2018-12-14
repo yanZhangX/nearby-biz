@@ -107,9 +107,10 @@
 
 <script>
   // const DELIVERY_HOST = 'http://192.168.11.219:8080'
-  const DELIVERY_HOST = 'http://callback.lianlianlvyou.com'
-  const API_GET_DELIVERY = DELIVERY_HOST + '/express/types'
-  const API_GET_DELIERY_DETAIL = DELIVERY_HOST + '/express/query'
+  // const DELIVERY_HOST = 'http://callback.lianlianlvyou.com'
+  const DELIVERY_HOST = ''
+  const API_GET_DELIVERY = DELIVERY_HOST + '/v1/express/types'
+  const API_GET_DELIERY_DETAIL = DELIVERY_HOST + '/v1/express/query'
   import moment from 'moment'
   import {appHost, getToken} from 'CONST'
   export default {
