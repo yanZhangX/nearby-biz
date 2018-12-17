@@ -36,6 +36,7 @@
         <el-table-column prop="bookingCustomerName" label="客户姓名" min-width="100" :formatter="bookingCustomerNameFormat"></el-table-column>
         <el-table-column prop="bookingCustomerPhoneNumber" label="客户手机" min-width="150" :formatter="bookingCustomerPhoneNumberFormat"></el-table-column>
         <el-table-column prop="bookingDay" label="预约时间" min-width="100" :formatter="pro_yyyyMMDD"></el-table-column>
+        <el-table-column prop="subTitle" label="套餐" min-width="140"></el-table-column>
         <el-table-column prop="bookingItemText" label="预约类型" min-width="100"></el-table-column>
         <el-table-column prop="bookingMemo" label="预约备注" min-width="100">
           <template slot-scope="scope">
