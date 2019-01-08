@@ -36,7 +36,7 @@
           <template slot-scope="scope">
             <el-button type="text" @click="confirmBookingItem(scope.row)" v-if="scope.row.sure !== 'undefined' && scope.row.sure === 0 && designateOrderModal === false">预约确认</el-button>
 
-            <el-dropdown @command="designateOrderToSupplier" trigger="click" v-if="designateOrderModal">
+            <el-dropdown @command="designateOrderToSupplier" trigger="click" v-if="designateOrderModal && setOtherBizUser">
               <el-button type="text" @click="selectDesignateOrder(scope.row)">
                 指派接单商家
               </el-button>
@@ -80,7 +80,8 @@
         supplierList: [],
         row: null,
         supplierId: null,
-        designateOrderModal: false
+        designateOrderModal: false,
+        setOtherBizUser: false
       }
     },
     created () {
