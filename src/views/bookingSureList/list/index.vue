@@ -43,6 +43,7 @@
             <span>{{scope.row.bookingMemo}}</span>&nbsp;&nbsp;<span>{{scope.row.memo}}</span>
           </template>
         </el-table-column>
+        <el-table-column prop="code" label="电子码" min-width="150" v-if="bookingShowCode"></el-table-column>
         <el-table-column prop="address" label="地址" min-width="150"></el-table-column>
         <el-table-column prop="plusStr" label="加价" min-width="150">
           <template slot-scope="scope">
@@ -94,6 +95,7 @@
         ],
         bookingItemList: null,
         bookingItemIndex: null,
+        bookingShowCode: false,
         bookingItem: {
           id: null,
           name: null
@@ -105,8 +107,20 @@
       this.type = 1
       this.getBookingItemList()
       this.getTableData()
+      let user = this.getUser()
+      this.bookingShowCode = user.bookingShowCode === 1
     },
     methods: {
+      getUser () {
+        let user
+        try {
+          let userStr = localStorage.getItem('user')
+          user = JSON.parse(userStr)
+        } catch (e) {
+          user = {}
+        }
+        return user
+      },
       bookingItemChanged () {
         this.bookingItem = this.bookingItemList[this.bookingItemIndex]
         this.getTableData()
