@@ -24,7 +24,7 @@
       <div class="r">
         <el-button class="uploader" type="primary" @click="exportExcelSelectDate">导出预约</el-button>
         <el-button type="primary" icon="plus" @click="getProductAndItemData(1)">新增库存</el-button>
-        <el-button type="primary" v-show="false" @click="getProductAndItemData(2)">批量修改库存</el-button>
+        <el-button type="primary" @click="getProductAndItemData(2)" v-if="!debugModal">批量修改库存</el-button>
       </div>
     </div>
     <div class="main-container">
@@ -41,17 +41,17 @@
         <el-table-column prop="stockAmount" label="库存量"></el-table-column>
         <el-table-column prop="bookingAmount" label="已预约"></el-table-column>
         <el-table-column prop="completeAmount" label="已核销"></el-table-column>
-        <!--<el-table-column prop="statusStr" label="库存状态" minWidth="200">-->
-          <!--<template slot-scope="scope">-->
-            <!--<div>-->
-              <!--<span v-html="scope.row.statusStr" v-if="scope.row.status === 0"></span>-->
-              <!--<span v-html="scope.row.statusStr" v-if="scope.row.status === 2" style="color: red;"></span>-->
-              <!--<br/>-->
-              <!--<span v-if="scope.row.status === 0">(<el-button type="text" @click.stop="updateStockStatus(scope.row)">点击关闭库存</el-button>)</span>-->
-              <!--<span v-if="scope.row.status === 2">(<el-button type="text" @click.stop="updateStockStatus(scope.row)">点击开启库存</el-button>)</span>-->
-            <!--</div>-->
-          <!--</template>-->
-        <!--</el-table-column>-->
+        <el-table-column prop="statusStr" label="库存状态" minWidth="200" v-if="!debugModal">
+          <template slot-scope="scope">
+            <div>
+              <span v-html="scope.row.statusStr" v-if="scope.row.status === 0"></span>
+              <span v-html="scope.row.statusStr" v-if="scope.row.status === 2" style="color: red;"></span>
+              <br/>
+              <span v-if="scope.row.status === 0">(<el-button type="text" @click.stop="updateStockStatus(scope.row)">点击关闭库存</el-button>)</span>
+              <span v-if="scope.row.status === 2">(<el-button type="text" @click.stop="updateStockStatus(scope.row)">点击开启库存</el-button>)</span>
+            </div>
+          </template>
+        </el-table-column>
         <el-table-column label="操作" width="240" fixed="right">
           <template slot-scope="scope">
             <div>
@@ -184,6 +184,7 @@
     name: 'stockManage',
     data () {
       return {
+        debugModal: true,
         tableData: null,
         products: null,
         loading: false,
