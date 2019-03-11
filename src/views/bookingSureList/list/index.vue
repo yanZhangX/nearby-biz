@@ -45,7 +45,7 @@
         </el-table-column>
         <el-table-column prop="code" label="电子码" min-width="150" v-if="bookingShowCode"></el-table-column>
         <el-table-column prop="address" label="地址" min-width="150"></el-table-column>
-        <el-table-column prop="plusStr" label="加价" min-width="150">
+        <el-table-column prop="plusMoneyStr" label="加价" min-width="150">
           <template slot-scope="scope">
             <span v-html="scope.row.plusMoneyStr"></span>
           </template>

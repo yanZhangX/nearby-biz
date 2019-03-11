@@ -24,7 +24,7 @@
       <div class="r">
         <el-button class="uploader" type="primary" @click="exportExcelSelectDate">导出预约</el-button>
         <el-button type="primary" icon="plus" @click="getProductAndItemData(1)">新增库存</el-button>
-        <el-button type="primary" @click="getProductAndItemData(2)" v-if="!debugModal">批量修改库存</el-button>
+        <el-button type="primary" @click="getProductAndItemData(2)" v-if="debugModal">批量修改库存</el-button>
       </div>
     </div>
     <div class="main-container">
@@ -41,7 +41,7 @@
         <el-table-column prop="stockAmount" label="库存量"></el-table-column>
         <el-table-column prop="bookingAmount" label="已预约"></el-table-column>
         <el-table-column prop="completeAmount" label="已核销"></el-table-column>
-        <el-table-column prop="statusStr" label="库存状态" minWidth="200" v-if="!debugModal">
+        <el-table-column prop="statusStr" label="库存状态" minWidth="200" v-if="debugModal">
           <template slot-scope="scope">
             <div>
               <span v-html="scope.row.statusStr" v-if="scope.row.status === 0"></span>
@@ -69,49 +69,45 @@
       </el-pagination>
     </div>
 
-    <el-dialog :visible.sync="addStockModal" title="新建库存" :close-on-click-modal="false" :show-close="false" close-on-press-escape>
+    <el-dialog :visible.sync="switches.addStockModal" title="新建库存">
       <div class="modal-info-container">
         <div class="info-content-container">
-          <ul>
-            <li>
-              <span class="info-span-title">预约库存型号：</span>
-              <span>
-                <el-select v-model="product.selectedItemKindIndex" placeholder="请选择预约库存型号"  @change="productItemKindSelecteChanged" style="width: 60%;">
-                  <el-option v-for="(item, index) in product.kinds" :key="item.id" :label="item.bookingItemText" :value="index"></el-option>
-                </el-select>
-              </span>
-            </li>
-            <li>
-              <span class="info-span-title">每日库存数量：</span>
-              <span>
-                <el-input-number v-model="product.productStock" :min="0" :max="9999" label="请设置每日库存数量"></el-input-number>
-              </span>
-            </li>
-            <li>
-              <span class="info-span-title">预约时间范围：</span>
-              <span>
-                <el-date-picker  style="width: 60%;"
-                                 v-model="product.dateAppointmentDate"
-                                 type="daterange"
-                                 placeholder="请选择预约时间范围"
-                                 range-separator="至"
-                                 :picker-options="dateAppointmentOptions">
-                </el-date-picker>
-              </span>
-            </li>
-          </ul>
+          <el-form :model="product"  label-width="160px">
+            <el-form-item label="预约库存型号：" prop="selectedItemKindIndex" :rules="[{required: true, message: '必填'}]">
+              <el-select v-model="product.selectedItemKindIndex" style="width: 100%" @change="productItemKindSelecteChanged" >
+                <el-option v-for="(item, index) in product.kinds" :key="index" :label="item.bookingItemText" :value="index"></el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="预约时间范围：" prop="dateAppointmentDate" :rules="[{required: true, message: '必填'}]">
+              <el-date-picker type="daterange"
+                              :editable="true"
+                              v-model="product.dateAppointmentDate"
+                              range-separator="至"
+                              start-placeholder="开始日期"
+                              end-placeholder="结束日期"
+                              value-format="timestamp"
+                              :picker-options="dateAppointmentOptions"
+                              style="width: 100%"></el-date-picker>
+            </el-form-item>
+            <el-form-item label="按周新建：" v-if="switches.addStockModal && switches.modeAddStock === 0">
+              <el-checkbox-group v-model="product.weekList">
+                <el-checkbox v-for="(item, index) in weekEnum" :key="index" :label="item.value">{{item.name}}</el-checkbox>
+              </el-checkbox-group>
+            </el-form-item>
+            <el-form-item label="每日库存数量：" prop="productStock" :rules="[{required: true, message: '必填'}]">
+              <el-input-number v-model="product.productStock"></el-input-number>
+            </el-form-item>
+          </el-form>
         </div>
-
       </div>
       <div slot="footer" class="dialog-footer">
-        <div class="k-center">
-          <el-button @click="addStockModal = false">关闭</el-button>
-          <el-button type="primary" @click="addStock">新建</el-button>
+        <div style="text-align:center">
+          <el-button type="primary" @click="addStock()">新建库存</el-button>
         </div>
       </div>
     </el-dialog>
 
-    <el-dialog :visible.sync="stockBatchModifyModal" title="批量修改库存" :close-on-click-modal="false" :show-close="false" close-on-press-escape>
+    <el-dialog :visible.sync="switches.stockBatchModifyModal" title="批量修改库存">
       <div class="modal-info-container">
         <div class="info-content-container">
           <ul>
@@ -129,13 +125,13 @@
       </div>
       <div slot="footer" class="dialog-footer">
         <div class="k-center">
-          <el-button @click="stockBatchModifyModal = false">关闭</el-button>
+          <el-button @click="switches.stockBatchModifyModal = false">关闭</el-button>
           <el-button type="primary" @click="stockBatchModify">确认</el-button>
         </div>
       </div>
     </el-dialog>
 
-    <el-dialog :visible.sync="productStockModal" title="设置库存" :close-on-click-modal="false" :show-close="false" close-on-press-escape>
+    <el-dialog :visible.sync="switches.productStockModal" title="设置库存">
       <div class="modal-info-container">
         <div class="info-content-container">
           <el-form :model="stock" label-width="100px">
@@ -146,7 +142,7 @@
         </div>
       </div>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="productStockModal = false">关闭</el-button>
+        <el-button @click="switches.productStockModal = false">关闭</el-button>
         <el-button type="primary" @click="prodcutStockChange">确定</el-button>
       </div>
     </el-dialog>
@@ -177,6 +173,7 @@
 </template>
 
 <script>
+  const weekEnum = [{name: '周一', value: 2}, {name: '周二', value: 3}, {name: '周三', value: 4}, {name: '周四', value: 5}, {name: '周五', value: 6}, {name: '周六', value: 7}, {name: '周日', value: 1}]
   import moment from 'moment'
   import router from 'ROUTE'
   import {appHost, getToken} from 'CONST'
@@ -184,6 +181,7 @@
     name: 'stockManage',
     data () {
       return {
+        weekEnum,
         debugModal: true,
         tableData: null,
         products: null,
@@ -193,9 +191,12 @@
         total: null,
         rowCount: 0,
         pageCount: 0,
-        addStockModal: false,
-        stockBatchModifyModal: false,
-        productStockModal: false,
+        switches: {
+          addStockModal: false,
+          modeAddStock: 0, // 0代表按周添加，1代表按日期添加
+          stockBatchModifyModal: false,
+          productStockModal: false
+        },
         product: {
           kinds: [],
           productItemKindId: null,
@@ -203,7 +204,8 @@
           productStock: 0,
           day: '',
           dateAppointmentDate: [],
-          selectDate: []
+          selectDate: [],
+          weekList: []
         },
         stock: {
           stockId: null,
@@ -413,9 +415,9 @@
         this.product.selectedItemKindIndex = null
         this.product.selectDate = []
         if (type === 1) { // 新增库存
-          this.addStockModal = true
+          this.switches.addStockModal = true
         } else if (type === 2) { // 批量修改库存
-          this.stockBatchModifyModal = true
+          this.switches.stockBatchModifyModal = true
 //          this.stockBatchModify()
         } else {
           this.pro_message_error(null, '数据错误')
@@ -434,8 +436,9 @@
           this.$message.error('请选择已选预约库存型号的可预约时间范围')
           return
         }
+
         var start = this.product.dateAppointmentDate[0]
-        var end = Date.parse(this.product.dateAppointmentDate[1])
+        var end = this.product.dateAppointmentDate[1]
         var h = this.$createElement
         this.$msgbox({
           title: '温馨提示',
@@ -456,7 +459,8 @@
             bookingItemId: this.product.productItemKindId,
             status: 0,
             dayStart: moment(start).format('YYYY-MM-DD'),
-            dayEnd: moment(end).format('YYYY-MM-DD')
+            dayEnd: moment(end).format('YYYY-MM-DD'),
+            weekList: this.product.weekList
           }).then((res) => {
             if (res.body.errMessage) {
               this.$message({
@@ -470,7 +474,7 @@
                 message: '新建「' + this.product.kinds[this.product.selectedItemKindIndex].bookingItemText + '」的库存成功',
                 type: 'success'
               })
-              this.addStockModal = false
+              this.switches.addStockModal = false
               this.getTableData()
             }
           })
@@ -497,7 +501,7 @@
       manageProductStock (row) {
         this.stock.stockId = row.stockId
         this.stock.stockAmount = row.stockAmount
-        this.productStockModal = true
+        this.switches.productStockModal = true
       },
       prodcutStockChange () {
         this.$http.post(`/v1/a/biz/stock?id=${this.stock.stockId}&s=${this.stock.stockAmount}`).then(function (res) {
@@ -513,7 +517,7 @@
               message: '设置成功',
               type: 'success'
             })
-            this.productStockModal = false
+            this.switches.productStockModal = false
             this.getTableData()
           }
         }).catch(function (res) {
