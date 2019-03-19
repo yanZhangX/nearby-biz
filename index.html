@@ -15,6 +15,53 @@
   </head>
   <body>
     <div id="app"></div>
-    <!-- built files will be auto injected -->
+    <script type="text/javascript">
+      var keyv = 'v'
+      var newv = 1
+      var oldv = getQueryString(keyv)
+      if (!oldv || oldv.toString() !== newv.toString()) {
+        var href = window.location.href
+        href = deleteQueryString(href, 'v')
+        href = addQueryString(href, 'v', newv)
+        window.location.replace(href)
+      }
+
+      function getQueryString (name) {
+        var reg = new RegExp('(^|&)' + name + '=([^&]*)(&|$)')
+        if (window.location.search.indexOf('=') > -1) {
+          var r = window.location.search.substr(1).match(reg)
+          if (r) {
+            return unescape(r[2])
+          }
+        }
+        return ''
+      }
+      function addQueryString (url, name, value) {
+        var currentUrl = url.split('#')[0]
+        if (/\?/g.test(currentUrl)) {
+          if (/name=[-\w]{4,25}/g.test(currentUrl)) {
+            currentUrl = currentUrl.replace(/name=[-\w]{4,25}/g, name + '=' + value)
+          } else {
+            currentUrl += (currentUrl.endsWith('?') ? '' : '&') + name + '=' + value
+          }
+        } else {
+          currentUrl += '?' + name + '=' + value
+        }
+        if (url.split('#')[1]) {
+          return currentUrl + '#' + url.split('#')[1]
+        } else {
+          return currentUrl
+        }
+      }
+      function deleteQueryString (url, name) {
+        var reg = new RegExp('(|&)' + name + '=([^&/#]*)')
+        var str = url.match(reg)
+        if (str && str[0]) {
+          var newurl = url.replace(str[0], '')
+          return newurl.replace('?&', '?').replace('?#', '#')
+        }
+        return url
+      }
+    </script>
   </body>
 </html>
