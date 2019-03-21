@@ -182,7 +182,7 @@
     data () {
       return {
         weekEnum,
-        debugModal: true,
+        debugModal: false,
         tableData: null,
         products: null,
         loading: false,
