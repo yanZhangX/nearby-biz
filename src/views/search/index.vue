@@ -37,6 +37,11 @@
         <el-table-column prop="customerPhoneNumber" label="手机号" v-if="showCustomer" min-width="100"></el-table-column>
         <el-table-column prop="orderid" label="订单号" min-width="100"></el-table-column>
         <el-table-column prop="code" label="电子码" min-width="80"></el-table-column>
+        <el-table-column prop="plusMoneyStr" label="加价" min-width="150">
+          <template slot-scope="scope">
+            <span v-html="scope.row.plusMoneyStr"></span>
+          </template>
+        </el-table-column>
         <el-table-column prop="completeDate" :formatter="dateFormat" label="核销时间" min-width="100"></el-table-column>
         <el-table-column prop="title" label="产品名称" min-width="200"></el-table-column>
         <el-table-column prop="subTitle" label="套餐" min-width="100"></el-table-column>
