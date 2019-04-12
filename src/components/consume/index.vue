@@ -4,43 +4,44 @@
       <div class="modal-info-container">
         <div class="info-content-container">
           <el-form ref="form" :model="info" label-width="140px" :inline-message="true" label-position="left">
-            <el-form-item label="套餐内容：">
-              {{info.subTitle}}
+            <el-form-item label="购买套餐名称：">
+              <span style="color: red; font-size: 18px;">{{info.subTitle}}</span>
             </el-form-item>
-            <el-form-item label="下单时间：">
-              {{info.createDate | infoTimeFormatter('yyyy-MM-dd hh:mm:ss')}}
+            <el-form-item label="电子码及信息：">
+              <span style="color: red; font-size: 18px;">{{info.code}}</span>
+              <span style="color: black; font-size: 18px;">&ensp;&ensp;{{getUserName()}}</span>
+              <span style="color: black; font-size: 18px;">&ensp;&ensp;{{getUserPhoneNumber()}}</span>
             </el-form-item>
-            <el-form-item label="电子码：">
-              <span>{{info.code}}</span>
-              <span>{{getUserName()}}</span>
-              <span>{{getUserPhoneNumber()}}</span>
+            <el-form-item label="订单当前状态：">
+              <span style="color: red; font-size: 18px;">{{info.statusText}}</span>
+              <span style="color: red; font-size: 18px;">&ensp;&ensp;{{info.bookingDateText}}</span>
+              <span style="color: red; font-size: 18px;">&ensp;&ensp;{{info.bookingItemText}}</span>
+              <span v-if="info.bookingTips" style="color: red; font-size: 18px;">&ensp;&ensp;{{info.bookingTips}}</span>
             </el-form-item>
-            <el-form-item label="状态：">
-              <span>{{info.statusText}}</span>
-              <span>{{info.bookingDateText}}</span>
-              <span>{{info.bookingItemText}}</span>
-            </el-form-item>
-            <el-form-item label="产品型号选择：" v-if="completeSettingModal">
+            <el-form-item label="选择核销型号：" v-if="info.booking === 1 && completeSettingModal">
               <el-radio-group v-model="bookingItemId" size="small">
                 <el-radio  v-for="(item, index) in info.bookingItems" :label="item.id" :key="index">{{item.bookingItemText}}</el-radio>
               </el-radio-group>
             </el-form-item>
-            <el-form-item label="到店时间选择：" v-if="completeSettingDate">
+            <el-form-item label="选择到店时间：" v-if="completeSettingDate">
               <el-date-picker type="date"
                               :editable="false"
                               placeholder="请选择到店时间"
                               v-model="completeDay"
                               :clearable="false"></el-date-picker>
             </el-form-item>
-            <el-form-item label="订单备注：">
-              {{info.memo}}
-            </el-form-item>
-            <el-form-item label="预约备注：">
-              {{info.bookingMemo}}
-            </el-form-item>
-            <el-form-item label="核销备注：">
-              <span v-if="info.status === 1 || info.status === 2"><el-input v-model="info.completeMemo" size="small" placeholder="请输入核销备注" style="width: 70%;"></el-input></span>
+            <el-form-item label="填写核销备注：">
+              <span v-if="info.status === 1 || info.status === 2"><el-input v-model="info.completeMemo" size="small" placeholder="请您输入核销备注（非必填）" style="width: 70%;"></el-input></span>
               <span v-else>{{info.completeMemo}}</span>
+            </el-form-item>
+            <el-form-item label="下单备注信息：">
+              {{info.memo || '无'}}
+            </el-form-item>
+            <el-form-item v-if="info.booking === 1 && info.status === 2" label="预约备注信息：">
+              {{info.bookingMemo || '无'}}
+            </el-form-item>
+            <el-form-item label="客人下单时间：">
+              {{info.createDate | infoTimeFormatter('yyyy-MM-dd hh:mm:ss')}}
             </el-form-item>
           </el-form>
         </div>
@@ -68,7 +69,7 @@
     data () {
       return {
         loading: false,
-        travelTicket: true,
+        travelTicket: false,
         completeSettingModal: false,
         completeSettingDate: false,
         bookingItemId: null,
@@ -129,6 +130,7 @@
           }).then((res) => {
             loading.close()
             if (res.body.errMessage) {
+              this.closeDialog()
               this.$message({
                 showClose: true,
                 message: res.body.errMessage,
@@ -138,6 +140,7 @@
               this.completeDay = new Date()
               this.info = res.body.data
               this.info.bookingDateText = this.myDateFormat(this.info.bookingDay)
+              this.travelTicket = true
               if (typeof (this.info.bookingItems) !== 'undefined' && this.info.bookingItems !== null && this.info.bookingItems.length > 0) {
                 this.bookingItemId = this.info.bookingItems[0].id
                 this.completeSettingModal = true
@@ -147,13 +150,14 @@
             }
           }).catch(e => {
             loading.close()
+            this.closeDialog()
             this.$message.error('服务器错误')
           })
         }
       },
       myDateFormat (date) {
         if (date) {
-          return moment(date).format('YYYY-MM-DD')
+          return moment(date).format('YYYY年MM月DD日')
         } else {
           return ''
         }
