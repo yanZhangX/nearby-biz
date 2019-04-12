@@ -24,7 +24,7 @@
       <div class="r">
         <el-button class="uploader" type="primary" @click="exportExcelSelectDate">导出预约</el-button>
         <el-button type="primary" icon="plus" @click="getProductAndItemData(1)">新增库存</el-button>
-        <el-button type="primary" @click="getProductAndItemData(2)" v-if="debugModal">批量修改库存</el-button>
+        <el-button type="primary" @click="getProductAndItemData(2)" v-if="debugMode">批量修改库存</el-button>
       </div>
     </div>
     <div class="main-container">
@@ -41,7 +41,7 @@
         <el-table-column prop="stockAmount" label="库存量"></el-table-column>
         <el-table-column prop="bookingAmount" label="已预约"></el-table-column>
         <el-table-column prop="completeAmount" label="已核销"></el-table-column>
-        <el-table-column prop="statusStr" label="库存状态" minWidth="200" v-if="debugModal">
+        <el-table-column prop="statusStr" label="库存状态" minWidth="200" v-if="debugMode">
           <template slot-scope="scope">
             <div>
               <span v-html="scope.row.statusStr" v-if="scope.row.status === 0"></span>
@@ -182,7 +182,7 @@
     data () {
       return {
         weekEnum,
-        debugModal: false,
+        debugMode: false,
         tableData: null,
         products: null,
         loading: false,
@@ -243,6 +243,15 @@
         if (!this.paramIsNull(selectDateSearch)) {
           this.selectDateSearch = [new Date(selectDateSearch[0]), new Date(selectDateSearch[1])]
         }
+      }
+      const _isDebug = (function () {
+        let hostname = location.hostname
+        let reg = /(^192.168)|(^localhost)/
+        return reg.test(hostname)
+      })()
+      const nodeEnv = process.env['NODE_ENV']
+      if (_isDebug && nodeEnv === 'development') {
+        this.debugMode = true
       }
       this.getBookingItemList()
     },
