@@ -301,10 +301,10 @@
         }
       },
       weekFormat (row) {
-        if (row.bookingDay) {
-          var date = new Date(row.bookingDay)
-          var week = ''
-          var weekDay = date.getDay()
+        if (row.date) {
+          let date = new Date(row.date)
+          let week = ''
+          let weekDay = date.getDay()
           switch (weekDay) {
             case 0:
               week = '星期日'
@@ -323,26 +323,20 @@
               break
             case 5:
               week = '星期五'
-              this.textStyle = 'color: red;'
               break
             case 6:
               week = '星期六'
-              this.textStyle = 'color: red;'
               break
           }
           return `${week}`
         } else {
-          return row.bookingDay
+          return row.bookingDay || ''
         }
       },
       isDateWeekend (row) {
-        var date = new Date(row.bookingDay)
-        var weekDay = date.getDay()
-        if (weekDay === 5 || weekDay === 6) {
-          return true
-        } else {
-          return false
-        }
+        let date = new Date(row.date)
+        const weekDay = date.getDay()
+        return weekDay === 5 || weekDay === 6
       },
       getTableData () {
         var loading = this.$loading({
