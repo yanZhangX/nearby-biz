@@ -201,6 +201,9 @@
           center: true
         }).then(() => {
           let {startDate, childUserId, endDate} = this.allParams()
+          startDate = startDate || ''
+          childUserId = childUserId || ''
+          endDate = endDate || ''
           var url = `${appHost()}/v1/a/order/clearSales/download?token=${getToken()}&startDate=${startDate}&endDate=${endDate}&childUserId=${childUserId}`
           window.open(url)
         }).catch(e => {})
