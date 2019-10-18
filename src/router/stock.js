@@ -62,6 +62,13 @@ export default {
       component (resolve) {
         require(['VIEW/stock/batchModifyStock'], resolve)
       }
+    },
+    {
+      path: '/dataStatistics',
+      name: 'dataStatistics',
+      component (resolve) {
+        require(['VIEW/dataStatistics/'], resolve)
+      }
     }
   ]
 }

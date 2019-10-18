@@ -1,10 +1,11 @@
 const appHost = function () {
-  return 'https://api-biz.lianlianlvyou.com'
+  // return 'https://api-biz.lianlianlvyou.com'
   // return 'http://192.168.10.126:9999'
   // return 'http://192.168.10.211:9999'
   // return 'http://192.168.11.248:8080'
   // return 'http://192.168.1.175:9999'
   // return 'http://192.168.10.77:8082'
+  return 'http://192.168.10.129:8080'
 }
 
 const getToken = function () {

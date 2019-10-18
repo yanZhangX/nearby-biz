@@ -29,7 +29,7 @@
         <el-menu :router="true" :unique-opened="true" class="k-el-menu">
           <template v-for="item in userMenus">
             <el-menu-item :index="item.id" class="k-sidebar-el-menu-item" :class="!menuItemId && defaultActive === item.id? 'is-active': ''" v-if="item.menus == null" :key="item.id" :route="{path:item.path || '/'}" @click="handleMenuItemClick(item.id)">
-              <img :src="menuItemUri(item.id, item.icon)" alt="">
+              <img :src="menuItemUri(item.id, item.icon)" alt="" class="icon-menu">
               <span class="ml15">{{item.name}}</span>
             </el-menu-item>
             <el-submenu :index="item.id" v-else :key="item.id">
@@ -297,5 +297,9 @@
       display: inline-block;
       text-align: center;
     }
+  }
+  .icon-menu{
+    width: 14px;
+    height: 14px;
   }
 </style>
