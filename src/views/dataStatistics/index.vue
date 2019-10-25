@@ -132,10 +132,13 @@
           spinner: 'el-icon-loading',
           background: 'rgba(0, 0, 0, 0.7)'
         })
-        this.getProductList().then(() => {
-          this.$http.get('/v1/a/biz/order/clearSales/statistics', {
-            params: this.allParams()
-          }).then(res => {
+        this.getProductList()
+          .then(() => {
+            return this.$http.get('/v1/a/biz/order/clearSales/statistics', {
+              params: this.allParams()
+            })
+          })
+          .then(res => {
             loading.close()
             if (res.body.errMessage) {
               this.$message.error(res.body.errMessage)
@@ -166,11 +169,11 @@
                 this.pageCount = res.body.data.pagingData.pageCount
               }
             }
-          }).catch(res => {
+          })
+          .catch(res => {
             loading.close()
             this.$message.error('服务器繁忙！')
           })
-        })
       },
       getProductList () {
         return new Promise((resolve, reject) => {
