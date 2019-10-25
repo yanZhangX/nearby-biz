@@ -40,6 +40,9 @@
       <el-table :data="tableData" v-loading.body="loading" stripe scope="scope" max-height=2000>
         <el-table-column prop="name" label="店铺"></el-table-column>
         <el-table-column prop="clearSaleNum" label="核销量"></el-table-column>
+        <template v-for="(datas, index) in productList">
+          <el-table-column v-if="productList" :prop="'product'+index" :label="datas" :key="index"></el-table-column>
+        </template>
       </el-table>
     </div>
     <div class="k-center" v-show="pageCount>0">
@@ -56,6 +59,7 @@
     data () {
       return {
         tableData: null,
+        productList: [],
         loading: false,
         currentPage: 1,
         pageSize: 10,
@@ -128,22 +132,60 @@
           spinner: 'el-icon-loading',
           background: 'rgba(0, 0, 0, 0.7)'
         })
-        this.$http.get('/v1/a/biz/order/clearSales/statistics', {
-          params: this.allParams()
-        }).then(res => {
-          loading.close()
-          if (res.body.errMessage) {
-            this.$message.error(res.body.errMessage)
-          } else {
-            this.totalSaleNum = res.body.data.totalSaleNum
-            this.tableData = res.body.data.pagingData.data
-            this.total = res.body.data.pagingData.rowCount
-            this.pageCount = res.body.data.pagingData.pageCount
-            this.rowCount = res.body.data.pagingData.rowCount
-          }
-        }).catch(res => {
-          loading.close()
-          this.$message.error('服务器繁忙！')
+        this.getProductList().then(() => {
+          this.$http.get('/v1/a/biz/order/clearSales/statistics', {
+            params: this.allParams()
+          }).then(res => {
+            loading.close()
+            if (res.body.errMessage) {
+              this.$message.error(res.body.errMessage)
+            } else {
+              if (res.body.data) {
+                res.body.data.pagingData.data.forEach((item) => {
+                  this.productList.forEach((list, index) => {
+                    let productName = 'product' + index
+                    item[productName] = null
+                    item.productItemsClearVolume.forEach((num) => {
+                      if (num.name === list) {
+                        item[productName] = num.clearVolume
+                      }
+                    })
+                  })
+                })
+                res.body.data.pagingData.data.forEach((item2) => {
+                  this.productList.forEach((list, index) => {
+                    let productName = 'product' + index
+                    if (item2[productName] === null) {
+                      item2[productName] = '无'
+                    }
+                  })
+                })
+                this.totalSaleNum = res.body.data.totalSaleNum
+                this.tableData = res.body.data.pagingData.data
+                this.total = res.body.data.pagingData.rowCount
+                this.pageCount = res.body.data.pagingData.pageCount
+              }
+            }
+          }).catch(res => {
+            loading.close()
+            this.$message.error('服务器繁忙！')
+          })
+        })
+      },
+      getProductList () {
+        return new Promise((resolve, reject) => {
+          this.$http.get('/v1/a/biz/productItems', {params: {}})
+          .then(res => {
+            if (res) {
+              this.productList = res.body.data || []
+              resolve()
+            } else {
+              reject()
+            }
+          })
+          .catch(e => {
+            reject()
+          })
         })
       },
       getCompanyList (keywords) {
