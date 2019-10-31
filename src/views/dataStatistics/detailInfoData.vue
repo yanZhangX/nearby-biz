@@ -2,7 +2,10 @@
   <div class="dataStatistics">
     <div class="breadcrumb">
       <el-breadcrumb separator="/">
-        <el-breadcrumb-item>数据统计</el-breadcrumb-item>
+         <el-breadcrumb-item>
+          <span @click="back">数据统计</span>
+        </el-breadcrumb-item>
+        <el-breadcrumb-item>数据详情</el-breadcrumb-item>
       </el-breadcrumb>
     </div>
     <div class="filter">
@@ -44,11 +47,6 @@
         <template v-for="(datas, index) in productList">
           <el-table-column v-if="productList" :prop="'product'+index" :label="datas" :key="index"></el-table-column>
         </template>
-        <el-table-column label="操作" width="150" fixed="right" v-if="isHeadStore === 1">
-          <template slot-scope="scope">
-            <el-button type="text" @click="openDetailData(tableData[scope.$index].bizUserId)">查看详情</el-button>
-          </template>
-        </el-table-column>
       </el-table>
     </div>
     <div class="k-center" v-show="pageCount>0">
@@ -80,6 +78,7 @@
         totalSaleNum: 0,
         optionLoading: false,
         companyList: [],
+        bizUserId: 0,
         dateAppointmentOptions: {
           disabledDate: (startDate, endDate) => {
             return startDate > new Date()
@@ -89,8 +88,7 @@
           id: null,
           name: null
         },
-        selectDateSearch: null,
-        isHeadStore: 0
+        selectDateSearch: null
       }
     },
     created () {
@@ -103,9 +101,7 @@
         this.selectDateSearch.push(Number(this.$route.query.startDate))
         this.selectDateSearch.push(Number(this.$route.query.endDate))
       }
-      if (this.$route.query.childUserId) {
-        this.getCompanyList()
-      }
+      this.bizUserId = this.$route.query.bizUserId
       this.getTableData()
     },
     methods: {
@@ -131,7 +127,8 @@
           pageIndex: this.currentPage,
           startDate: startDate,
           endDate: endDate,
-          childUserId: this.mainForm.companyId
+          childUserId: this.mainForm.companyId,
+          bizUserId: this.bizUserId
         }
       },
       getTableData () {
@@ -169,7 +166,6 @@
                     }
                   })
                 })
-                this.isHeadStore = res.body.data.isHeadStore
                 this.totalSaleNum = res.body.data.totalSaleNum
                 this.tableData = res.body.data.pagingData.data
                 this.total = res.body.data.pagingData.rowCount
@@ -212,7 +208,6 @@
           this.$http.get('/v1/a/biz/shops', {params}, false)
             .then(res => {
               this.companyList = res.data.data || []
-              this.mainForm.companyId = this.$route.query.childUserId
               this.optionLoading = false
               resolve()
             })
@@ -231,18 +226,6 @@
             return item.name
           })[0]
         }
-      },
-      openDetailData (bizUserId) {
-        router.push({
-          name: 'detailInfoData',
-          query: {
-            pageIndex: this.currentPage,
-            startDate: this.allParams().startDate,
-            endDate: this.allParams().endDate,
-            childUserId: this.mainForm.companyId,
-            bizUserId: bizUserId
-          }
-        })
       },
       pageIndexChange (val) {
         this.currentPage = val
@@ -265,18 +248,24 @@
           type: 'warning',
           center: true
         }).then(() => {
-          let {startDate, childUserId, endDate} = this.allParams()
+          let {startDate, childUserId, endDate, bizUserId} = this.allParams()
           let baseUrl = appHost() + '/v1/a/order/clearSales/download?'
           let json = {
             token: getToken(),
             startDate,
             endDate,
             childUserId,
-            bizUserId: 0
+            bizUserId
           }
           let url = baseUrl + json2Prams(json)
           window.open(url)
         }).catch(e => {})
+      },
+      back () {
+        router.push({
+          name: 'dataStatistics',
+          query: this.$route.query
+        })
       }
     }
   }

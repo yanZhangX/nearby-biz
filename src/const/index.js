@@ -1,3 +1,4 @@
+import _ from 'lodash'
 const appHost = function () {
   // return 'https://api-biz.lianlianlvyou.com'
   // return 'http://192.168.10.126:9999'
@@ -53,4 +54,16 @@ const removePageIndex = function (name) {
   }
 }
 
-export {appHost, getToken, setToken, getUser, setUser, getPageIndex, setPageIndex, removePageIndex}
+const json2Prams = function (obj) {
+  let keys = Object.keys(obj)
+  let str = ''
+  keys.forEach(e => {
+    let v = ''
+    if (!_.isNil(obj[e])) {
+      v = obj[e]
+    }
+    str += e + '=' + v + '&'
+  })
+  return str
+}
+export {appHost, getToken, setToken, getUser, setUser, getPageIndex, setPageIndex, removePageIndex, json2Prams}
