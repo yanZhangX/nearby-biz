@@ -1,5 +1,5 @@
 <template>
-  <div class="stock">
+  <div class="batch-stock">
     <div class="breadcrumb">
       <el-breadcrumb separator="/">
         <el-breadcrumb-item>
@@ -25,10 +25,13 @@
         <tbody>
         <tr v-for="n in tableDataCount" :key="n - 1">
           <td :width="width" :height="height" v-for="m in 7" :key="m - 1">
-            <el-card :class="tableData[(n - 1) * 7 + m - 1].className"
-                     shadow="always"
+            <el-card style="user-select: none"
                      v-if="!paramIsNull(tableData[(n - 1) * 7 + m - 1])"
-                     @click.native="cardClick((n - 1) * 7 + m - 1)" @mouseenter.native="mouseEnter((n - 1) * 7 + m - 1)">
+                     :class="(tableData[(n - 1) * 7 + m - 1].confirm || tableData[(n - 1) * 7 + m - 1].select) ? 'my-el-card-select' : 'my-el-card'"
+                     @mousedown.native="onMouseDown($event, (n - 1) * 7 + m - 1)"
+                     @mouseup.native="onMouseUp($event, (n - 1) * 7 + m - 1)"
+                     @mouseenter.native="onMouseEnter((n - 1) * 7 + m - 1)"
+                     shadow="always">
               <span class="calender-date" v-html="tableData[(n - 1) * 7 + m - 1].bookingDay"></span>
               <span class="calender-stock" v-html="'<br/>库存数量：' + tableData[(n - 1) * 7 + m - 1].stockAmount"></span>
               <span class="calender-stock" v-html="'<br/>预约：' + tableData[(n - 1) * 7 + m - 1].bookingAmount"></span>
@@ -57,13 +60,42 @@
         <el-button type="primary" @click="prodcutStockChange">确定</el-button>
       </div>
     </el-dialog>
+    <div ref="box"
+         class="select-box"
+         style="background-color: rgba(255, 255, 0, .5);position: absolute;"
+         :style="{left: boxPosition.left+'px', top: boxPosition.top+'px', width: boxPosition.w+'px', height: boxPosition.h+'px'}"
+         v-show="selecting"></div>
   </div>
 </template>
 
 <script>
   let WIDTH = 140
-  let HEIGHT = 170
+  let HEIGHT = 132
+  const boxDistance = 3 // 选择框和鼠标的间距
+  const getCol = function (index) {
+    return index % 7
+  }
+  const getRow = function (index) {
+    return parseInt(index / 7)
+  }
+  const getColRange = function (start, end) {
+    const startCol = getCol(start)
+    const endCol = getCol(end)
+    return {
+      min: Math.min(startCol, endCol),
+      max: Math.max(startCol, endCol)
+    }
+  }
+  const getRowRange = function (start, end) {
+    const startRow = getRow(start)
+    const endRow = getRow(end)
+    return {
+      min: Math.min(startRow, endRow),
+      max: Math.max(startRow, endRow)
+    }
+  }
   import router from 'ROUTE'
+  import {each} from 'lodash'
   export default {
     data () {
       return {
@@ -74,12 +106,22 @@
         tableData: null,
         isMouseClick: false,
         startIndex: -1,
+        endIndex: -1,
         isMouseMove: false,
         tableDataCount: 0,
         productStockModal: false,
         stockAmount: null,
         name: null,
-        bookingItemText: null
+        bookingItemText: null,
+        selecting: false,
+        boxPosition: {
+          initX: 0,
+          initY: 0,
+          left: 0,
+          top: 0,
+          w: 0,
+          h: 0
+        }
       }
     },
     created () {
@@ -91,7 +133,76 @@
     },
     watch: {
     },
+    mounted () {
+      // 选择框挂载到body，防止定位出错
+      const body = document.body
+      body.appendChild(this.$refs.box)
+    },
     methods: {
+      onMove (e) {
+        if (!this.selecting) return
+        const curPosition = {
+          x: e.pageX,
+          y: e.pageY
+        }
+        const {initY, initX} = this.boxPosition
+        let boxWidth = Math.abs(curPosition.x - initX) - boxDistance * 2
+        let boxHeight = Math.abs(curPosition.y - initY) - boxDistance * 2
+        this.boxPosition.w = boxWidth < 0 ? 0 : boxWidth
+        this.boxPosition.h = boxHeight < 0 ? 0 : boxHeight
+        this.boxPosition.left = Math.min(curPosition.x, initX) + boxDistance * 2
+        this.boxPosition.top = Math.min(curPosition.y, initY) + boxDistance * 2
+      },
+      onMouseDown (e, index) {
+        if (this.selecting) return
+        this.startIndex = index
+        this.endIndex = index
+        this.selecting = true
+        // 画选择框
+        document.documentElement.addEventListener('mousemove', this.onMove)
+        this.boxPosition = {
+          initX: e.pageX,
+          initY: e.pageY,
+          left: e.pageX + boxDistance,
+          top: e.pageY + boxDistance,
+          w: 0,
+          h: 0
+        }
+      },
+      onMouseEnter (index) {
+        if (!this.selecting) return
+        this.endIndex = index
+        const rowRange = getRowRange(this.startIndex, this.endIndex)
+        const colRange = getColRange(this.startIndex, this.endIndex)
+        each(this.tableData, (item, i) => {
+          if (!item) return
+          const col = getCol(i)
+          const row = getRow(i)
+          item.confirm = col >= colRange.min && col <= colRange.max && row >= rowRange.min && row <= rowRange.max
+        })
+      },
+      onMouseUp (e, index) {
+        this.selecting = false
+        this.endIndex = index
+        if (this.startIndex === index && index !== -1) {
+          // 单击卡片
+          let item = this.tableData[index]
+          item.select = !item.select
+          item.confirm = false
+          return
+        }
+        const rowRange = getRowRange(this.startIndex, this.endIndex)
+        const colRange = getColRange(this.startIndex, this.endIndex)
+        each(this.tableData, (item, i) => {
+          if (!item) return
+          const col = getCol(i)
+          const row = getRow(i)
+          if (col >= colRange.min && col <= colRange.max && row >= rowRange.min && row <= rowRange.max) {
+            item.select = true
+          }
+          item.confirm = false
+        })
+      },
       getTableData () {
         var loading = this.$loading({
           lock: true,
@@ -120,20 +231,19 @@
               if (countDay < 7) {
                 startIndex = 0
               }
-              this.tableData = []
+              let _tableData = []
               for (var i = 0; i < countDay; i++) {
                 var item = tableData[i]
-                item.className = 'my-el-card'
                 item.select = false
                 item.confirm = false
                 item.weekDay = this.weekFormat(item.bookingDay)
-                this.tableData[startIndex + i] = item
-
+                _tableData[startIndex + i] = item
                 if (i === 0) {
                   this.name = item.name
                   this.bookingItemText = item.bookingItemText
                 }
               }
+              this.tableData = _tableData
               this.total = res.body.data.rowCount
               this.pageCount = res.body.data.pageCount
               this.rowCount = res.body.data.rowCount
@@ -173,52 +283,6 @@
 //            className: 'my-el-card'
 //          }
 //        }
-      },
-      cardClick (index) {
-        this.isMouseClick = !this.isMouseClick
-        if (this.isMouseClick) {
-          this.startIndex = index
-        } else {
-          if (this.startIndex === index) {
-            var item = this.tableData[index]
-            if (!this.paramIsNull(item)) {
-              item.select = true
-              item.confirm = item.select
-              item.className = (item.select ? ' my-el-card-select' : 'my-el-card')
-            }
-          } else {
-            for (var x = 0; x <= this.tableData.length; x++) {
-              var itemX = this.tableData[x]
-              if (!this.paramIsNull(itemX) && itemX.select) {
-                itemX.confirm = itemX.select
-                itemX.className = (itemX.select ? ' my-el-card-select' : 'my-el-card')
-              }
-            }
-          }
-          this.startIndex = -1
-        }
-      },
-      mouseEnter (index) {
-        if (!this.isMouseClick || this.startIndex === -1) {
-          return
-        }
-        var start = index >= this.startIndex ? this.startIndex : index
-        var end = index >= this.startIndex ? index : this.startIndex
-        for (var x = 0; x <= this.tableData.length; x++) {
-          var itemX = this.tableData[x]
-          if (!this.paramIsNull(itemX) && !itemX.confirm) {
-            itemX.select = false
-            itemX.className = (itemX.select ? ' my-el-card-select' : 'my-el-card')
-          }
-        }
-        for (var i = start; i <= end; i++) {
-          var item = this.tableData[i]
-          if (!this.paramIsNull(item)) {
-            item.select = true
-            item.className = (item.select ? ' my-el-card-select' : 'my-el-card')
-            this.$set(this.tableData, i, item)
-          }
-        }
       },
       back () {
         router.push({
@@ -312,52 +376,62 @@
 </script>
 
 
-<style lang="scss" scoped>
-  .my-el-card {
-    width: 100%;
-    height: 100%;
-    margin: 0px;
-    padding: 0px;
-
-    .calender-date {
-      font-size: 16px;
-    }
-    .calender-stock {
-      font-size: 10px;
-    }
+<style lang="scss">
+  @mixin tdCommon {
+    /*width: 100%;*/
+    margin: 3px;
+    padding: 0;
   }
-  .my-el-card:hover {
-    background-color: #BFBFBF;
+  .batch-stock{
+    .el-card__body{
+      padding: 7px;
+      .calender-weekend{
+        p{
+          margin: 0;
+          padding: 0;
+        }
+      }
+    }
+    .my-el-card {
+      @include tdCommon;
 
-    .calender-date {
-      font-size: 16px;
-      color: white;
+      .calender-date {
+        font-size: 16px;
+      }
+      .calender-stock {
+        font-size: 10px;
+      }
     }
-    .calender-stock {
-      font-size: 10px;
-      color: white;
-    }
-    .calender-weekend {
-      color: white;
-    }
-  }
-  .my-el-card-select {
-    width: 100%;
-    height: 100%;
-    margin: 0px;
-    padding: 0px;
-    background-color: #20A0FF;
+    .my-el-card:hover {
+      background-color: #BFBFBF;
 
-    .calender-date {
-      font-size: 16px;
-      color: white;
+      .calender-date {
+        font-size: 16px;
+        color: white;
+      }
+      .calender-stock {
+        font-size: 10px;
+        color: white;
+      }
+      .calender-weekend {
+        color: white;
+      }
     }
-    .calender-stock {
-      font-size: 10px;
-      color: white;
-    }
-    .calender-weekend {
-      color: white;
+    .my-el-card-select {
+      @include tdCommon;
+      background-color: #20A0FF;
+
+      .calender-date {
+        font-size: 16px;
+        color: white;
+      }
+      .calender-stock {
+        font-size: 10px;
+        color: white;
+      }
+      .calender-weekend {
+        color: white;
+      }
     }
   }
 </style>
