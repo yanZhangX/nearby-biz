@@ -24,7 +24,7 @@
       <div class="r">
         <el-button class="uploader" type="primary" @click="exportExcelSelectDate">导出预约</el-button>
         <el-button type="primary" icon="plus" @click="getProductAndItemData(1)">新增库存</el-button>
-        <el-button type="primary" @click="getProductAndItemData(2)" v-if="debugMode">批量修改库存</el-button>
+        <el-button type="primary" @click="getProductAndItemData(2)">批量修改库存</el-button>
       </div>
     </div>
     <div class="main-container">
