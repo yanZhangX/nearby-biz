@@ -24,7 +24,7 @@
       <div class="r">
         <el-button class="uploader" type="primary" @click="exportExcelSelectDate">导出预约</el-button>
         <el-button type="primary" icon="plus" @click="getProductAndItemData(1)">新增库存</el-button>
-        <el-button type="primary" @click="getProductAndItemData(2)">批量修改库存</el-button>
+        <el-button type="primary" @click="getProductAndItemData(2)" v-if="debugMode">批量修改库存</el-button>
       </div>
     </div>
     <div class="main-container">
@@ -176,7 +176,7 @@
   const weekEnum = [{name: '周一', value: 2}, {name: '周二', value: 3}, {name: '周三', value: 4}, {name: '周四', value: 5}, {name: '周五', value: 6}, {name: '周六', value: 7}, {name: '周日', value: 1}]
   import moment from 'moment'
   import router from 'ROUTE'
-  import {appHost, getToken} from 'CONST'
+  import {appHost, getToken, isDebug} from 'CONST'
   export default {
     name: 'stockManage',
     data () {
@@ -244,15 +244,7 @@
           this.selectDateSearch = [new Date(selectDateSearch[0]), new Date(selectDateSearch[1])]
         }
       }
-      const _isDebug = (function () {
-        let hostname = location.hostname
-        let reg = /(^192.168)|(^localhost)/
-        return reg.test(hostname)
-      })()
-      const nodeEnv = process.env['NODE_ENV']
-      if (_isDebug && nodeEnv === 'development') {
-        this.debugMode = true
-      }
+      this.debugMode = isDebug
       this.getBookingItemList()
     },
     methods: {
