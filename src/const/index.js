@@ -6,10 +6,10 @@ const isDebug = (function () {
 
 const appHost = function () {
   if (isDebug) {
-    // return 'https://api-biz.lianlianlvyou.com'
+    return 'https://api-biz.lianlianlvyou.com'
     // return 'https://apibiz.lianlianlvyou.com' // cdn
     // return 'http://192.167.10.122:6868' // 马哥
-    return 'http://192.167.10.166:8080' // 杨永玲
+    // return 'http://192.167.10.166:8080' // 杨永玲
   }
   return 'https://apibiz.lianlianlvyou.com' // cdn
 }
