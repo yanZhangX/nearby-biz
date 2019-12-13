@@ -187,7 +187,7 @@
         products: null,
         loading: false,
         currentPage: 1,
-        pageSize: 15,
+        pageSize: 10,
         total: null,
         rowCount: 0,
         pageCount: 0,
