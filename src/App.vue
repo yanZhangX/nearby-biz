@@ -5,6 +5,7 @@
 </template>
 
 <script>
+  // wxBindingList
   export default {
     name: 'app'
   }

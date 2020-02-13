@@ -1,10 +1,17 @@
+const isDebug = (function () {
+  let hostname = location.hostname
+  let reg = /(^192.168)|(^192.167)|(^localhost)/
+  return reg.test(hostname) && process.env['NODE_ENV'] === 'development'
+})()
+
 const appHost = function () {
-  return 'https://api-biz.lianlianlvyou.com'
-  // return 'http://192.168.10.126:9999'
-  // return 'http://192.168.10.211:9999'
-  // return 'http://192.168.11.248:8080'
-  // return 'http://192.168.1.175:9999'
-  // return 'http://192.168.10.77:8082'
+  if (isDebug) {
+    return 'https://api-biz.lianlianlvyou.com'
+    // return 'https://apibiz.lianlianlvyou.com' // cdn
+    // return 'http://192.167.10.122:6868' // 马哥
+    // return 'http://192.167.10.166:8080' // 杨永玲
+  }
+  return 'https://apibiz.lianlianlvyou.com' // cdn
 }
 
 const getToken = function () {
@@ -52,4 +59,16 @@ const removePageIndex = function (name) {
   }
 }
 
-export {appHost, getToken, setToken, getUser, setUser, getPageIndex, setPageIndex, removePageIndex}
+const json2Prams = function (obj) {
+  let keys = Object.keys(obj)
+  let str = ''
+  keys.forEach(e => {
+    let v = obj[e]
+    if (!v && v !== 0) {
+      v = ''
+    }
+    str += e + '=' + v + '&'
+  })
+  return str
+}
+export {appHost, getToken, setToken, getUser, setUser, getPageIndex, setPageIndex, removePageIndex, json2Prams, isDebug}

@@ -176,7 +176,7 @@
   const weekEnum = [{name: '周一', value: 2}, {name: '周二', value: 3}, {name: '周三', value: 4}, {name: '周四', value: 5}, {name: '周五', value: 6}, {name: '周六', value: 7}, {name: '周日', value: 1}]
   import moment from 'moment'
   import router from 'ROUTE'
-  import {appHost, getToken} from 'CONST'
+  import {appHost, getToken, isDebug} from 'CONST'
   export default {
     name: 'stockManage',
     data () {
@@ -187,7 +187,7 @@
         products: null,
         loading: false,
         currentPage: 1,
-        pageSize: 15,
+        pageSize: 10,
         total: null,
         rowCount: 0,
         pageCount: 0,
@@ -244,15 +244,7 @@
           this.selectDateSearch = [new Date(selectDateSearch[0]), new Date(selectDateSearch[1])]
         }
       }
-      const _isDebug = (function () {
-        let hostname = location.hostname
-        let reg = /(^192.168)|(^localhost)/
-        return reg.test(hostname)
-      })()
-      const nodeEnv = process.env['NODE_ENV']
-      if (_isDebug && nodeEnv === 'development') {
-        this.debugMode = true
-      }
+      this.debugMode = isDebug
       this.getBookingItemList()
     },
     methods: {
