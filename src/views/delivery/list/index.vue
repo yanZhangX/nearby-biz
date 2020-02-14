@@ -13,20 +13,19 @@
             </el-option>
           </el-select>
         </div>
-        <div class="k-search-contaienr">
-          <el-date-picker type="daterange"
-                          :editable="false"
-                          v-model="selectDateSearch"
-                          range-separator="至"
-                          start-placeholder="下单开始日期"
-                          end-placeholder="下单结束日期"
-                          :picker-options="dateAppointmentOptions"
-                          @change="search"></el-date-picker>
-        </div>
       </div>
 
       <div class="r">
-        <el-button class="uploader" type="primary" @click="exportOrder">导出订单</el-button>
+        <el-dropdown @command="exportOrder">
+          <el-button type="primary">
+            导出订单<i class="el-icon-arrow-down el-icon--right"></i>
+          </el-button>
+          <el-dropdown-menu slot="dropdown">
+            <el-dropdown-item command="1">导出全部未发货订单</el-dropdown-item>
+            <el-dropdown-item command="2">导出全部已发货订单</el-dropdown-item>
+            <el-dropdown-item command="0">导出全部订单</el-dropdown-item>
+          </el-dropdown-menu>
+        </el-dropdown>
         <el-button type="primary" @click="downloadExcelModel">下载物流模版</el-button>
         <el-button type="primary" @click="openDeliveryModal">导入物流信息</el-button>
         <el-button class="uploader" type="primary" @click="sendExpressMsgSms">发送物流信息短信</el-button>
@@ -157,17 +156,11 @@
             type: 2,
             title: '已发货订单'
           }
-        ],
-        selectDateSearch: null
+        ]
       }
     },
     computed: {},
     methods: {
-      dateAppointmentOptions: {
-        disabledDate: (startDate, endDate) => {
-          return startDate > new Date()
-        }
-      },
       sendExpressMsgSms () {
         this.$msgbox({
           title: '温馨提示',
@@ -257,12 +250,6 @@
         }
       },
       getTableData () {
-        var startDate = null
-        var endDate = null
-        if (!this.paramIsNull(this.selectDateSearch)) {
-          startDate = this.selectDateSearch[0].getTime()
-          endDate = this.selectDateSearch[1].getTime()
-        }
         var loading = this.$loading({
           lock: true,
           text: '数据加载中……',
@@ -273,9 +260,7 @@
           params: {
             pageSize: this.pageSize,
             pageIndex: this.currentPage,
-            type: this.type,
-            startDate: startDate,
-            endDate: endDate
+            type: this.type
           }
         }).then(res => {
           loading.close()
@@ -408,19 +393,30 @@
       downloadExcelModel () {
         window.open('https://cdn.lianlianlvyou.com/excel/%E5%AF%BC%E5%85%A5%E8%BF%90%E5%8D%95%E6%A8%A1%E7%89%88.xls')
       },
-      exportOrder () {
-        if (this.paramIsNull(this.tableData)) {
-          this.pro_message_error(null, '暂无订单信息可以导出')
-          return
+      exportOrder (type) {
+        var msg = '全部'
+        if (type === '1') {
+          msg = '全部未发货'
+        } else if (type === '2') {
+          msg = '全部已发货'
         }
-        var startDate = 0
-        var endDate = 0
-        if (!this.paramIsNull(this.selectDateSearch)) {
-          startDate = this.selectDateSearch[0].getTime()
-          endDate = this.selectDateSearch[1].getTime()
-        }
-        this.downloadUrl = `${appHost()}/v1/a/order/list/download?token=${getToken()}&type=${this.type}&startDate=${startDate}&endDate=${endDate}`
-        window.open(this.downloadUrl)
+        const h = this.$createElement
+        this.$msgbox({
+          title: '温馨提示',
+          message: h('p', null, [
+            h('span', null, '确认导出'),
+            h('span', {style: 'color: red;'}, msg),
+            h('span', null, '订单吗？')
+          ]),
+          showCancelButton: true,
+          confirmButtonText: '确认导出',
+          cancelButtonText: '取消',
+          type: 'warning',
+          center: true
+        }).then(() => {
+          this.downloadUrl = `${appHost()}/v1/a/order/list/download?token=${getToken()}&type=${type}`
+          window.open(this.downloadUrl)
+        })
       }
     },
     created () {
