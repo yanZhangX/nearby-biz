@@ -13,6 +13,16 @@
             </el-option>
           </el-select>
         </div>
+        <div class="k-search-contaienr">
+          <el-date-picker type="daterange"
+                          :editable="false"
+                          v-model="selectDateSearch"
+                          range-separator="至"
+                          start-placeholder="下单开始日期"
+                          end-placeholder="下单结束日期"
+                          :picker-options="dateAppointmentOptions"
+                          @change="search"></el-date-picker>
+        </div>
       </div>
 
       <div class="r">
@@ -147,11 +157,17 @@
             type: 2,
             title: '已发货订单'
           }
-        ]
+        ],
+        selectDateSearch: null
       }
     },
     computed: {},
     methods: {
+      dateAppointmentOptions: {
+        disabledDate: (startDate, endDate) => {
+          return startDate > new Date()
+        }
+      },
       sendExpressMsgSms () {
         this.$msgbox({
           title: '温馨提示',
@@ -241,6 +257,12 @@
         }
       },
       getTableData () {
+        var startDate = null
+        var endDate = null
+        if (!this.paramIsNull(this.selectDateSearch)) {
+          startDate = this.selectDateSearch[0].getTime()
+          endDate = this.selectDateSearch[1].getTime()
+        }
         var loading = this.$loading({
           lock: true,
           text: '数据加载中……',
@@ -251,7 +273,9 @@
           params: {
             pageSize: this.pageSize,
             pageIndex: this.currentPage,
-            type: this.type
+            type: this.type,
+            startDate: startDate,
+            endDate: endDate
           }
         }).then(res => {
           loading.close()
@@ -389,7 +413,13 @@
           this.pro_message_error(null, '暂无订单信息可以导出')
           return
         }
-        this.downloadUrl = `${appHost()}/v1/a/order/list/download?token=${getToken()}&type=${this.type}`
+        var startDate = 0
+        var endDate = 0
+        if (!this.paramIsNull(this.selectDateSearch)) {
+          startDate = this.selectDateSearch[0].getTime()
+          endDate = this.selectDateSearch[1].getTime()
+        }
+        this.downloadUrl = `${appHost()}/v1/a/order/list/download?token=${getToken()}&type=${this.type}&startDate=${startDate}&endDate=${endDate}`
         window.open(this.downloadUrl)
       }
     },
