@@ -358,6 +358,7 @@
           } else {
             this.tableData = res.body.data.data
             this.total = res.body.data.rowCount
+            this.pageSize = res.body.data.pageSize
             this.pageCount = res.body.data.pageCount
             this.rowCount = res.body.data.rowCount
           }
