@@ -16,7 +16,16 @@
       </div>
 
       <div class="r">
-        <el-button class="uploader" type="primary" @click="selectExpressExportOrder">导出订单</el-button>
+        <el-dropdown @command="exportOrder">
+          <el-button type="primary">
+            导出订单<i class="el-icon-arrow-down el-icon--right"></i>
+          </el-button>
+          <el-dropdown-menu slot="dropdown">
+            <el-dropdown-item command="1">导出全部未发货订单</el-dropdown-item>
+            <el-dropdown-item command="2">导出全部已发货订单</el-dropdown-item>
+            <el-dropdown-item command="0">导出全部订单</el-dropdown-item>
+          </el-dropdown-menu>
+        </el-dropdown>
         <el-button type="primary" @click="downloadExcelModel">下载物流模版</el-button>
         <el-button type="primary" @click="openDeliveryModal">导入物流信息</el-button>
         <el-button class="uploader" type="primary" @click="sendExpressMsgSms">发送物流信息短信</el-button>
@@ -102,16 +111,6 @@
         <el-step v-for="(item, index) in deliveryInfo" :key="index" :title="item.acceptTime" :description="item.acceptStation"></el-step>
       </el-steps>
     </el-dialog>
-
-    <el-dialog :visible.sync="exportExpressOrderExcelModal" title="导出订单选择" width="440px">
-      <el-select v-model="exportType" style="width: 100%" placeholder="请选择发货状态">
-        <el-option v-for="item in typeList" :key="item.type" :label="item.title" :value="item.type"></el-option>
-      </el-select>
-      <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="exportOrder">导出订单</el-button>
-      </div>
-    </el-dialog>
-
   </div>
 </template>
 
@@ -157,18 +156,11 @@
             type: 2,
             title: '已发货订单'
           }
-        ],
-        exportExpressOrderExcelModal: false,
-        exportType: 1
+        ]
       }
     },
     computed: {},
     methods: {
-      dateAppointmentOptions: {
-        disabledDate: (startDate, endDate) => {
-          return startDate > new Date()
-        }
-      },
       sendExpressMsgSms () {
         this.$msgbox({
           title: '温馨提示',
@@ -401,13 +393,30 @@
       downloadExcelModel () {
         window.open('https://cdn.lianlianlvyou.com/excel/%E5%AF%BC%E5%85%A5%E8%BF%90%E5%8D%95%E6%A8%A1%E7%89%88.xls')
       },
-      selectExpressExportOrder () {
-        this.exportExpressOrderExcelModal = true
-      },
-      exportOrder () {
-        this.exportExpressOrderExcelModal = false
-        this.downloadUrl = `${appHost()}/v1/a/order/list/download?token=${getToken()}&type=${this.exportType}`
-        window.open(this.downloadUrl)
+      exportOrder (type) {
+        var msg = '全部'
+        if (type === '1') {
+          msg = '全部未发货'
+        } else if (type === '2') {
+          msg = '全部已发货'
+        }
+        const h = this.$createElement
+        this.$msgbox({
+          title: '温馨提示',
+          message: h('p', null, [
+            h('span', null, '确认导出'),
+            h('span', {style: 'color: red;'}, msg),
+            h('span', null, '订单吗？')
+          ]),
+          showCancelButton: true,
+          confirmButtonText: '确认导出',
+          cancelButtonText: '取消',
+          type: 'warning',
+          center: true
+        }).then(() => {
+          this.downloadUrl = `${appHost()}/v1/a/order/list/download?token=${getToken()}&type=${type}`
+          window.open(this.downloadUrl)
+        })
       }
     },
     created () {
