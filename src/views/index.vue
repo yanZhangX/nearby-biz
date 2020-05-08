@@ -91,6 +91,7 @@
   import Vue from 'vue'
   import router from '@/router'
   import {getToken, setToken, setUser, getUser} from 'CONST'
+  import {mapState} from 'vuex'
 
   export default {
     name: 'index',
@@ -114,7 +115,9 @@
       }
     },
     computed: {
-
+      ...mapState({
+        editPwdCode: state => state.editPwdCode
+      })
     },
     methods: {
       menuItemUri (itemId, itemIcon) {
@@ -229,7 +232,12 @@
       }
     },
     watch: {
-      '$route': 'menuSelect'
+      '$route': 'menuSelect',
+      editPwdCode (val) {
+        if (Number(val) === 1006) {
+          this.handleChangePwd()
+        }
+      }
     },
     beforeRouteEnter (to, from, next) {
       Vue.http.get('/v1/a/biz/userinfo').then(function (res) {

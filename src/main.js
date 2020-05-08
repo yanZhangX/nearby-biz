@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
+import store from './store'
 import VueRouter from 'vue-router'
 import VueResource from 'vue-resource'
 // import 'element-ui/lib/theme-default/index.css'
@@ -26,6 +27,7 @@ Vue.http.interceptors.push(function (request, next) {
   let url = reg.test(requestUrl) ? requestUrl : appHost() + requestUrl
   request.url = url + (request.url.indexOf('?') > -1 ? ('&timestamp=' + new Date().getTime()) : ('?timestamp=' + new Date().getTime()))
   next(function (response) {
+    store.commit('setPwdCode', response.body.code)
     return response
   })
 })
@@ -46,6 +48,7 @@ Vue.directive('focus', {
 new Vue({
   el: '#app',
   router,
+  store,
   template: '<App/>',
   components: { App }
 })

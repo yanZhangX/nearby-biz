@@ -27,6 +27,7 @@
 
       <div class="r">
         <form ref="form" :action="downloadUrl" method="get">
+          <el-button type="primary" icon="download" @click="printTable">打印</el-button>
           <el-button type="primary" icon="download" @click="exportExcelSelectDate">全部导出</el-button>
         </form>
       </div>
@@ -84,6 +85,7 @@
 <script>
   import moment from 'moment'
   import {appHost, getToken, getUser} from 'CONST'
+  import Print from '@/print'
   export default {
     name: 'stock',
     data () {
@@ -282,6 +284,10 @@
       setInventory (row) {
         this.stock = row
         this.isModalOpen = true
+      },
+      printTable () {
+        var lodop = new Print({ a: 1 }, 1, 2, 3).getLodop()
+        console.log(lodop)
       },
       exportExcelSelectDate () {
         if (this.tableData === null || this.tableData.length === 0) {
