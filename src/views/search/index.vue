@@ -32,7 +32,7 @@
         </form>
       </div>
     </div>
-    <div class="main-container">
+    <div class="main-container" ref="mainTable">
       <el-table :data="tableData" :highlight-current-row="true" v-loading.body="loading" stripe max-height=2000>
         <el-table-column prop="customerName" label="姓名" v-if="showCustomer" min-width="80"></el-table-column>
         <el-table-column prop="customerPhoneNumber" label="手机号" v-if="showCustomer" min-width="100"></el-table-column>
@@ -52,7 +52,7 @@
     </div>
     <div class="k-center" v-show="pageCount>0">
       <el-pagination @current-change="pageIndexChange" :current-page="currentPage" :page-size="pageSize"
-        layout="total, prev, pager, next, jumper" :total="total">
+                     layout="total, prev, pager, next, jumper" :total="total">
       </el-pagination>
     </div>
 
@@ -286,8 +286,13 @@
         this.isModalOpen = true
       },
       printTable () {
-        var lodop = new Print({ a: 1 }, 1, 2, 3).getLodop()
-        console.log(lodop)
+        var loDop = new Print({ a: 1 }, 1, 2, 3).getLodop()
+        console.log(loDop)
+        loDop.PRINT_INIT('打印控件功能演示_Lodop功能_表单一')
+        loDop.SET_PRINT_STYLE('FontSize', 18)
+        loDop.SET_PRINT_STYLE('Bold', 1)
+        loDop.ADD_PRINT_HTM(0, 0, '100%', '100%', this.$refs.mainTable.innerHTML)
+        loDop.PREVIEW()
       },
       exportExcelSelectDate () {
         if (this.tableData === null || this.tableData.length === 0) {

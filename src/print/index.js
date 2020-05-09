@@ -2,17 +2,11 @@
  * @file 打印
  * @author xty(18782271516@163.com)
  */
-import { Message } from 'element-ui'
 
 var CreatedOKLodop7766 = null
 // var CLodopIsLocal = null
 class Print {
   constructor (options, ...dom) {
-    console.log(options, dom)
-    Message({
-      message: '警告哦，这是一条警告消息',
-      type: 'warning'
-    })
     // 页面引用CLodop云打印必须的JS文件,用双端口(8000和18000）避免其中某个被占用
     if (this.needCLodop()) {
       var src1 = 'http://localhost:8000/CLodopfuncs.js?priority=1'
