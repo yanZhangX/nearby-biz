@@ -124,7 +124,7 @@ class Print {
                 setTimeout(() => {
                   done()
                   instance.confirmButtonLoading = false
-                  this.funDownload('CLodop_Setup_for_Win32NT.exe')
+                  this.funDownload(require('./CLodop_Setup_for_Win32NT.exe'), 'CLodop_Setup_for_Win32NT')
                 }, 3000)
               } else {
                 done()
@@ -201,8 +201,9 @@ class Print {
       alert('getLodop出错:' + err)
     }
   }
-  funDownload (url) {
+  funDownload (url, filename) {
     var eleLink = document.createElement('a')
+    eleLink.download = filename
     eleLink.style.display = 'none'
     eleLink.href = url
     document.body.appendChild(eleLink)
