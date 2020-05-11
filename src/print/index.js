@@ -2,11 +2,15 @@
  * @file 打印
  * @author xty(18782271516@163.com)
  */
+import { MessageBox } from 'element-ui'
 
 var CreatedOKLodop7766 = null
 // var CLodopIsLocal = null
 class Print {
   constructor (options, ...dom) {
+    console.log(options, ...dom)
+  }
+  init () {
     // 页面引用CLodop云打印必须的JS文件,用双端口(8000和18000）避免其中某个被占用
     if (this.needCLodop()) {
       var src1 = 'http://localhost:8000/CLodopfuncs.js?priority=1'
@@ -94,28 +98,53 @@ class Print {
     try {
       var ua = navigator.userAgent
       var isIE = !!ua.match(/MSIE/i) || !!ua.match(/Trident/i)
+      console.log(this.needCLodop())
       if (this.needCLodop()) {
         try {
           LODOP = window.getCLodop()
-        } catch (err) {}
+          console.log(LODOP)
+        } catch (err) {
+          console.log(err)
+        }
         if (!LODOP && document.readyState !== 'complete') {
           alert('网页还没下载完毕，请稍等一下再操作.')
           return
         }
         if (!LODOP) {
+          MessageBox({
+            title: '消息',
+            message: 'Web打印服务CLodop未安装启动，点击下载安装',
+            showCancelButton: true,
+            confirmButtonText: '下载',
+            cancelButtonText: '取消',
+            beforeClose: (action, instance, done) => {
+              if (action === 'confirm') {
+                instance.confirmButtonLoading = true
+                instance.confirmButtonText = '执行中...'
+                setTimeout(() => {
+                  done()
+                  instance.confirmButtonLoading = false
+                  this.funDownload('CLodop_Setup_for_Win32NT.exe')
+                }, 3000)
+              } else {
+                done()
+              }
+            }
+          }).then(action => {
+            console.log(action)
+          })
           // document.body.innerHTML = strCLodopInstall_1 + (CLodopIsLocal ? strCLodopInstall_2 : "") + strCLodopInstall_3 + document.body.innerHTML
           return
-        } else {
-          if (window.LODOP.CVERSION < '3.0.9.2') {
-            // document.body.innerHTML = strCLodopUpdate + document.body.innerHTML
-            console.log('aaa')
-          }
-          if (oEMBED && oEMBED.parentNode) {
-            oEMBED.parentNode.removeChild(oEMBED)
-          }
-          if (oOBJECT && oOBJECT.parentNode) {
-            oOBJECT.parentNode.removeChild(oOBJECT)
-          }
+        }
+        if (window.LODOP.CVERSION < '3.0.9.2') {
+          // document.body.innerHTML = strCLodopUpdate + document.body.innerHTML
+          console.log('aaa')
+        }
+        if (oEMBED && oEMBED.parentNode) {
+          oEMBED.parentNode.removeChild(oEMBED)
+        }
+        if (oOBJECT && oOBJECT.parentNode) {
+          oOBJECT.parentNode.removeChild(oOBJECT)
         }
       } else {
         // var is64IE = isIE && !!ua.match(/x64/i)
@@ -171,6 +200,14 @@ class Print {
     } catch (err) {
       alert('getLodop出错:' + err)
     }
+  }
+  funDownload (url) {
+    var eleLink = document.createElement('a')
+    eleLink.style.display = 'none'
+    eleLink.href = url
+    document.body.appendChild(eleLink)
+    eleLink.click()
+    document.body.removeChild(eleLink)
   }
 }
 export default Print

@@ -158,6 +158,7 @@
       this.getStoreList()
       this.getGroupProductList()
       this.getTableData()
+      new Print().init()
     },
     methods: {
       getUserName () {
@@ -286,12 +287,128 @@
         this.isModalOpen = true
       },
       printTable () {
-        var loDop = new Print({ a: 1 }, 1, 2, 3).getLodop()
-        console.log(loDop)
+        var loDop = new Print().getLodop()
+        var strStyleCSS = '<style>.main-container {\n' +
+          '    width: calc(100% - 40px);\n' +
+          '    height: calc(100% - 40px - 50px);\n' +
+          '    padding: 20px;\n' +
+          '}\n' +
+          '.el-table--fit {\n' +
+          '    border-right: 0;\n' +
+          '    border-bottom: 0;\n' +
+          '}\n' +
+          '.el-table {\n' +
+          '    position: relative;\n' +
+          '    overflow: hidden;\n' +
+          '    box-sizing: border-box;\n' +
+          '    flex: 1;\n' +
+          '    width: 100%;\n' +
+          '    max-width: 100%;\n' +
+          '    font-size: 14px;\n' +
+          '    color: #606266;\n' +
+          '}\n' +
+          '.el-table, .el-table__expanded-cell {\n' +
+          '    background-color: #FFF;\n' +
+          '}\n' +
+          '.el-table::before {\n' +
+          '    left: 0;\n' +
+          '    bottom: 0;\n' +
+          '    width: 100%;\n' +
+          '    height: 1px;\n' +
+          '}\n' +
+          '.el-table--border::after, .el-table--group::after, .el-table::before {\n' +
+          '    content: \'\';\n' +
+          '    position: absolute;\n' +
+          '    background-color: #EBEEF5;\n' +
+          '    z-index: 1;\n' +
+          '}\n' +
+          '.el-table .hidden-columns {\n' +
+          '    position: absolute;\n' +
+          '    z-index: -1;\n' +
+          '}\n' +
+          '.el-pagination--small .arrow.disabled, .el-table .hidden-columns, .el-table td.is-hidden>*, .el-table th.is-hidden>*, .el-table--hidden {\n' +
+          '    visibility: hidden;\n' +
+          '}\n' +
+          '.el-table__footer-wrapper, .el-table__header-wrapper {\n' +
+          '    overflow: hidden;\n' +
+          '}\n' +
+          '.el-table__body-wrapper, .el-table__footer-wrapper, .el-table__header-wrapper {\n' +
+          '    width: 100%;\n' +
+          '}\n' +
+          '.el-table__body, .el-table__footer, .el-table__header {\n' +
+          '    table-layout: fixed;\n' +
+          '    border-collapse: separate;\n' +
+          '}\n' +
+          '.el-table thead {\n' +
+          '    color: #909399;\n' +
+          '    font-weight: 500;\n' +
+          '}\n' +
+          '.el-table td, .el-table th.is-leaf {\n' +
+          '    border-bottom: 1px solid #EBEEF5;\n' +
+          '}\n' +
+          '.el-table th {\n' +
+          '    overflow: hidden;\n' +
+          '    -ms-user-select: none;\n' +
+          '    user-select: none;\n' +
+          '}\n' +
+          '.el-table td, .el-table th {\n' +
+          '    padding: 12px 0;\n' +
+          '    min-width: 0;\n' +
+          '    box-sizing: border-box;\n' +
+          '    text-overflow: ellipsis;\n' +
+          '    vertical-align: middle;\n' +
+          '    position: relative;\n' +
+          '    text-align: left;\n' +
+          '}\n' +
+          'table thead th {\n' +
+          '    height: 50px !important;\n' +
+          '}\n' +
+          'table thead tr, table thead th, table thead th div {\n' +
+          '    background-color: #20A0FF !important;\n' +
+          '}\n' +
+          '.el-table th>.cell {\n' +
+          '    display: inline-block;\n' +
+          '    box-sizing: border-box;\n' +
+          '    position: relative;\n' +
+          '    vertical-align: middle;\n' +
+          '    padding-left: 10px;\n' +
+          '    padding-right: 10px;\n' +
+          '    width: 100%;\n' +
+          '}\n' +
+          '.el-table .cell {\n' +
+          '    box-sizing: border-box;\n' +
+          '    overflow: hidden;\n' +
+          '    text-overflow: ellipsis;\n' +
+          '    white-space: normal;\n' +
+          '    word-break: break-all;\n' +
+          '    line-height: 23px;\n' +
+          '    padding-right: 10px;\n' +
+          '}\n' +
+          'table thead th div {\n' +
+          '    font-size: 14px !important;\n' +
+          '    color: #FFFFFF !important;\n' +
+          '}\n' +
+          '.el-table__body-wrapper {\n' +
+          '    overflow: hidden;\n' +
+          '    position: relative;\n' +
+          '}\n' +
+          '.el-table th, .el-table tr {\n' +
+          '    background-color: #FFF;\n' +
+          '}\n' +
+          '.el-table--enable-row-transition .el-table__body td {\n' +
+          '    transition: background-color .25s ease;\n' +
+          '}\n' +
+          'table tbody .el-table__row--striped td {\n' +
+          '    background: #F8F8F8 !important;\n' +
+          '}</style>'
+        var strFormHtml = '<head>' + strStyleCSS + '</head><body>' + this.$refs.mainTable.innerHTML + '</body>'
         loDop.PRINT_INIT('打印控件功能演示_Lodop功能_表单一')
         loDop.SET_PRINT_STYLE('FontSize', 18)
         loDop.SET_PRINT_STYLE('Bold', 1)
-        loDop.ADD_PRINT_HTM(0, 0, '100%', '100%', this.$refs.mainTable.innerHTML)
+        loDop.ADD_PRINT_HTM(88, 50, 1146, 760, strFormHtml) // 增加超文本项
+        loDop.SET_PREVIEW_WINDOW(1, 2, 0, 1146, 760, '') // 预览窗口
+        loDop.SET_PRINT_PAGESIZE(1, 114.6, 76, 'CreateCustomPage') // 设定纸张大小
+        loDop.SET_PRINT_MODE('PRINT_PAGE_PERCENT', 'Auto-Width') // 整页缩放
         loDop.PREVIEW()
       },
       exportExcelSelectDate () {
